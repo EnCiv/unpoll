@@ -7,5 +7,35 @@
     "subject": "Unmob",
     "description": "How 1000's of people work together to agree on 4 questions to ask the candidates",
     "webComponent": "Home"
+  },
+  {
+    "_id": {
+      "$oid": "600f2e3d7be64409f0387718"
+    },
+    "path": "/pres-question",
+    "subject": "Unmob-Question",
+    "description": "What are the most important questions for the Presidential Candidates to answer in the next debate?",
+    "webComponent": "UnmobQuestion"
+  },
+  {
+    "_id": {
+      "$oid": "600f44a58191f94b74a09f04"
+    },
+    "path": "/join",
+    "subject": "Join Unmob",
+    "description": "The place where mobs go to save the world",
+    "webComponent": "Join"
+  },
+  {
+    "_id": {
+      "$oid": "6010cfcbbec7760d18c1190b"
+    },
+    "path": "/pres-topics",
+    "subject": "Unmob-Topics",
+    "description": "What are the most important questions for the Presidential Candidates to answer in the next debate?",
+    "webComponent": {
+      "webComponent": "UnmobTopics",
+      "unmobQuestion": "600f2e3d7be64409f0387718"
+    }
   }
 ]
