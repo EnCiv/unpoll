@@ -1,11 +1,9 @@
-# Civil Server Template
-This template setups up a featurful Node Server quickly, by extending the Civil Server [repo](https://github.com/EnCiv/civil-server)
-
-![civil-server](https://user-images.githubusercontent.com/3317487/105109776-103ae980-5a72-11eb-8182-d0f8d3cdcc30.png)
+# Unmob
+This is how 1000's of voters work together to democratically determine the best 4 (or so) questions to ask the candidates of an [undebate](github.com/EnCiv/undebate).  It's also a great way for constituents to figure out the top 4 (or so) priorities for the representatives to address.
 
 **Copyright 2021 EnCiv, Inc.** This work is licensed under the terms described in [LICENSE.txt](https://github.com/EnCiv/undebate/blob/master/LICENSE.txt) which is an MIT license with a Public Good License Condition
 
-# Basics
+# Getting Started
 
 You will need to install the following, if you do not already have them.
 
@@ -26,8 +24,8 @@ Choose "Git Bash"
 Then open a git-bash shell - on VSC use Control-\`
 ```
     mkdir my-app
-    git clone https://github.com/EnCiv/civil-server-template my-app
-    cd my-app
+    git clone https://github.com/EnCiv/unmob
+    cd unmob
     npm install
 ```
 ### MongoDB
@@ -45,9 +43,8 @@ Note that it's confusing but user-name and db-name can be anything.  You pick th
 source .bashrc
 npm run dev
 ```
-You will now be able to go to http://localhost:3012 and it will take you to the Join page
-You can see more about that you can do with the Civil Server at https://github.com/EnCiv/civil-server
-You can also edit code, and when you save it the running code will automatically be updated.
+You will now be able to go to http://localhost:3012 
+
 
 ### Run it in the cloud on heroku
 This assumes you have already created your heroku account at heroku.com and that you have installed the heroku command line interface (CLI) from https://devcenter.heroku.com/articles/heroku-cli
@@ -96,46 +93,3 @@ git add .
 git commit -m "a descriptive commit message"
 git push heroku
 ```
-# Building Your Website
-The way this server works is that when someone browses to a page, the path (eg `/home`) is looked up in the database, and the corresponding doc is found. The webComponent property ("Home") is used as a key. The web comonents in app/components/web-components are turned into an index where the ReactCase version of the filename is key, and the web component is the value. All the properties in the doc, are passed to the webComponent.
-
-```
-const Components={
-    'Home': require('./home'),
-    'Join': require('./../../node_modules/civil-server/dist/components/web-components/join')
-}
-```
-The Home page is composed of two parts, a document in the Mongo database, and a React component.  The React component in app/web-components/home.jsx that looks like this:
-```
-'use strict';
-
-import React from "react"
-
-export default function Home(props){
-    const {subject, description}=props
-    return (
-    <div style={{width: '100vw', height: '100vh'}}>
-        <div style={{textAlign: 'center'}}>{subject}</div>
-        <div style={{textAlign: 'center'}}>{description}</div>
-        <div style={{textAlign: 'center'}}>Welcome!</div>
-    </div>
-    )
-}
-```
-The subject and description props are taken from the database, and passed to the web component before it is rendered. The object in iotas.json that looks like this:
-```
-{
-    "_id": {
-        "$oid": "600610cd63b01a0854ddf1b3"
-    },
-    "path": "/home",
-    "subject": "Civil Server Template",
-    "description": "Civil Server Template Home Page",
-    "webComponent": "Home"
-}
-```
-
-
-
-
-
