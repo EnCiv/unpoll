@@ -24,7 +24,7 @@ export default async function getTopicsInBinsAndQuestions(id, round, cb) {
       delete topic.qObjs
       const topic_bin = {
         leadTopicObj: topic,
-        topicObjs: [topic],
+        topicObjs: [],
         questionObjs: questions,
       }
       topicBins.push(topic_bin)
