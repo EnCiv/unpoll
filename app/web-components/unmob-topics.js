@@ -25,14 +25,24 @@ export default function UnmobTopics(props) {
   const associateTopics = () => {
     const round = 0 // in future round should increment
     const leadTopicBin = topicBins.find(topicBin => topicBin.leadTopicObj.description === leadTopic)
+    const leadTopicObj = leadTopicBin.leadTopicObj
+    let questionObjs = leadTopicBin.questionObjs
     let topicIds = [leadTopicBin.leadTopicObj._id]
-    topicBins.reduce((arr, bin) => {
-      if (bin.leadTopicObj.description === leadTopic) return arr
-      else if (selectedTopics[bin.leadTopicObj.description]) {
-        arr.push(bin.leadTopicObj._id)
-        return arr
-      } else return arr
-    }, topicIds)
+    let topic_bin = { leadTopicObj, topicObjs: [], questionObjs }
+    let newTopicBins = [topic_bin]
+    topicBins.forEach(bin => {
+      if (bin.leadTopicObj.description === leadTopic) {
+        return
+      } else if (selectedTopics[bin.leadTopicObj.description]) {
+        topic_bin.topicObjs.push(bin.leadTopicObj)
+        topic_bin.topicObjs = topic_bin.topicObjs.concat(bin.topicObjs)
+        topic_bin.questionObjs = topic_bin.questionObjs.concat(bin.questionObjs)
+        topicIds.push(bin.leadTopicObj._id)
+      } else newTopicBins.push(bin)
+    })
+    setTopicBins(newTopicBins)
+    setSelectedTopics({})
+    setLeadTopic('')
     socket.emit('associate-topics', round, topicIds, () => console.info('associated', round, topicIds))
   }
 
