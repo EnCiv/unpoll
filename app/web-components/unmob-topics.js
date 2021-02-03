@@ -179,6 +179,9 @@ const useStyles = createUseStyles({
     fontStyle: 'normal',
     fontWeight: 500,
     padding: '2rem',
+    '&:hover': {
+      cursor: 'pointer',
+    },
     '&.minimized': {
       overflow: 'hidden',
       maxHeight: '1px',
@@ -205,13 +208,12 @@ const TopicControlPanel = React.forwardRef((props, ref) => {
   return (
     <div className={classes.controlPanel} ref={ref}>
       <div className={classes.statement}>Above are some topics suggested by other voters</div>
-      <div className={classes.instruction}>Click on topics to associate similar topics</div>
-      <div className={classes.instruction}>Double click on a topic to make it the lead of a group</div>
-      <div className={classes.instruction}>
-        <button className={classes.button} disabled={!leadTopic || !selectedTopicsCount} onClick={associateTopics}>
-          {selectedTopicsCount ? 'Group Topics' : 'Skip'}
-        </button>
-      </div>
+      <div className={classes.instruction}>Click on topics to associate them</div>
+      <div className={classes.instruction}>Double click on one to make it group lead</div>
+      <button className={classes.button} disabled={!leadTopic || !selectedTopicsCount} onClick={associateTopics}>
+        <div className={classes.buttonSub}>No Topics to be Combined?</div>
+        {selectedTopicsCount ? 'Group Topics' : 'Skip'}
+      </button>
     </div>
   )
 })
@@ -228,11 +230,17 @@ const useControlStyles = createUseStyles({
     width: '48em',
     marginLeft: 'auto',
     marginRight: 'auto',
+    paddingBottom: '1em',
+    paddingTop: '1em',
   },
   instruction: {
     fontFamily: 'Roboto',
-    fontSize: '1.5em',
-    lineHeight: '1.7em',
+    fontSize: '2em',
+    lineHeight: '1em',
+    padding: 0,
+    marginLeft: '1em',
+    marginRight: '1em',
+    paddingBottom: '0.25em',
   },
   statement: {
     fontFamily: 'Roboto',
@@ -240,15 +248,26 @@ const useControlStyles = createUseStyles({
     color: 'white',
     opacity: '0.6',
     paddingTop: '1em',
+    paddingBottom: '1em',
   },
   button: {
     backgroundColor: Blue,
-    borderRadius: '.5rem',
+    border: 'none',
+    borderRadius: '1rem',
     color: 'white',
     fontFamily: 'Roboto',
-    fontSize: '1.5em',
-    lineHeight: '1.7em',
+    fontSize: '2em',
     width: '90%',
+    marginTop: '1em',
+    paddingBottom: '1rem',
+    '&:hover': {
+      cursor: 'pointer',
+    },
+  },
+  buttonSub: {
+    opacity: '0.6',
+    fontSize: '1rem',
+    paddingTop: '1rem',
   },
 })
 /**
