@@ -3,6 +3,7 @@
 import React, { useRef, useState, useEffect, useLayoutEffect } from 'react'
 import { createUseStyles } from 'react-jss'
 import cx from 'classnames'
+import Accordion from 'react-proactive-accordion'
 
 const Blue = '#418AF9'
 const selectedBackgroundColor = Blue // blue
@@ -153,9 +154,15 @@ const TopicObj = React.forwardRef((props, ref) => {
   const { topicObj, shape, ...otherProps } = props
   const classes = useStyles(props)
   return (
-    <div className={cx(classes.topic, shape)} {...otherProps} ref={ref} key={topicObj._id}>
+    <Accordion
+      active={shape !== 'minimized'}
+      className={cx(classes.topic, shape)}
+      {...otherProps}
+      ref={ref}
+      key={topicObj._id}
+    >
       {topicObj.description || '    '}
-    </div>
+    </Accordion>
   )
 })
 
@@ -183,13 +190,13 @@ const useStyles = createUseStyles({
       cursor: 'pointer',
     },
     '&.minimized': {
-      overflow: 'hidden',
-      maxHeight: '1px',
-      color: 'gray',
-      backgroundColor: 'gray',
-      border: 'none',
-      padding: 0,
-      margin: 0,
+      //overflow: 'hidden',
+      //maxHeight: '1px',
+      //color: 'gray',
+      //backgroundColor: 'gray',
+      //border: 'none',
+      //padding: 0,
+      //margin: 0,
     },
     '&.lead': {
       backgroundColor: 'orange',
