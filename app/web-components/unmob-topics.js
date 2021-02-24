@@ -3,7 +3,7 @@
 import React, { useRef, useState, useEffect, useLayoutEffect } from 'react'
 import { createUseStyles } from 'react-jss'
 import cx from 'classnames'
-import Accordion from 'react-proactive-accordion'
+import TopicCard from '../components/topic-card'
 
 const Blue = '#418AF9'
 const selectedBackgroundColor = Blue // blue
@@ -141,29 +141,13 @@ const TopicBin = React.forwardRef((props, ref) => {
   if (topicObjs && topicObjs.length) {
     return (
       <div className={classes.topicsWrapper} ref={ref} key={leadTopicObj._id}>
-        <TopicObj topicObj={leadTopicObj} shape={shape ? 'lead' : ''} {...otherProps} key={leadTopicObj._id} />
+        <TopicCard topicObj={leadTopicObj} shape={shape ? 'lead' : ''} {...otherProps} key={leadTopicObj._id} />
         {topicObjs.map(topicObj => (
-          <TopicObj topicObj={topicObj} shape={shape === 'selected' ? '' : 'minimized'} key={topicObj._id} />
+          <TopicCard topicObj={topicObj} shape={shape === 'selected' ? '' : 'minimized'} key={topicObj._id} />
         ))}
       </div>
     )
-  } else return <TopicObj topicObj={leadTopicObj} shape={shape} {...otherProps} key={leadTopicObj._id} ref={ref} />
-})
-
-const TopicObj = React.forwardRef((props, ref) => {
-  const { topicObj, shape, ...otherProps } = props
-  const classes = useStyles(props)
-  return (
-    <Accordion
-      active={shape !== 'minimized'}
-      className={cx(classes.topic, shape)}
-      {...otherProps}
-      ref={ref}
-      key={topicObj._id}
-    >
-      {topicObj.description || '    '}
-    </Accordion>
-  )
+  } else return <TopicCard topicObj={leadTopicObj} shape={shape} {...otherProps} key={leadTopicObj._id} ref={ref} />
 })
 
 const useStyles = createUseStyles({
@@ -171,40 +155,6 @@ const useStyles = createUseStyles({
     textAlign: 'center',
     border: '1px solid black',
     margin: '.1em',
-  },
-  topic: {
-    textAlign: 'center',
-    alignItems: 'center',
-    verticalAlign: 'center',
-    //border: '1px solid black',
-    borderRadius: '1rem',
-    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.25)',
-    margin: '2rem 0',
-    background: 'white',
-    fontSize: '2em',
-    fontFamily: 'Roboto',
-    fontStyle: 'normal',
-    fontWeight: 500,
-    padding: '2rem',
-    '&:hover': {
-      cursor: 'pointer',
-    },
-    '&.minimized': {
-      //overflow: 'hidden',
-      //maxHeight: '1px',
-      //color: 'gray',
-      //backgroundColor: 'gray',
-      //border: 'none',
-      //padding: 0,
-      //margin: 0,
-    },
-    '&.lead': {
-      backgroundColor: 'orange',
-    },
-    '&.selected': {
-      backgroundColor: selectedBackgroundColor,
-      color: selectedColor,
-    },
   },
 })
 
