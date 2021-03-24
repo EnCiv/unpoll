@@ -86,8 +86,8 @@ export function CardStack(props) {
           }}
           className={cx(classes.subChild, classes[shape], allRefsDone && classes.transitionsEnabled)}
         >
-          <div className={cx(classes.subChildWrapper, classes[shape])}>
-            <div className={cx(classes.action, shape && classes[shape])}>Change Lead Topic</div>
+          <div className={cx(classes.action, shape && classes[shape], allRefsDone && classes.transitionsEnabled)}>
+            Change Lead Topic
           </div>
         </div>
         <div
@@ -100,8 +100,8 @@ export function CardStack(props) {
           }}
           className={cx(classes.subChild, classes[shape], allRefsDone && classes.transitionsEnabled)}
         >
-          <div className={cx(classes.subChildWrapper, classes[shape])}>
-            <div className={cx(classes.controls, shape && classes[shape])}>Control Panel</div>
+          <div className={cx(classes.controls, shape && classes[shape], allRefsDone && classes.transitionsEnabled)}>
+            Control Panel
           </div>
         </div>
         {reversed.map((newChild, i) => (
@@ -114,7 +114,7 @@ export function CardStack(props) {
               allRefsDone && classes.transitionsEnabled
             )}
           >
-            <div className={cx(classes.subChildWrapper, classes[shape])}>{newChild}</div>
+            {newChild}
           </div>
         ))}
       </div>
@@ -172,6 +172,9 @@ const useStyles = createUseStyles({
       backgroundColor: '#949494',
       borderRadius: '0 0 1rem 1rem',
     },
+    '&$transitionsEnabled': {
+      transition: '0.5s linear all',
+    },
   },
   action: {
     textAlign: 'center',
@@ -191,6 +194,9 @@ const useStyles = createUseStyles({
     },
     '&$minimized': {
       backgroundColor: '#4C4C4C',
+    },
+    '&$transitionsEnabled': {
+      transition: '0.5s linear all',
     },
   },
   firstChild: {

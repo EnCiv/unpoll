@@ -20,10 +20,8 @@ const Template = args => (
         marginLeft: 'auto',
         marginRight: 'auto',
         textAlign: 'center',
-        padding: 0,
-        paddingLeft: '1rem',
-        paddingRight: '1rem',
-        backgroundColor: 'gray',
+        padding: '1rem',
+        backgroundColor: 'black',
         height: '100vh',
       }}
     >
