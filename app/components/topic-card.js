@@ -14,7 +14,7 @@ export const TopicCard = React.forwardRef((props, ref) => {
   const { topicObj, shape, ...otherProps } = props
   const classes = useStyles(props)
   return (
-    <Accordion
+    <div
       active={shape !== 'minimized'}
       className={cx(classes.topic, shape)}
       {...otherProps}
@@ -22,7 +22,7 @@ export const TopicCard = React.forwardRef((props, ref) => {
       key={topicObj._id}
     >
       {topicObj.description || '    '}
-    </Accordion>
+    </div>
   )
 })
 
@@ -32,8 +32,8 @@ const useStyles = createUseStyles({
     alignItems: 'center',
     verticalAlign: 'center',
     //border: '1px solid black',
-    borderRadius: '1rem',
-    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.25)',
+    //borderRadius: '1rem',
+    //boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.25)',
     margin: 0,
     background: 'white',
     fontSize: '2em',

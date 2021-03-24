@@ -21,14 +21,18 @@ const Template = args => (
         marginRight: 'auto',
         textAlign: 'center',
         padding: 0,
-        backgroundColor: 'black',
+        paddingLeft: '1rem',
+        paddingRight: '1rem',
+        backgroundColor: 'gray',
         height: '100vh',
       }}
     >
       <Component {...args}>
-        <TopicCard topicObj={card1} />
-        <TopicCard topicObj={card2} />
-        <TopicCard topicObj={card3} />
+        <TopicCard topicObj={card1} key={card1._id} />
+        <TopicCard topicObj={card2} key={card2._id} />
+        <TopicCard topicObj={card3} key={card3._id} />
+        <TopicCard topicObj={card4} key={card4._id} />
+        <TopicCard topicObj={card5} key={card5._id} />
       </Component>
     </div>
   </div>
@@ -47,7 +51,14 @@ const card3 = {
   _id: '3',
   description: 'Topic 3',
 }
-
+const card4 = {
+  _id: '4',
+  description: 'Topic 4',
+}
+const card5 = {
+  _id: '5',
+  description: 'Topic 5',
+}
 export const Open = Template.bind({})
 Open.args = {}
 export const Minimized = Template.bind({})
