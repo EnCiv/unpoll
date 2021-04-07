@@ -1,5 +1,5 @@
 import React from 'react'
-import { HeaderBar } from '../app/components/headerBar';
+import { HeaderBar } from '../app/components/header-bar';
 
 const Component = HeaderBar
 const Name = 'HeaderBar'
@@ -14,11 +14,13 @@ const Template = args => (
     <div style={{ width: '100vw', height: '100vh' }}>
         <div
             style={{
-                width: '100%',
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
+                width: '48em',
+                marginLeft: 'auto',
+                marginRight: 'auto',
+                textAlign: 'center',
+                padding: '1rem',
+                backgroundColor: '#fff',
+                height: '100vh',
             }}
         >
             <Component {...args}>

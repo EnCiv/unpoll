@@ -11,8 +11,8 @@ import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
 const useStyles = createUseStyles({
     headerBar: {
         display: 'flex',
-        width: '375px',
-        height: '60px',
+        width: '100%',
+        height: '3.75rem',
         backgroundColor: '#000',
         color: '#fff',
         alignItems: 'center',
