@@ -4,8 +4,12 @@ import React, { useState, useLayoutEffect, useMemo } from 'react'
 import ReactDom from 'react-dom'
 import { createUseStyles } from 'react-jss'
 import cx from 'classnames'
+import SvgTrashCan from '../svgr/trash-can'
+import SvgPencil from '../svgr/pencil'
+import SvgCaret from '../svgr/caret'
+import SvgCaretDown from '../svgr/caret-down'
 
-const offsetHeight = 1.1
+const offsetHeight = 1.25
 const Blue = '#418AF9'
 
 export function CardStack(props) {
@@ -30,6 +34,10 @@ export function CardStack(props) {
   }
   const [controlsHeight, setControlsHeight] = useState(0)
 
+  /****
+   * These are not used right now - but we might need them when we get to variable height cards
+  
+
   function refHeight(n) {
     const node = refs[n] && ReactDom.findDOMNode(refs[n])
     return node ? node.getBoundingClientRect().height : 0
@@ -50,6 +58,7 @@ export function CardStack(props) {
     while (n < refs.length) height += refHeight(n++) * (shape === 'minimized' ? displacement : offsetHeight)
     return height
   }
+***/
 
   // without this, on initial render user will see the children drawn in reverse order, and then they will move into the correct order
   useLayoutEffect(() => {
@@ -101,7 +110,7 @@ export function CardStack(props) {
           className={cx(classes.subChild, classes[shape], allRefsDone && classes.transitionsEnabled)}
         >
           <div className={cx(classes.controls, shape && classes[shape], allRefsDone && classes.transitionsEnabled)}>
-            Control Panel
+            {[<SvgTrashCan />, <SvgPencil />, <SvgCaret />].map(item => <div className={classes.controlsItem}>{item}</div>)}
           </div>
         </div>
         {reversed.map((newChild, i) => (
@@ -117,6 +126,9 @@ export function CardStack(props) {
             {newChild}
           </div>
         ))}
+        <div className={cx(classes.topControls, classes[shape])}>
+          {[null, null, <SvgCaretDown />].map(item => <div className={classes.controlsItem}>{item}</div>)}
+        </div>
       </div>
     </div>
   )
@@ -140,7 +152,6 @@ const useStyles = createUseStyles({
       border: 'none',
     },
   },
-
   subChild: {
     position: 'absolute',
     left: 0,
@@ -154,20 +165,7 @@ const useStyles = createUseStyles({
   minimized: {},
   transitionsEnabled: {},
   controls: {
-    textAlign: 'center',
-    alignItems: 'center',
-    verticalAlign: 'center',
-    margin: 0,
     background: '#000000',
-    color: 'white',
-    fontSize: '2em',
-    fontFamily: 'Roboto',
-    fontStyle: 'normal',
-    fontWeight: 500,
-    padding: '2rem',
-    '&:hover': {
-      cursor: 'pointer',
-    },
     '&$minimized': {
       backgroundColor: '#949494',
       borderRadius: '0 0 1rem 1rem',
@@ -175,11 +173,38 @@ const useStyles = createUseStyles({
     '&$transitionsEnabled': {
       transition: '0.5s linear all',
     },
+    display: 'table',
+    tableLayout: 'fixed',
+    width: '100%'
+  },
+  topControls: {
+    position: 'absolute',
+    background: 'transparent',
+    '&$minimized': {
+      display: 'table'
+    },
+    display: 'none',
+    tableLayout: 'fixed',
+    width: '100%'
+  },
+  controlsItem: {
+    fontSize: '2rem',
+    color: 'white',
+    fontFamily: 'Roboto',
+    fontStyle: 'normal',
+    fontWeight: 500,
+    display: 'table-cell',
+    textAlign: 'center',
+    verticalAlign: 'middle',
+    padding: '2rem',
+    '& svg:hover': {
+      cursor: 'pointer',
+    }
   },
   action: {
     textAlign: 'center',
     alignItems: 'center',
-    verticalAlign: 'center',
+    verticalAlign: 'middle',
     margin: 0,
     background: Blue,
     color: 'white',

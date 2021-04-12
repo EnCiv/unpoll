@@ -13,51 +13,38 @@ export default {
 }
 
 const Template = args => (
-  <div style={{ width: '100vw', height: '100vh' }}>
-    <div
-      style={{
-        width: '48em',
-        marginLeft: 'auto',
-        marginRight: 'auto',
-        textAlign: 'center',
-        padding: '1rem',
-        backgroundColor: 'black',
-        height: '100vh',
-      }}
-    >
-      <Component {...args}>
-        <TopicCard topicObj={card1} key={card1._id} />
-        <TopicCard topicObj={card2} key={card2._id} />
-        <TopicCard topicObj={card3} key={card3._id} />
-        <TopicCard topicObj={card4} key={card4._id} />
-        <TopicCard topicObj={card5} key={card5._id} />
-      </Component>
+  <>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap" rel="stylesheet" />
+    <div style={{ width: '100vw', height: '100vh' }}>
+      <div
+        style={{
+          width: '48em',
+          marginLeft: 'auto',
+          marginRight: 'auto',
+          textAlign: 'center',
+          padding: '1rem',
+          backgroundColor: 'black',
+          height: '100vh',
+        }}
+      >
+        <Component {...args}>
+          {cardObjs(args.cards).map(card => (
+            <TopicCard topicObj={card} key={card._id} />
+          ))}
+        </Component>
+      </div>
     </div>
-  </div>
+  </>
 )
 
-const card1 = {
-  _id: '1',
-  description: 'Topic 1',
-}
-
-const card2 = {
-  _id: '2',
-  description: 'Topic 2',
-}
-const card3 = {
-  _id: '3',
-  description: 'Topic 3',
-}
-const card4 = {
-  _id: '4',
-  description: 'Topic 4',
-}
-const card5 = {
-  _id: '5',
-  description: 'Topic 5',
+const cardObjs = i => {
+  let a = []
+  for (let n = 0; n < i; n++) a.push({ _id: n + 1 + '', description: `Topic ${n + 1}` })
+  return a
 }
 export const Open = Template.bind({})
-Open.args = {}
+Open.args = { cards: 5 }
 export const Minimized = Template.bind({})
-Minimized.args = { shape: 'minimized' }
+Minimized.args = { cards: 5, shape: 'minimized' }
+export const OneCard = Template.bind({})
+OneCard.args = { cards: 1, shape: 'minimized' }
