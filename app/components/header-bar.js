@@ -2,11 +2,11 @@
 
 import React, { Fragment } from 'react';
 import {createUseStyles} from 'react-jss';
-import GraphicEqIcon from '@material-ui/icons/GraphicEq';
-import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
-import RestoreIcon from '@material-ui/icons/Restore';
-import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
-import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
+import SvgAppIcon from '../svgr/app-icon';
+import SvgUndoIcon from '../svgr/undo-icon';
+import SvgBackIcon from '../svgr/back-icon';
+import SvgWhiteDotIcon from '../svgr/white-dot-icon';
+import SvgBlackDotIcon from '../svgr/black-dot-icon';
 
 const useStyles = createUseStyles({
     headerBar: {
@@ -27,11 +27,15 @@ const useStyles = createUseStyles({
         width: '70%',
         display: 'flex',
         justifyContent: 'center',
+        fontSize: '1.5em'
     },
     right: {
         width: '15%',
         display: 'flex',
         justifyContent: 'center',
+    },
+    dotIcon: {
+        marginLeft: '1rem'
     }
 })
 
@@ -43,7 +47,7 @@ export function HeaderBar(props) {
         {type === 'title' ? 
             <div className={classes['headerBar']}>
                 <div className={classes['left']}>
-                    <GraphicEqIcon />
+                    <SvgAppIcon width="30px" height="30px" />
                 </div>
                 <div className={classes['middle']}>
                     UNPOLL
@@ -52,19 +56,19 @@ export function HeaderBar(props) {
             </div> : 
             <div className={classes['headerBar']}>
                 <div className={classes['left']}>
-                        <ArrowBackIosIcon />
+                    <SvgBackIcon width="30px" height="30px" />
                 </div>
                 <div className={classes['middle']}>
-                        <FiberManualRecordIcon />
-                        <RadioButtonUncheckedIcon />
-                        <RadioButtonUncheckedIcon />
-                        <RadioButtonUncheckedIcon />
-                        <RadioButtonUncheckedIcon />
-                        <RadioButtonUncheckedIcon />
-                        <RadioButtonUncheckedIcon />
+                    <SvgWhiteDotIcon />
+                    <SvgBlackDotIcon className={classes['dotIcon']} />
+                    <SvgBlackDotIcon className={classes['dotIcon']} />
+                    <SvgBlackDotIcon className={classes['dotIcon']} />
+                    <SvgBlackDotIcon className={classes['dotIcon']} />
+                    <SvgBlackDotIcon className={classes['dotIcon']} />
+                    <SvgBlackDotIcon className={classes['dotIcon']} />
                 </div>
                 <div className={classes['right']}>
-                    <RestoreIcon />
+                    <SvgUndoIcon width="30px" height="30px" />
                 </div>
             </div>}
         </Fragment>
