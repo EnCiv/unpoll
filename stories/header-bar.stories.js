@@ -33,4 +33,4 @@ const Template = args => (
 export const TitleBar = Template.bind({})
 TitleBar.args = { type: 'title' }
 export const NavBar = Template.bind({})
-NavBar.args = { type: 'nav' }
+NavBar.args = { type: 'nav', navSteps: 7, currentStep: 1 }

@@ -40,8 +40,12 @@ const useStyles = createUseStyles({
 })
 
 export function HeaderBar(props) {
-    const { type } = props;
+    const { type, navSteps, currentStep } = props;
     const classes = useStyles();
+    const steps = [];
+    for (let i = 1; i <= navSteps; i++) {
+        steps.push(i);
+    }
     return (
         <Fragment>
         {type === 'title' ? 
@@ -59,13 +63,9 @@ export function HeaderBar(props) {
                     <SvgBackIcon width="30px" height="30px" />
                 </div>
                 <div className={classes['middle']}>
-                    <SvgWhiteDotIcon />
-                    <SvgBlackDotIcon className={classes['dotIcon']} />
-                    <SvgBlackDotIcon className={classes['dotIcon']} />
-                    <SvgBlackDotIcon className={classes['dotIcon']} />
-                    <SvgBlackDotIcon className={classes['dotIcon']} />
-                    <SvgBlackDotIcon className={classes['dotIcon']} />
-                    <SvgBlackDotIcon className={classes['dotIcon']} />
+                    {steps.map((step, index) => 
+                        (step === currentStep) ? <SvgWhiteDotIcon key={index} className={classes['dotIcon']} /> : <SvgBlackDotIcon key={index} className={classes['dotIcon']} />
+                    )}
                 </div>
                 <div className={classes['right']}>
                     <SvgUndoIcon width="30px" height="30px" />
