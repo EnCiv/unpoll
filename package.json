@@ -59,7 +59,7 @@
     "@storybook/addon-links": "^6.1.18",
     "@storybook/react": "^6.1.18",
     "babel-loader": "^8.2.2",
-    "civil-server": "git+https://github.com/EnCiv/civil-server.git#main",
+    "civil-server": "github:EnCiv/civil-server#v0.0.10",
     "classnames": "^2.2.6",
     "compression-webpack-plugin": "^7.1.2",
     "react": "^16.13.1",
