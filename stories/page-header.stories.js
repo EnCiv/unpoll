@@ -9,6 +9,8 @@ export default {
 }
 
 const Template = args => (
+  <>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap" rel="stylesheet" />
     <div style={{ width: '100vw', height: '100vh' }}>
       <div
         style={{
@@ -17,7 +19,7 @@ const Template = args => (
           marginRight: 'auto',
           textAlign: 'center',
           padding: 0,
-          color: 'white', // FIXME: macOS rendering?
+          color: 'white',
           backgroundColor: 'black',
           height: '100vh',
         }}
@@ -25,6 +27,7 @@ const Template = args => (
         <PageHeader {...args} />
       </div>
     </div>
+  </>
   )
   
 export const HeaderTest = Template.bind({});
