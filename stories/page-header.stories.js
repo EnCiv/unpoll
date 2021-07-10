@@ -8,7 +8,27 @@ export default {
     argTypes: {},
 }
 
-const Template = (args) => <PageHeader {...args} />;
-
+const Template = args => (
+    <div style={{ width: '100vw', height: '100vh' }}>
+      <div
+        style={{
+          width: '48em',
+          marginLeft: 'auto',
+          marginRight: 'auto',
+          textAlign: 'center',
+          padding: 0,
+          color: 'white', // FIXME: macOS rendering?
+          backgroundColor: 'black',
+          height: '100vh',
+        }}
+      >
+        <PageHeader {...args} />
+      </div>
+    </div>
+  )
+  
 export const HeaderTest = Template.bind({});
-HeaderTest.args = { majorLine: '', minorLine: '' };
+HeaderTest.args = { 
+    majorLine: 'What topics would you like to ask the candidates about?',
+    minorLine: 'What questions do you have regarding those topics?' 
+};

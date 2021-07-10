@@ -3,17 +3,20 @@
 import React, { useRef, useState, useEffect, useLayoutEffect } from 'react'
 import { createUseStyles } from 'react-jss'
 
-const useStyles = createUseStyles({
-    // TODO: follow style guide for the page header.
-})
+export function PageHeader(props) {
+    const { majorLine, minorLine } = props
 
-export function PageHeader() {
-    const classes = useStyles()
+    const classes = useStyles(props)
     return (
         <div>
-            <h1>Welcome to the Page Header!</h1>
+            <h1>{majorLine}</h1>
+            <h3>{minorLine}</h3>
         </div>
     )
 }
+
+const useStyles = createUseStyles({
+    
+})
 
 export default PageHeader
