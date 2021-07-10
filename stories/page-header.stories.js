@@ -10,10 +10,5 @@ export default {
 
 const Template = (args) => <PageHeader {...args} />;
 
-const input = {
-    majorLine = '',
-    minorLine = '',
-}
-
-export const PageHeaderTest = Tempalte.bind({});
-PageHeaderTest.args = {};
+export const HeaderTest = Template.bind({});
+HeaderTest.args = { majorLine: '', minorLine: '' };
