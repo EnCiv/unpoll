@@ -33,6 +33,8 @@ export function CardStack(props) {
     if (node || refs[i]) setRefs([...refs])
   }
   const [controlsHeight, setControlsHeight] = useState(0)
+  const [dynamicShape, setDynamicShape] = useState(shape)
+
 
   /****
    * These are not used right now - but we might need them when we get to variable height cards
@@ -80,22 +82,22 @@ export function CardStack(props) {
 
   // the wrapper div will not shrink when the children stack - so we force it
   const wrapperHeight =
-    shape === 'minimized'
+    dynamicShape === 'minimized'
       ? controlsHeight + controlsHeight * displacement * 2
       : (reversed.length + 1) * controlsHeight * offsetHeight + controlsHeight || undefined // don't set maxheight if 0, likely on the first time through
   return (
     <div style={{ height: wrapperHeight }} className={cx(classes.wrapper, allRefsDone && classes.transitionsEnabled)}>
-      <div className={cx(classes.borderWrapper, shape && classes[shape])}>
+      <div className={cx(classes.borderWrapper, dynamicShape && classes[dynamicShape])}>
         <div
           style={{
             top:
-              shape === 'minimized'
+              dynamicShape === 'minimized'
                 ? controlsHeight * 2 * displacement
                 : (reversed.length + 1) * controlsHeight * offsetHeight + 'px',
           }}
-          className={cx(classes.subChild, classes[shape], allRefsDone && classes.transitionsEnabled)}
+          className={cx(classes.subChild, classes[dynamicShape], allRefsDone && classes.transitionsEnabled)}
         >
-          <div className={cx(classes.action, shape && classes[shape], allRefsDone && classes.transitionsEnabled)}>
+          <div className={cx(classes.action, dynamicShape && classes[dynamicShape], allRefsDone && classes.transitionsEnabled)}>
             Change Lead Topic
           </div>
         </div>
@@ -103,31 +105,31 @@ export function CardStack(props) {
           ref={e => e && setControlsHeight(e.clientHeight)}
           style={{
             top:
-              shape === 'minimized'
+              dynamicShape === 'minimized'
                 ? controlsHeight * displacement
                 : reversed.length * controlsHeight * offsetHeight + 'px',
           }}
-          className={cx(classes.subChild, classes[shape], allRefsDone && classes.transitionsEnabled)}
+          className={cx(classes.subChild, classes[dynamicShape], allRefsDone && classes.transitionsEnabled)}
         >
-          <div className={cx(classes.controls, shape && classes[shape], allRefsDone && classes.transitionsEnabled)}>
-            {[<SvgTrashCan />, <SvgPencil />, <SvgCaret />].map(item => <div className={classes.controlsItem}>{item}</div>)}
+          <div className={cx(classes.controls, dynamicShape && classes[dynamicShape], allRefsDone && classes.transitionsEnabled)}>
+            {[<SvgTrashCan />, <SvgPencil />, <SvgCaret onClick={() => setDynamicShape('minimized')} />].map(item => <div className={classes.controlsItem}>{item}</div>)}
           </div>
         </div>
         {reversed.map((newChild, i) => (
           <div
-            style={{ top: shape === 'minimized' ? 0 : (last - i) * controlsHeight * offsetHeight + 'px' }}
+            style={{ top: dynamicShape === 'minimized' ? 0 : (last - i) * controlsHeight * offsetHeight + 'px' }}
             className={cx(
               classes.subChild,
               classes[shapeOfChild(i)],
-              classes[shape],
+              classes[dynamicShape],
               allRefsDone && classes.transitionsEnabled
             )}
           >
             {newChild}
           </div>
         ))}
-        <div className={cx(classes.topControls, classes[shape])}>
-          {[null, null, <SvgCaretDown />].map(item => <div className={classes.controlsItem}>{item}</div>)}
+        <div className={cx(classes.topControls, classes[dynamicShape])}>
+          {[null, null, <SvgCaretDown onClick={() => setDynamicShape('')} />].map(item => <div className={classes.controlsItem}>{item}</div>)}
         </div>
       </div>
     </div>
