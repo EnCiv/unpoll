@@ -5,8 +5,6 @@ import { createUseStyles } from 'react-jss'
 import cx from 'classnames'
 import SvgArrow from '../svgr/arrow'
 
-const Blue = '#1480FF'
-
 export const ArrowButton = React.forwardRef((props, ref) => {
   const { name, onClick } = props
   const classes = useStyles(props)
@@ -27,7 +25,7 @@ export const ArrowButton = React.forwardRef((props, ref) => {
 const useStyles = createUseStyles({
   arrow: {
     width: '2.813rem',
-    marginLeft: '15px',
+    marginLeft: '.939rem',
     display: 'inline-block',
     verticalAlign: 'middle',
   },
@@ -38,20 +36,13 @@ const useStyles = createUseStyles({
   button: {
     width: '10.5rem',
     height: '3rem',
-    textAlign: 'center',
-    alignItems: 'center',
-    verticalAlign: 'middle',
     border: '1px solid black',
     borderRadius: '1rem',
-    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.25)',
-    margin: 0,
-    borderRadius: '10px',
+    boxShadow: '0px .25rem .625rem rgba(0, 0, 0, 0.25)',
+    borderRadius: '.625rem',
     background: 'white',
-    lineHeight: '18.75px',
+    lineHeight: '1.172rem',
     color: '#1780fb',
-    // fontSize: '16px',
-    fontStyle: 'normal',
-    fontWeight: 500,
     '&:hover': {
       cursor: 'pointer',
     },
