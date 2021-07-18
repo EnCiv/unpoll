@@ -25,16 +25,17 @@ export const ArrowButton = React.forwardRef((props, ref) => {
 const useStyles = createUseStyles({
   arrow: {
     width: '2.813rem',
-    marginLeft: '.939rem',
+    marginRight: '1.875rem',
     display: 'inline-block',
     verticalAlign: 'middle',
   },
   buttonName: {
     display: 'inline-block',
     verticalAlign: 'middle',
+    marginLeft: '1.875rem',
+    marginRight: '.938rem',
   },
   button: {
-    width: '10.5rem',
     height: '3rem',
     border: '1px solid black',
     borderRadius: '1rem',
