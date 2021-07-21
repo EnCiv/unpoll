@@ -1,7 +1,7 @@
 'use strict'
 
 import React, { useState } from 'react'
-import {createUseStyles} from 'react-jss'
+import { createUseStyles } from 'react-jss'
 
 const useStyles = createUseStyles({
     inputContainer: {
@@ -63,17 +63,17 @@ const useStyles = createUseStyles({
 
 export function InputElement() {
     const classes = useStyles()
-    const [ inputClicked, changeInput ] = useState(false)
+    const [inputClicked, changeInput] = useState(false)
     return (
         <div className={classes.inputContainer}>
             <div className={classes.topicContainer}>
-                {!inputClicked ? 
+                {!inputClicked ?
                     <div className={classes.topicInput}>
-                        <input type='text' className={classes.topicInputText} placeholder={`TOPIC 1`} onClick={() => changeInput(true)} />
+                        <div type='text' className={classes.topicInputText} onClick={() => changeInput(true)} key="1">`TOPIC 1`</div>
                     </div> :
                     <div className={classes.topicInputClicked}>
                         <div className={classes.topicInputTitle}>TOPIC 1</div>
-                        <input type='text' className={classes['topicInputText']} />
+                        <input autofocus="true" autoFocus={true} type='text' className={classes['topicInputText']} key="2" />
                     </div>
                 }
             </div>
