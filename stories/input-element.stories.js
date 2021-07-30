@@ -25,7 +25,7 @@ const Template = args => (
             }}
         >
             <Component {...args}>
-                <InputElement />
+                <InputElement/>
             </Component>
         </div>
     </div>

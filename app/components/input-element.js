@@ -70,15 +70,19 @@ const useStyles = createUseStyles({
         border: '2px solid #fff',
         borderRadius: '10px',
         padding: '1rem',
-    }
+    },
+    textCount: {
+        textAlign: 'right',
+        margin: '6px 0px',
+    },
 })
 
 
 export function InputElement() {
-    const classes = useStyles()
-    const [ inputClicked, changeInput ] = useState(false)
-    const [ showFill, setShowFill ] = useState(false)
-    const [ formData, setFormData ] = useState({topic: ""})
+    const classes = useStyles();
+    const [ inputClicked, changeInput ] = useState(false);
+    const [ showFill, setShowFill ] = useState(false);
+    const [ formData, setFormData ] = useState({title: ""});
 
     const handleChange = e => {
         const {name, value} = e.target
@@ -98,9 +102,10 @@ export function InputElement() {
         return (
             <div className={classes.inputContainer}>
                 <div className={classes.topicContainer}>
-                <form className={classes.topicInputClicked} onSubmit={handleSubmit}>
+                <form className={classes.topicInputClicked} onSubmit={handleSubmit} onBlur={handleSubmit}>
                     <div className={classes.topicInputTitle}>TOPIC 1</div>
-                    <input name="topic" value={formData.topic} onChange={handleChange} className={classes['topicInputText']} />
+                    <input maxLength="50" autoFocus name="title" value={formData.title} onChange={handleChange} className={classes['topicInputText']} />
+                    <div className={classes.textCount}>{formData.title.length}/50</div>
                 </form>
                 </div>
             </div>
@@ -109,7 +114,7 @@ export function InputElement() {
         return (
            <div className={classes.inputContainer}>
                 <div className={classes.topicContainer}>
-                    <div className={classes.topicFilled}>{formData.topic.toUpperCase()}</div>
+                    <div className={classes.topicFilled}>{formData.title}</div>
                 </div>
             </div>
         )
@@ -124,23 +129,6 @@ export function InputElement() {
             </div>
         )
     }
-    // return (
-    //     <div className={classes.inputContainer}>
-    //         <div className={classes.topicContainer}>
-    //             {!inputClicked ? 
-    //                 <div className={classes.topicInput}>
-    //                     <input type='text' className={classes.topicInputText} placeholder={`TOPIC 1`} onClick={() => changeInput(true)} />
-    //                 </div> :
-    //                 <form className={classes.topicInputClicked} onSubmit={handleSubmit}>
-    //                     <div className={classes.topicInputTitle}>TOPIC 1</div>
-    //                     <input name="topic" value={formData.topic} onChange={handleChange} className={classes['topicInputText']} />
-    //                 </form>
-    //             }
-    //             {showFill ?
-    //                 <div className={classes.topicFilled}>{formData.topic}</div> : ""}
-    //         </div>
-    //     </div>
-    // )
 }
 
 export default InputElement
