@@ -24,12 +24,13 @@ const Template = args => (
                 height: '100vh',
             }}
         >
-            <Component {...args}>
-                <InputElement/>
-            </Component>
+            <Component {...args}/>
         </div>
     </div>
 )
 
 export const InputBox = Template.bind({})
-InputBox.args = {}
+InputBox.args = {name: 'TOPIC 1', maxLength: 50}
+
+export const InputBoxWithData = Template.bind({})
+InputBoxWithData.args = {name: 'TOPIC 1', maxLength: 50, defaultValue: "abc"}
