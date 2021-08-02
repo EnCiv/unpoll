@@ -45,3 +45,7 @@ const cards = [
 export const CardListNormal = Template.bind({})
 CardListNormal.args = { cards }
 
+export const CardList1Selected = Template.bind({})
+
+CardList1Selected.args = { cards, selectedIds: ['abc123'] }
+
