@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 
 import CardListSelector from '../app/components/card-list-selector'
 
@@ -9,23 +9,26 @@ export default {
     argTypes: {},
 }
 
-const Template = args => (
-    <div style={{ width: '100vw', minHeight: '100vh' }}>
-        <div
-            style={{
-                width: '48em',
-                marginLeft: 'auto',
-                marginRight: 'auto',
-                textAlign: 'center',
-                padding: 0,
-                backgroundColor: 'black',
-                minHeight: '100vh',
-            }}
-        >
-            <CardListSelector {...args} />
+const Template = args => {
+    const [backgroundColor, setBackgroundColor] = useState("white")
+    return (
+        <div style={{ width: '100vw', minHeight: '100vh', backgroundColor: backgroundColor, }}>
+            <div
+                style={{
+                    width: '48em',
+                    marginLeft: 'auto',
+                    marginRight: 'auto',
+                    textAlign: 'center',
+                    padding: 0,
+                    backgroundColor: "black",
+                    minHeight: '100vh',
+                }}
+            >
+                <CardListSelector {...args} onDone={(e) => backgroundColor === "white" ? setBackgroundColor("black") : setBackgroundColor("white")} />
+            </div>
         </div>
-    </div>
-)
+    )
+}
 
 const cards = [
     { _id: 'abc123', description: 'Healthcare' },
@@ -43,9 +46,9 @@ const cards = [
 
 
 export const CardListNormal = Template.bind({})
-CardListNormal.args = { cards }
+CardListNormal.args = { cards, selectedIds: [] }
 
 export const CardList1Selected = Template.bind({})
 
-CardList1Selected.args = { cards, selectedIds: ['abc123'] }
+CardList1Selected.args = { cards, selectedIds: ['abc123'], maxSelected: 2 }
 

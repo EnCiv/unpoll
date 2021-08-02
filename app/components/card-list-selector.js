@@ -6,6 +6,7 @@ import cx from 'classnames'
 import CardStack from './card-stack'
 import TopicCard from './topic-card'
 import SelectedIcon from '../svgr/circle-check'
+import PercentDoneButton from './percent-done-button'
 
 const Blue = '#418AF9'
 const selectedBackgroundColor = Blue // blue
@@ -13,7 +14,11 @@ const selectedColor = 'white'
 const rootBackgroundColor = '#E5E5E5'
 
 export const CardListSelector = props => {
-    const { cards, selectedIds = [], maxSelected = 2, ...otherProps } = props
+    const { cards, selectedIds, maxSelected = 2, onDone, ...otherProps } = props
+    if (typeof selectedIds === 'undefined') {
+        console.error("CardListSelector: selectedIds must be defined by parent")
+        return null
+    }
     const classes = useStyles(props)
     const [count, setCount] = useState(selectedIds.length)
     function toggleSelect(id) {
@@ -26,43 +31,56 @@ export const CardListSelector = props => {
         setCount(selectedIds.length) // force a rerender because we are changing the state of a passed in array
     }
     return (
-        <div className={classes.list}>
-            {cards.map(card => {
-                if (Array.isArray(card))
-                    return <div className={classes.topic}>
-                        <CardStack shape="minimized">
-                            {card.map(subCard => (
-                                <TopicCard topicObj={subCard} key={subCard._id} />
-                            ))}
-                        </CardStack>
-                        {selectedIds.includes(card[0]._id) &&
-                            <div className={classes.selected}>
-                                <div className={classes.selectedInner} >
-                                    <SelectedIcon />
+        <>
+            <div className={classes.list}>
+                {cards.map(card => {
+                    if (Array.isArray(card))
+                        return <div className={classes.topic}>
+                            <CardStack shape="minimized">
+                                {card.map(subCard => (
+                                    <TopicCard topicObj={subCard} key={subCard._id} />
+                                ))}
+                            </CardStack>
+                            {selectedIds.includes(card[0]._id) &&
+                                <div className={classes.selected}>
+                                    <div className={classes.selectedInner} >
+                                        <SelectedIcon />
+                                    </div>
                                 </div>
-                            </div>
-                        }
-                        <div className={classes.clickable} onClick={() => toggleSelect(card[0]._id)} key={'clickable' + card._id} />
-                    </div>
-                else
-                    return <div className={classes.topic}>
-                        <TopicCard topicObj={card} key={card._id} />
-                        {selectedIds.includes(card._id) &&
-                            <div className={classes.selected}>
-                                <div className={classes.selectedInner} >
-                                    <SelectedIcon />
+                            }
+                            <div className={classes.clickable} onClick={() => toggleSelect(card[0]._id)} key={'clickable' + card._id} />
+                        </div>
+                    else
+                        return <div className={classes.topic}>
+                            <TopicCard topicObj={card} key={card._id} />
+                            {selectedIds.includes(card._id) &&
+                                <div className={classes.selected}>
+                                    <div className={classes.selectedInner} >
+                                        <SelectedIcon />
+                                    </div>
                                 </div>
-                            </div>
-                        }
-                        <div className={classes.clickable} onClick={() => toggleSelect(card._id)} key={'clickable' + card._id} />
-                    </div>
-            })
-            }
-        </div>
+                            }
+                            <div className={classes.clickable} onClick={() => toggleSelect(card._id)} key={'clickable' + card._id} />
+                        </div>
+                })
+                }
+            </div>
+            <div className={classes.done}>
+                <PercentDoneButton name="DONE" percentComplete={count / maxSelected} onClick={(e) => onDone && onDone()} />
+            </div>
+        </>
     )
 }
 
 const useStyles = createUseStyles({
+    done: {
+        position: "fixed",
+        bottom: "2rem",
+        left: 0,
+        width: "100%",
+        height: 'auto'
+
+    },
     clickable: {
         position: 'absolute',
         height: '6rem',
