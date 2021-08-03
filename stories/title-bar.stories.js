@@ -1,8 +1,8 @@
 import React from 'react'
-import { HeaderBar } from '../app/components/header-bar';
+import TitleBar from '../app/components/title-bar';
 
-const Component = HeaderBar
-const Name = 'HeaderBar'
+const Component = TitleBar
+const Name = 'TitleBar'
 
 export default {
     title: Name,
@@ -23,14 +23,10 @@ const Template = args => (
                 height: '100vh',
             }}
         >
-            <Component {...args}>
-                <HeaderBar />
-            </Component>
+            <Component {...args} />
         </div>
     </div>
 )
 
-export const TitleBar = Template.bind({})
-TitleBar.args = { type: 'title' }
-export const NavBar = Template.bind({})
-NavBar.args = { type: 'nav', navSteps: 7, currentStep: 1 }
+export const Normal = Template.bind({})
+Normal.args = {}
