@@ -8,7 +8,6 @@ const useStyles = createUseStyles({
     const percentComplete = props.percentComplete * 100
     return {
       padding: '1em 2.5em',
-
       background: `linear-gradient(90deg, #418AF9 ${percentComplete}%, #C2C2C2 ${percentComplete}%)`,
       borderRadius: '0.5rem',
       color: 'white',
@@ -24,10 +23,11 @@ const useStyles = createUseStyles({
 })
 
 export function PercentDoneButton(props) {
+  const { onClick, name, percentComplete } = props
   const classes = useStyles(props)
   return (
-    <button type="button" onClick={props.onClick} className={classes.button}>
-      {props.name}
+    <button type="button" onClick={(e) => onClick && percentComplete >= 1 && onClick(e)} className={classes.button}>
+      {name}
     </button>
   )
 }

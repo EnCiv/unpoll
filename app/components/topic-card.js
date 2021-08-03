@@ -42,7 +42,7 @@ const useStyles = createUseStyles({
     fontWeight: 500,
     padding: '2rem',
     '&:hover': {
-      cursor: 'pointer',
+      //cursor: 'pointer',
     },
     '&.minimized': {
       //overflow: 'hidden',

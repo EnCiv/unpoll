@@ -15,7 +15,7 @@ export default {
 const Template = args => (
   <>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap" rel="stylesheet" />
-    <div style={{ width: '100vw', height: '100vh' }}>
+    <div style={{ width: '100vw', minHeight: '100vh' }}>
       <div
         style={{
           width: '48em',
@@ -24,7 +24,7 @@ const Template = args => (
           textAlign: 'center',
           padding: '1rem',
           backgroundColor: 'black',
-          height: '100vh',
+          minHeight: '100vh',
         }}
       >
         <Component {...args}>
