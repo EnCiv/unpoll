@@ -11,14 +11,14 @@ export const ComponentListSlider = (props) => {
     const { children, onDone, ...otherProps } = props
     const classes = useStyles(props)
     const navRef = createRef(); // didn't work right with ref= so navRef 
-    const [navBar, setNavBar] = useState({ height: 0, width: 0 })
+    const [navBarRect, setNavBarRect] = useState({ height: 0, width: 0 })
     const [transitions, setTransitions] = useState(false)
     // has to be useLaoutEffect now useEffect or transitions will get enabled before the first render of the children and it will be blurry
     useLayoutEffect(() => {
         if (navRef.current) {
             let rect = navRef.current.getBoundingClientRect()
             if (rect.height && rect.width)
-                setNavBar(rect)
+                setNavBarRect(rect)
         }
     }
         , [navRef.current])
@@ -40,26 +40,37 @@ export const ComponentListSlider = (props) => {
     const [state, dispatch] = useReducer(reducer, { currentStep: 0 })
     // the children need to be cloned to have the onDone function applied, but we don't want to redo this every time we re-render
     // so it's done in a memo
-    const extendedChildren = useMemo(
+    const clonedChildren = useMemo(
         () => {
-            if (!navBar.width) return false
+            if (!navBarRect.width) return false
             return children.map(child =>
-                <div style={{ width: navBar.width + 'px' }} className={classes.panel} >
+                <div style={{ width: navBarRect.width + 'px' }} className={classes.panel} >
                     {React.cloneElement(child, { ...otherProps, ...child.props, onDone: () => dispatch({ type: "increment" }) })
                     })
                 </div>
             )
         }
-        , [children, navBar.width]
+        , [children, navBarRect.width]
     )
     // don't enable transitions until after the children have been rendered or the initial render will be blurry
     // the setTimeout is necessary to delay the transitions until after the initial render
-    useLayoutEffect(() => { if (extendedChildren) setTimeout(() => setTransitions(true)) }, [extendedChildren])
+    useLayoutEffect(() => { if (clonedChildren) delayedSideEffect(() => setTransitions(true)) }, [clonedChildren])
     return (
         <div className={classes.outerWrapper} >
-            <NavBar ref={navRef} navSteps={children.length} currentStep={state.currentStep} onBackButton={e => dispatch({ type: "decrement" })} className={classes.navBar} />
-            <div style={{ top: navBar.height + 'px', left: -navBar.width * state.currentStep + 'px', width: navBar.width * children.length + 'px' }} className={cx(classes.wrapper, transitions && classes.transitions)} >
-                {extendedChildren}
+            <NavBar ref={navRef}
+                navSteps={children.length}
+                currentStep={state.currentStep}
+                onBackButton={e => dispatch({ type: "decrement" })}
+                className={classes.navBar}
+            />
+            <div style={{
+                top: navBarRect.height + 'px',
+                left: -navBarRect.width * state.currentStep + 'px',
+                width: navBarRect.width * children.length + 'px'
+            }}
+                className={cx(classes.wrapper, transitions && classes.transitions)}
+            >
+                {clonedChildren}
             </div>
         </div>
     )
