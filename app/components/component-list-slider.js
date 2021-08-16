@@ -4,6 +4,8 @@ import React, { useRef, useState, useEffect, useLayoutEffect, useMemo, useReduce
 import { createUseStyles } from 'react-jss'
 import cx from 'classnames'
 import NavBar from './nav-bar'
+import PerfectScrollbar from 'react-perfect-scrollbar'
+import 'react-perfect-scrollbar/dist/css/styles.css';
 
 const delayedSideEffect = setTimeout  // basically put the side effect on the process queue and do it later
 
@@ -45,16 +47,10 @@ export const ComponentListSlider = (props) => {
     // the children need to be cloned to have the onDone function applied, but we don't want to redo this every time we re-render
     // so it's done in a memo
     const clonedChildren = useMemo(
-        () => {
-            if (!navBarRect.width) return false
-            return children.map(child =>
-                <div style={{ width: navBarRect.width + 'px' }} className={classes.panel} >
-                    {React.cloneElement(child, { ...otherProps, ...child.props, onDone: (val) => val && dispatch({ type: "increment" }) })
-                    })
-                </div>
-            )
-        }
-        , [children, navBarRect.width]
+        () => children.map(child =>
+            React.cloneElement(child, { ...otherProps, ...child.props, onDone: (val) => val && dispatch({ type: "increment" }) })
+        )
+        , [children]
     )
     // don't enable transitions until after the children have been rendered or the initial render will be blurry
     // the delayedSideEffect is necessary to delay the transitions until after the initial render
@@ -81,7 +77,12 @@ export const ComponentListSlider = (props) => {
             }}
                 className={cx(classes.wrapper, transitions && classes.transitions)}
             >
-                {clonedChildren}
+                {navBarRect.width && clonedChildren.map(child =>
+                    <div style={{ width: navBarRect.width + 'px', height: window.innerHeight - navBarRect.bottom }} className={classes.panel} >
+                        <PerfectScrollbar style={{ width: 'inherit', height: "100%" }}>
+                            {child}
+                        </PerfectScrollbar>
+                    </div>)}
             </div>
 
         </div>
@@ -101,6 +102,7 @@ const useStyles = createUseStyles({
         position: 'absolute', // so that clip will work
         width: 'inherit',
         overflow: 'hidden',
+        height: '100%',
         clip: 'rect(0,auto,auto,0)' // to make sure the fixed position NavBar in a child is also hidden
     },
     wrapper: {

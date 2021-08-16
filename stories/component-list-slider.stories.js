@@ -8,10 +8,12 @@ export default {
     argTypes: {},
 }
 
+const storybookPadding = "2rem" // it padds the iframe with 1rem all around
+
 const Template = args => {
     const [backgroundColor, setBackgroundColor] = useState("white")
     return (
-        <div style={{ width: '100vw', minHeight: '100vh', backgroundColor: backgroundColor, }}>
+        <div style={{ width: `calc(100vw - ${storybookPadding})`, minHeight: `calc(100vh - ${storybookPadding})`, backgroundColor: backgroundColor, }}>
             <div
                 style={{
                     width: '48em',
@@ -20,7 +22,7 @@ const Template = args => {
                     textAlign: 'center',
                     padding: 0,
                     backgroundColor: "black",
-                    minHeight: '100vh',
+                    minHeight: `calc(100vh - ${storybookPadding})`,
                 }}
             >
                 <ComponentListSlider {...args} onDone={(val) => val ? setBackgroundColor("black") : setBackgroundColor("white")} />

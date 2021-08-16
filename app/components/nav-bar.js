@@ -12,7 +12,6 @@ export const NavBar = React.forwardRef((props, ref) => {
     const { className, navSteps, currentStep, onBackButton, onRedoButton } = props;
     const classes = useStyles();
     const steps = [];
-    useEffect(() => console.info("ref", ref.current))
 
     for (let i = 0; i < navSteps; i++) {
         steps.push(i);
