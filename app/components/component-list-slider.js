@@ -13,7 +13,7 @@ export const ComponentListSlider = (props) => {
     const navRef = createRef(); // didn't work right with ref= so navRef 
     const [navBarRect, setNavBarRect] = useState({ height: 0, width: 0 })
     const [transitions, setTransitions] = useState(false)
-    // has to be useLaoutEffect now useEffect or transitions will get enabled before the first render of the children and it will be blurry
+    // has to be useLaoutEffect not useEffect or transitions will get enabled before the first render of the children and it will be blurry
     useLayoutEffect(() => {
         if (navRef.current) {
             let rect = navRef.current.getBoundingClientRect()
@@ -26,18 +26,22 @@ export const ComponentListSlider = (props) => {
     function reducer(state, action) {
         switch (action.type) {
             case 'increment':
-                // putting this side effect here is unusual - but seems to be a good fit (nimimal code, near related code)
-                // the problem is that creating a separate function for onDone within the children will not get the current value of state
-                // it will get the state object that existed at the time the function was created.  
-                // but dispatch is able to get the current value of state
-                if (state.currentStep === children.length - 1) delayedSideEffect(() => onDone(true))
-                return { ...state, currentStep: Math.min(children.length - 1, state.currentStep + 1) }
+                return {
+                    ...state,
+                    currentStep: Math.min(state.currentStep + 1, children.length - 1),
+                    sendDoneToParent: state.currentStep >= children.length - 1
+                }
             case 'decrement':
-                if (state.currentStep === children.length - 1) delayedSideEffect(() => onDone(false))
-                return { ...state, currentStep: Math.max(0, state.currentStep - 1) }
+                return {
+                    ...state,
+                    currentStep: Math.max(0, state.currentStep - 1),
+                    sendDoneToParent: state.currentStep === children.length - 1
+                }
+            case 'clearSendDoneToParent':
+                return { ...state, sendDoneToParent: false }
         }
     }
-    const [state, dispatch] = useReducer(reducer, { currentStep: 0 })
+    const [state, dispatch] = useReducer(reducer, { currentStep: 0, sendDoneToParent: false })
     // the children need to be cloned to have the onDone function applied, but we don't want to redo this every time we re-render
     // so it's done in a memo
     const clonedChildren = useMemo(
@@ -45,7 +49,7 @@ export const ComponentListSlider = (props) => {
             if (!navBarRect.width) return false
             return children.map(child =>
                 <div style={{ width: navBarRect.width + 'px' }} className={classes.panel} >
-                    {React.cloneElement(child, { ...otherProps, ...child.props, onDone: () => dispatch({ type: "increment" }) })
+                    {React.cloneElement(child, { ...otherProps, ...child.props, onDone: (val) => val && dispatch({ type: "increment" }) })
                     })
                 </div>
             )
@@ -53,10 +57,17 @@ export const ComponentListSlider = (props) => {
         , [children, navBarRect.width]
     )
     // don't enable transitions until after the children have been rendered or the initial render will be blurry
-    // the setTimeout is necessary to delay the transitions until after the initial render
+    // the delayedSideEffect is necessary to delay the transitions until after the initial render
     useLayoutEffect(() => { if (clonedChildren) delayedSideEffect(() => setTransitions(true)) }, [clonedChildren])
+    useEffect(() => {
+        if (state.sendDoneToParent) {
+            dispatch({ type: "clearSendDoneToParent" })
+            onDone(state.currentStep === (children.length - 1))
+        }
+    }, [state.sendDoneToParent])
     return (
         <div className={classes.outerWrapper} >
+
             <NavBar ref={navRef}
                 navSteps={children.length}
                 currentStep={state.currentStep}
@@ -72,13 +83,14 @@ export const ComponentListSlider = (props) => {
             >
                 {clonedChildren}
             </div>
+
         </div>
     )
 }
-
 const useStyles = createUseStyles({
     panel: {
-        display: 'inline-block'
+        display: 'inline-block',
+        verticalAlign: 'top'
     },
     navBar: {
         position: 'fixed',
@@ -86,8 +98,10 @@ const useStyles = createUseStyles({
         zIndex: 1
     },
     outerWrapper: {
+        position: 'absolute', // so that clip will work
         width: 'inherit',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        clip: 'rect(0,auto,auto,0)' // to make sure the fixed position NavBar in a child is also hidden
     },
     wrapper: {
         width: '100%',
