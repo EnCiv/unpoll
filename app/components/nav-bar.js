@@ -1,24 +1,25 @@
 'use strict'
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { createUseStyles } from 'react-jss';
+import cx from 'classnames'
 import SvgUndoIcon from '../svgr/undo-icon';
 import SvgBackIcon from '../svgr/back-icon';
 import SvgWhiteDotIcon from '../svgr/white-dot-icon';
 import SvgBlackDotIcon from '../svgr/black-dot-icon';
 
-export function NavBar(props) {
-    const { navSteps, currentStep, onBackButton, onRedoButton } = props;
+export const NavBar = React.forwardRef((props, ref) => {
+    const { className, navSteps, currentStep, onBackButton, onRedoButton } = props;
     const classes = useStyles();
     const steps = [];
 
-    for (let i = 1; i <= navSteps; i++) {
+    for (let i = 0; i < navSteps; i++) {
         steps.push(i);
     }
     return (
-        <div className={classes['headerBar']}>
+        <div ref={ref} className={cx(className, classes['headerBar'])}>
             <div className={classes['left']} >
-                <SvgBackIcon width="30px" height="30px" className={currentStep > 1 ? classes.pointer : classes.disabledIcon} onClick={onBackButton} />
+                <SvgBackIcon width="30px" height="30px" className={currentStep > 0 ? classes.pointer : classes.disabledIcon} onClick={onBackButton} />
             </div>
             <div className={classes['middle']}>
                 {steps.map((step, index) =>
@@ -30,7 +31,7 @@ export function NavBar(props) {
             </div>
         </div>
     )
-}
+})
 const useStyles = createUseStyles({
     headerBar: {
         display: 'flex',
