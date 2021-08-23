@@ -63,7 +63,7 @@ const useStyles = createUseStyles({
 })
 
 
-export function InputElement({ name, maxLength = 50, defaultValue = "", className, style, obj, onDone }) {
+export function InputElement({ name, maxLength = 50, defaultValue = "", className, style, onChange, onDone }) {
     const classes = useStyles();
     const [state, setState] = useState(defaultValue.length ? "filled" : "begin");
     const [formData, setFormData] = useState({ value: defaultValue });
@@ -74,17 +74,16 @@ export function InputElement({ name, maxLength = 50, defaultValue = "", classNam
             ...data,
             value: value
         }))
+        onChange && onChange(e)
     }
 
     const handleSubmit = e => {
         e.preventDefault()
         if (formData.value.length) {
             setState("filled")
-            if (obj) obj[name] = formData.value
             onDone && onDone(true)
         } else {
             setState("begin")
-            if (obj) obj[name] = ''
             onDone && onDone(false)
         }
     }

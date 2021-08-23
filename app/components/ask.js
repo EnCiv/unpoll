@@ -20,14 +20,34 @@ export const Ask = (props) => {
     return (
         <div className={cx(className, classes.askOuter)} style={style}>
             <PageHeader majorLine={majorLine} minorLine={minorLine} key='header' />
-            {asks && asks.reduce((a, ask) => {
+            {asks && asks.reduce((a, ask, i) => { // map doesn't work here because we need to put to things in the array and <></> doeesn't either
                 const [topic, question] = Object.keys(ask)
-                a.push(<InputElement name={topic} defaultValue={ask[topic]} maxLength={50} className={classes.topic} obj={ask} onDone={() => setCount(asksDone(asks))} key={a.length + '-t-' + topic} />)
-                a.push(<InputElement name={question} defaultValue={ask[question]} maxLength={280} className={classes.question} obj={ask} onDone={() => setCount(asksDone(asks))} key={a.length + '-q-' + question} />)
+                a.push(
+                    <InputElement
+                        name={"Topic " + (i + 1)}
+                        defaultValue={ask[topic]}
+                        maxLength={50}
+                        className={classes.topic}
+                        onChange={e => ask[topic] = e?.target?.value}
+                        onDone={() => setCount(asksDone(asks))}
+                        key={a.length + '-t-' + topic}
+                    />
+                )
+                a.push(
+                    <InputElement
+                        name={"Question " + (i + 1)}
+                        defaultValue={ask[question]}
+                        maxLength={280}
+                        className={classes.question}
+                        onChange={e => ask[question] = e?.target?.value}
+                        onDone={() => setCount(asksDone(asks))}
+                        key={a.length + '-q-' + question}
+                    />
+                )
                 return a
             }, [])}
             <div className={classes.doneButton} key='done' >
-                <PercentDoneButton percentComplete={count / (asks.length * 2)} onClick={onDone} />
+                <PercentDoneButton percentComplete={count / (asks.length * Object.keys(asks[0]).length)} onClick={onDone} />
             </div>
         </div>
     )
