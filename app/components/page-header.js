@@ -32,10 +32,10 @@ const useStyles = createUseStyles({
             fontWeight: 'bold',
             fontSize: '2.5rem',
             lineHeight: '3rem',
-            
+
             color: 'white',
         },
-        
+
         '& h3': {
             /* Regular 16 */
             position: 'static',
@@ -51,7 +51,7 @@ const useStyles = createUseStyles({
             fontWeight: 'normal',
             fontSize: '1.25rem',
             lineHeight: '1.5rem',
-            
+
             color: 'white',
         },
     },

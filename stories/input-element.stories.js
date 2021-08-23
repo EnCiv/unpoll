@@ -24,13 +24,15 @@ const Template = args => (
                 height: '100vh',
             }}
         >
-            <Component {...args}/>
+            <div style={{ backgroundColor: 'black', color: 'white' }} >
+                <Component {...args} />
+            </div>
         </div>
     </div>
 )
 
 export const InputBox = Template.bind({})
-InputBox.args = {name: 'TOPIC 1', maxLength: 50}
+InputBox.args = { name: 'TOPIC 1', maxLength: 50, style: { marginTop: "2rem", marginBottom: '2rem', backgroundColor: 'green', color: 'brown' } }
 
 export const InputBoxWithData = Template.bind({})
-InputBoxWithData.args = {name: 'TOPIC 1', maxLength: 50, defaultValue: "abc"}
+InputBoxWithData.args = { name: 'TOPIC 1', maxLength: 120, defaultValue: "abc", style: { padding: "2rem" } }

@@ -2,45 +2,30 @@
 
 import React, { useState } from 'react'
 import { createUseStyles } from 'react-jss'
+import cx from 'classnames'
 
 const useStyles = createUseStyles({
-    inputContainer: {
-        display: 'flex',
-        width: '100%',
-        height: '10rem',
-        backgroundColor: '#000',
-        color: '#fff',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '2rem',
-    },
     topicContainer: {
-        display: 'flex',
-        flexDirection: 'column',
         width: '100%',
     },
     topicInput: {
         border: '2px solid #ffffff',
-        borderRadius: '10px',
+        borderRadius: '.5rem',
         padding: '1rem',
         boxSizing: 'border-box',
         height: '4rem',
         width: '100%',
-        backgroundColor: '#000',
-        color: '#fff',
         '::-webkit-input-placeholder': {
             color: '#fff'
         }
     },
     topicInputClicked: {
         border: '2px solid #fff',
-        borderRadius: '10px',
+        borderRadius: '.5rem',
         padding: '1rem',
         boxSizing: 'border-box',
         height: '6rem',
         width: '100%',
-        backgroundColor: '#000',
-        color: '#fff',
         '::-webkit-input-placeholder': {
             color: '#fff'
         }
@@ -49,7 +34,7 @@ const useStyles = createUseStyles({
         width: '100%',
         height: '100%',
         background: 'transparent',
-        color: '#fff',
+        color: 'inherit',
         border: 'none',
         outline: 'none',
         fontSize: '1.25rem',
@@ -78,13 +63,13 @@ const useStyles = createUseStyles({
 })
 
 
-export function InputElement({name, maxLength=50, defaultValue=""}) {
+export function InputElement({ name, maxLength = 50, defaultValue = "", className, style, obj, onDone }) {
     const classes = useStyles();
-    const [ state, setState ] = useState(defaultValue.length ? "filled" : "begin");
-    const [ formData, setFormData ] = useState({value: defaultValue});
+    const [state, setState] = useState(defaultValue.length ? "filled" : "begin");
+    const [formData, setFormData] = useState({ value: defaultValue });
 
     const handleChange = e => {
-        const {value} = e.target
+        const { value } = e.target
         setFormData(data => ({
             ...data,
             value: value
@@ -95,8 +80,12 @@ export function InputElement({name, maxLength=50, defaultValue=""}) {
         e.preventDefault()
         if (formData.value.length) {
             setState("filled")
+            if (obj) obj[name] = formData.value
+            onDone && onDone(true)
         } else {
             setState("begin")
+            if (obj) obj[name] = ''
+            onDone && onDone(false)
         }
     }
 
@@ -110,28 +99,28 @@ export function InputElement({name, maxLength=50, defaultValue=""}) {
         }
     }
 
-        return (
-            <div className={classes.inputContainer}>
-                <div className={classes.topicContainer}>
-                    {state === 'clicked' ?
-                        <div className={classes.topicInputClicked} onKeyPress={e => handleKeyPress(e)} onBlur={handleSubmit}>
-                            <div className={classes.topicInputTitle}>{name}</div>
-                            <input maxLength={maxLength} autoFocus name={name} value={formData.value} onChange={handleChange} className={classes['topicInputText']} />
-                            <div className={classes.textCount}>{formData.value.length}/50</div>
-                        </div>
-                    : state === 'filled' ?
-                        <div className={classes.topicContainer}>
-                            <div onClick={() => setState('clicked')} className={classes.topicFilled}>{formData.value}</div>
-                        </div>                    
+    return (
+
+        <div className={cx(className, classes.topicContainer)} style={style}>
+            {state === 'clicked' ?
+                <div className={classes.topicInputClicked} onKeyPress={e => handleKeyPress(e)} onBlur={handleSubmit} key="clicked">
+                    <div className={classes.topicInputTitle}>{name}</div>
+                    <input maxLength={maxLength} autoFocus name={name} value={formData.value} onChange={handleChange} className={classes['topicInputText']} />
+                    <div className={classes.textCount}>{formData.value.length}/{maxLength}</div>
+                </div>
+                : state === 'filled' ?
+                    <div className={classes.topicContainer} key="filled">
+                        <div onClick={() => setState('clicked')} className={classes.topicFilled}>{formData.value}</div>
+                    </div>
                     : state === 'begin' ?
-                        <div className={classes.topicInput}>
+                        <div className={classes.topicInput} key="begin">
                             <input type='text' className={classes.topicInputText} placeholder={name} onClick={() => setState('clicked')} />
                         </div>
-                    : ""
-                    }
-                </div>
-            </div>
-        )
+                        : ""
+            }
+        </div>
+
+    )
 }
 
 export default InputElement
