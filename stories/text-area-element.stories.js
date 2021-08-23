@@ -1,8 +1,8 @@
 import React from 'react'
-import { InputElement } from '../app/components/input-element';
+import { TextAreaElement } from '../app/components/text-area-element';
 
-const Component = InputElement
-const Name = 'InputElement'
+const Component = TextAreaElement
+const Name = 'TextAreaElement'
 
 export default {
     title: Name,
@@ -32,7 +32,7 @@ const Template = args => (
 )
 
 export const InputBox = Template.bind({})
-InputBox.args = { name: 'TOPIC 1', maxLength: 50, style: { marginTop: "2rem", marginBottom: '2rem', backgroundColor: 'green', color: 'brown' } }
+InputBox.args = { name: 'Question 1', maxLength: 280, style: { marginTop: "2rem", marginBottom: '2rem', backgroundColor: 'green', color: 'brown' } }
 
 export const InputBoxWithData = Template.bind({})
-InputBoxWithData.args = { name: 'TOPIC 1', maxLength: 120, defaultValue: "abc", style: { padding: "2rem" } }
+InputBoxWithData.args = { name: 'Question 1', maxLength: 280, defaultValue: "abc", style: { marginTop: "2rem", marginBottom: "2rem" } }
