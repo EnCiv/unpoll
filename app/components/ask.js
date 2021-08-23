@@ -6,6 +6,7 @@ import cx from 'classnames'
 import InputElement from './input-element'
 import PageHeader from './page-header'
 import PercentDoneButton from './percent-done-button'
+import TextAreaElement from './text-area-element'
 
 const asksDone = (asks) => asks.reduce((a, pair) => {
     Object.values(pair).forEach(val => val && val.length && a++)
@@ -34,7 +35,7 @@ export const Ask = (props) => {
                     />
                 )
                 a.push(
-                    <InputElement
+                    <TextAreaElement
                         name={"Question " + (i + 1)}
                         defaultValue={ask[question]}
                         maxLength={280}
