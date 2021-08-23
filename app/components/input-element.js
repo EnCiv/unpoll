@@ -114,7 +114,7 @@ export function InputElement({ name, maxLength = 50, defaultValue = "", classNam
                     </div>
                     : state === 'begin' ?
                         <div className={classes.topicInput} key="begin">
-                            <input type='text' className={classes.topicInputText} placeholder={name} onClick={() => setState('clicked')} />
+                            <input type='text' className={classes.topicInputText} placeholder={name} onFocus={() => setState('clicked')} />
                         </div>
                         : ""
             }
