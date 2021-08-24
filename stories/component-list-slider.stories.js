@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import ComponentListSlider from '../app/components/component-list-slider'
-
+import NavBar from '../app/components/nav-bar'
 
 export default {
     title: 'ComponentListSlider',
@@ -44,16 +44,23 @@ const list = [
     <Panel backGroundColor="purple" />,
 ]
 
-export const CardListNormal = Template.bind({})
-CardListNormal.args = { children: list }
+export const NoNavBar = Template.bind({})
+NoNavBar.args = { children: list }
+
+export const WithNavBar = Template.bind({})
+WithNavBar.args = { NavBar: NavBar, children: list }
+
 
 const list2 = [
     <Panel backGroundColor="yellow" />,
     <Panel backGroundColor="gray" />,
-    <ComponentListSlider children={list} />,
+    <ComponentListSlider NavBar={NavBar} children={list} />,
     <Panel backGroundColor="aqua" />,
     <Panel backGroundColor="magenta" />,
 ]
 
 export const Nested = Template.bind({})
-Nested.args = { children: list2 }
+Nested.args = { NavBar: undefined, children: list2 }
+
+export const NestedWithNavBar = Template.bind({})
+NestedWithNavBar.args = { NavBar: NavBar, children: list2 }

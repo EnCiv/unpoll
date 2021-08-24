@@ -1,19 +1,21 @@
 'use strict'
 
-import React, { useRef, useState, useEffect, useLayoutEffect, useMemo, useReducer, createRef } from 'react'
+import React, { useState, useEffect, useLayoutEffect, useMemo, useReducer, createRef } from 'react'
 import { createUseStyles } from 'react-jss'
 import cx from 'classnames'
-import NavBar from './nav-bar'
+
 import PerfectScrollbar from 'react-perfect-scrollbar'
 import 'react-perfect-scrollbar/dist/css/styles.css';
 
 const delayedSideEffect = setTimeout  // basically put the side effect on the process queue and do it later
 
 export const ComponentListSlider = (props) => {
-    const { children, onDone, ...otherProps } = props
+    const { children, onDone, NavBar = () => null, ...otherProps } = props
     const classes = useStyles(props)
     const navRef = createRef(); // didn't work right with ref= so navRef 
-    const [navBarRect, setNavBarRect] = useState({ height: 0, width: 0 })
+    const outerRef = createRef()
+    const [navBarRect, setNavBarRect] = useState({ height: 0, width: 0, bottom: 0 })
+    const [outerRect, setOuterRect] = useState({ height: 0, width: 0 })
     const [transitions, setTransitions] = useState(false)
     // has to be useLaoutEffect not useEffect or transitions will get enabled before the first render of the children and it will be blurry
     useLayoutEffect(() => {
@@ -24,7 +26,14 @@ export const ComponentListSlider = (props) => {
         }
     }
         , [navRef.current])
-
+    useLayoutEffect(() => {
+        if (outerRef.current) {
+            let rect = outerRef.current.getBoundingClientRect()
+            if (rect.height && rect.width)
+                setOuterRect(rect)
+        }
+    }
+        , [outerRef.current])
     function reducer(state, action) {
         switch (action.type) {
             case 'increment':
@@ -62,8 +71,7 @@ export const ComponentListSlider = (props) => {
         }
     }, [state.sendDoneToParent])
     return (
-        <div className={classes.outerWrapper} >
-
+        <div className={classes.outerWrapper} ref={outerRef} >
             <NavBar ref={navRef}
                 navSteps={children.length}
                 currentStep={state.currentStep}
@@ -72,19 +80,18 @@ export const ComponentListSlider = (props) => {
             />
             <div style={{
                 top: navBarRect.height + 'px',
-                left: -navBarRect.width * state.currentStep + 'px',
-                width: navBarRect.width * children.length + 'px'
+                left: -outerRect.width * state.currentStep + 'px',
+                width: outerRect.width * children.length + 'px'
             }}
                 className={cx(classes.wrapper, transitions && classes.transitions)}
             >
-                {navBarRect.width && clonedChildren.map(child =>
-                    <div style={{ width: navBarRect.width + 'px', height: window.innerHeight - navBarRect.bottom }} className={classes.panel} >
+                {outerRect.width && clonedChildren.map(child =>
+                    <div style={{ width: outerRect.width + 'px', height: window.innerHeight - (navBarRect.bottom ? navBarRect.bottom : outerRect.top) }} className={classes.panel} >
                         <PerfectScrollbar style={{ width: 'inherit', height: "100%" }}>
                             {child}
                         </PerfectScrollbar>
                     </div>)}
             </div>
-
         </div>
     )
 }
