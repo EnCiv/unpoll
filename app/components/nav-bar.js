@@ -35,7 +35,7 @@ export const NavBar = React.forwardRef((props, ref) => {
 const useStyles = createUseStyles({
     headerBar: {
         display: 'flex',
-        width: '100%',
+        width: 'inherit',
         height: '3.75rem',
         backgroundColor: '#000',
         color: '#fff',
