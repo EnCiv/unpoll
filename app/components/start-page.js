@@ -7,6 +7,29 @@ import Rectangle13 from '../svgr/rectangle-13'
 import Rectangle14 from '../svgr/rectangle-14'
 import { createUseStyles } from 'react-jss'
 
+export function StartPage({subject, description, buttonName, textSize, onDone}) {
+    const classes = useStyles();
+        return (
+            <div className={classes.startContainer}>
+                <div className={classes.topicContainer}>
+                  <TitleBar className={classes.titleBar}/>
+                  <div className={classes.wrapper}>
+                    <span>
+                        <Rectangle14 className={`${classes.rectangle} ${classes.rectangle1}`}/>
+                        <Rectangle13 className={`${classes.rectangle} ${classes.rectangle2}`}/>
+                        <Rectangle14 className={`${classes.rectangle} ${classes.rectangle3}`}/>
+                    </span>
+                    <div className={textSize === 'large' ? classes.largeSubj : classes.smallSubj}>{subject}</div>
+                    <div className={textSize === 'large' ? classes.largeDesc : classes.smallDesc}>{description}</div>
+                  </div>
+                  <div className={classes.arrowButton} >
+                    <ArrowButton name={buttonName} onClick={e => onDone && onDone(true)}/>
+                  </div>
+                </div>
+            </div>
+        )
+}
+
 const useStyles = createUseStyles({
     startContainer: {
         position: 'relative',
@@ -28,7 +51,7 @@ const useStyles = createUseStyles({
     },
     rectangle: {
         borderRadius: '1.875rem',
-        margin: '6px',
+        margin: '.375rem',
         position: 'absolute',
         zIndex: '1',
         opacity: '0.2',       
@@ -42,14 +65,14 @@ const useStyles = createUseStyles({
         top: '5.5rem',
     },
     rectangle3: {
-        left: '230px',
-        top: '118px',
+        left: '14.375rem',
+        top: '7.375rem',
     },
     largeSubj: {
         zIndex: '10',
         color: '#ffffff',
         textAlign: 'left',
-        marginTop: '164px',      
+        marginTop: '10.25rem',      
         marginLeft: '2.063rem',
         fontSize: '3.125rem',
         fontFamily: 'sans-serif',
@@ -94,28 +117,5 @@ const useStyles = createUseStyles({
     }
 })
 
-
-export function StartPage({subject, description, buttonName, textSize, onDone}) {
-    const classes = useStyles();
-        return (
-            <div className={classes.startContainer}>
-                <div className={classes.topicContainer}>
-                  <TitleBar className={classes.titleBar}/>
-                  <div className={classes.wrapper}>
-                    <span>
-                        <Rectangle14 className={`${classes.rectangle} ${classes.rectangle1}`}/>
-                        <Rectangle13 className={`${classes.rectangle} ${classes.rectangle2}`}/>
-                        <Rectangle14 className={`${classes.rectangle} ${classes.rectangle3}`}/>
-                    </span>
-                    <div className={textSize === 'large' ? classes.largeSubj : classes.smallSubj}>{subject}</div>
-                    <div className={textSize === 'large' ? classes.largeDesc : classes.smallDesc}>{description}</div>
-                  </div>
-                  <div className={classes.arrowButton} >
-                    <ArrowButton name={buttonName}/>
-                  </div>
-                </div>
-            </div>
-        )
-}
 
 export default StartPage
