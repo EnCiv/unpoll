@@ -1,3 +1,5 @@
+// https://github.com/EnCiv/unpoll/issues/25
+
 import React, { useState } from 'react'
 import ComponentListSlider from '../app/components/component-list-slider'
 import NavBar from '../app/components/nav-bar'

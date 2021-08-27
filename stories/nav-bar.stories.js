@@ -1,3 +1,5 @@
+// https://github.com/EnCiv/unpoll/issues/6
+
 import { React, useState } from 'react'
 import { NavBar } from '../app/components/nav-bar';
 
@@ -26,9 +28,9 @@ const Template = args => {
                     height: '100vh',
                 }}
             >
-                <Component {...args} onBackButton={() => setBackCount(backCount + 1)} onRedoButton={() => setRedoCount(redoCount + 1)} />
-                <div>{`Back Count: ${backCount}`}</div>
-                <div>{`Redo Count: ${redoCount}`}</div>
+                <Component {...args} onBackButton={() => setBackCount(backCount + 1)} onRedoButton={() => setRedoCount(redoCount + 1)} key="component" />
+                <div key="back">{`Back Count: ${backCount}`}</div>
+                <div key="redo">{`Redo Count: ${redoCount}`}</div>
             </div>
         </div>
     )

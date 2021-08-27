@@ -1,4 +1,6 @@
-import React from 'react'
+// https://github.com/EnCiv/unpoll/issues/9
+
+import React, { useState } from 'react'
 
 import { TopicCard } from '../app/components/topic-card'
 
@@ -8,23 +10,28 @@ export default {
   argTypes: {},
 }
 
-const Template = args => (
-  <div style={{ width: '100vw', height: '100vh' }}>
-    <div
-      style={{
-        width: '48em',
-        marginLeft: 'auto',
-        marginRight: 'auto',
-        textAlign: 'center',
-        padding: 0,
-        backgroundColor: 'black',
-        height: '100vh',
-      }}
-    >
-      <TopicCard {...args} />
+const Template = args => {
+  const [toggleSelected, setToggleSelected] = useState(0)
+
+  return (
+    <div style={{ width: '100vw', height: '100vh' }}>
+      <div
+        style={{
+          width: '48em',
+          marginLeft: 'auto',
+          marginRight: 'auto',
+          textAlign: 'center',
+          padding: 0,
+          backgroundColor: 'black',
+          height: '100vh',
+        }}
+      >
+        <TopicCard {...args} onToggleSelect={(id) => setToggleSelected(id === toggleSelected ? '' : id)} />
+        <div style={{ color: "purple", backgroundColor: "yellow" }} key="toggle">{`Toggle Selected: ${toggleSelected}`}</div>
+      </div>
     </div>
-  </div>
-)
+  )
+}
 
 const card = {
   _id: 'abc123',

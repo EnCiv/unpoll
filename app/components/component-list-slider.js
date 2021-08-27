@@ -1,5 +1,7 @@
 'use strict'
 
+// https://github.com/EnCiv/unpoll/issues/25
+
 import React, { useState, useEffect, useLayoutEffect, useMemo, useReducer, createRef } from 'react'
 import { createUseStyles } from 'react-jss'
 import cx from 'classnames'
@@ -10,7 +12,7 @@ import 'react-perfect-scrollbar/dist/css/styles.css';
 const delayedSideEffect = setTimeout  // basically put the side effect on the process queue and do it later
 
 export const ComponentListSlider = (props) => {
-    const { children, onDone, NavBar = () => null, ...otherProps } = props
+    const { children, onDone, NavBar = React.forwardRef((props, ref) => null), ...otherProps } = props
     const classes = useStyles(props)
     const navRef = createRef(); // didn't work right with ref= so navRef 
     const outerRef = createRef()

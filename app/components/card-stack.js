@@ -1,6 +1,8 @@
 'use strict'
 
-import React, { useState, useLayoutEffect, useMemo } from 'react'
+// https://github.com/EnCiv/unpoll/issues/4
+
+import React, { useState, useLayoutEffect, useMemo, useEffect } from 'react'
 import ReactDom from 'react-dom'
 import { createUseStyles } from 'react-jss'
 import cx from 'classnames'
@@ -13,7 +15,7 @@ const offsetHeight = 1.25
 const Blue = '#418AF9'
 
 export function CardStack(props) {
-  const { shape, displacement = 0.1 } = props
+  const { shape, displacement = 0.1, onShapeChange } = props
   const classes = useStyles(props)
   const reversed = useMemo(
     () =>
@@ -34,6 +36,7 @@ export function CardStack(props) {
   }
   const [controlsHeight, setControlsHeight] = useState(0)
   const [dynamicShape, setDynamicShape] = useState(shape)
+  useEffect(() => { setDynamicShape(shape) }, [shape])
 
 
   /****
@@ -80,6 +83,12 @@ export function CardStack(props) {
     return 'innerChild'
   }
 
+  const changeShape = (shape) => {
+    setDynamicShape(shape)
+    if (onShapeChange)
+      onShapeChange(shape)
+  }
+
   // the wrapper div will not shrink when the children stack - so we force it
   const wrapperHeight =
     dynamicShape === 'minimized'
@@ -96,6 +105,7 @@ export function CardStack(props) {
                 : (reversed.length + 1) * controlsHeight * offsetHeight + 'px',
           }}
           className={cx(classes.subChild, classes[dynamicShape], allRefsDone && classes.transitionsEnabled)}
+          key="begin"
         >
           <div className={cx(classes.action, dynamicShape && classes[dynamicShape], allRefsDone && classes.transitionsEnabled)}>
             Change Lead Topic
@@ -110,9 +120,10 @@ export function CardStack(props) {
                 : reversed.length * controlsHeight * offsetHeight + 'px',
           }}
           className={cx(classes.subChild, classes[dynamicShape], allRefsDone && classes.transitionsEnabled)}
+          key="head"
         >
           <div className={cx(classes.controls, dynamicShape && classes[dynamicShape], allRefsDone && classes.transitionsEnabled)}>
-            {[<SvgTrashCan />, <SvgPencil />, <SvgCaret onClick={() => setDynamicShape('minimized')} />].map(item => <div className={classes.controlsItem}>{item}</div>)}
+            {[<SvgTrashCan />, <SvgPencil />, <SvgCaret onClick={() => changeShape('minimized')} />].map(item => <div className={classes.controlsItem}>{item}</div>)}
           </div>
         </div>
         {reversed.map((newChild, i) => (
@@ -124,12 +135,15 @@ export function CardStack(props) {
               classes[dynamicShape],
               allRefsDone && classes.transitionsEnabled
             )}
+            key={newChild.props?.children?.key}
           >
             {newChild}
           </div>
         ))}
-        <div className={cx(classes.topControls, classes[dynamicShape])}>
-          {[null, null, <SvgCaretDown onClick={() => setDynamicShape('')} />].map(item => <div className={classes.controlsItem}>{item}</div>)}
+        <div className={cx(classes.topControls, classes[dynamicShape])} key="last">
+          <div className={classes.controlsItem} />
+          <div className={classes.controlsItem} />
+          <div className={cx(classes.controlsItem, classes.pointerEvents)}><SvgCaretDown onClick={() => changeShape('')} /></div>
         </div>
       </div>
     </div>
@@ -138,6 +152,7 @@ export function CardStack(props) {
 
 const useStyles = createUseStyles({
   wrapper: {
+    pointerEvents: "none", // there are children that will have pointer events - don't interfere
     '&$transitionsEnabled': {
       transition: '0.5s linear all',
     },
@@ -167,6 +182,7 @@ const useStyles = createUseStyles({
   minimized: {},
   transitionsEnabled: {},
   controls: {
+    pointerEvents: 'auto',
     background: '#000000',
     '&$minimized': {
       backgroundColor: '#949494',
@@ -251,6 +267,9 @@ const useStyles = createUseStyles({
       marginRight: 0,
     },
   },
+  pointerEvents: {
+    pointerEvents: 'all'
+  }
 })
 
 export default CardStack

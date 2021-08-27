@@ -32,10 +32,10 @@ export const CardListSelector = props => {
     }
     return (
         <>
-            <div className={classes.list}>
+            <div className={classes.list} key="card-list">
                 {cards.map(card => {
                     if (Array.isArray(card))
-                        return <div className={classes.topic}>
+                        return <div className={classes.topic} key={card[0]._id + 'array'}>
                             <CardStack shape="minimized">
                                 {card.map(subCard => (
                                     <TopicCard topicObj={subCard} key={subCard._id} />
@@ -51,8 +51,8 @@ export const CardListSelector = props => {
                             <div className={classes.clickable} onClick={() => toggleSelect(card[0]._id)} key={'clickable' + card._id} />
                         </div>
                     else
-                        return <div className={classes.topic}>
-                            <TopicCard topicObj={card} key={card._id} />
+                        return <div className={classes.topic} key={card._id}>
+                            <TopicCard topicObj={card} />
                             {selectedIds.includes(card._id) &&
                                 <div className={classes.selected}>
                                     <div className={classes.selectedInner} >
@@ -65,7 +65,7 @@ export const CardListSelector = props => {
                 })
                 }
             </div>
-            <div className={classes.done}>
+            <div className={classes.done} key="done-button">
                 <PercentDoneButton name="DONE" percentComplete={count / maxSelected} onClick={(e) => onDone && onDone()} />
             </div>
         </>
