@@ -10,12 +10,13 @@ import SvgTrashCan from '../svgr/trash-can'
 import SvgPencil from '../svgr/pencil'
 import SvgCaret from '../svgr/caret'
 import SvgCaretDown from '../svgr/caret-down'
+import ActionCard from './action-card'
 
 const offsetHeight = 1.25
 const Blue = '#418AF9'
 
 export function CardStack(props) {
-  const { shape, displacement = 0.1, onShapeChange } = props
+  const { className, style, shape, displacement = 0.1, onShapeChange } = props
   const classes = useStyles(props)
   const reversed = useMemo(
     () =>
@@ -95,7 +96,7 @@ export function CardStack(props) {
       ? controlsHeight + controlsHeight * displacement * 2
       : (reversed.length + 1) * controlsHeight * offsetHeight + controlsHeight || undefined // don't set maxheight if 0, likely on the first time through
   return (
-    <div style={{ height: wrapperHeight }} className={cx(classes.wrapper, allRefsDone && classes.transitionsEnabled)}>
+    <div style={{ ...style, height: wrapperHeight }} className={cx(className, classes.wrapper, allRefsDone && classes.transitionsEnabled)}>
       <div className={cx(classes.borderWrapper, dynamicShape && classes[dynamicShape])}>
         <div
           style={{
@@ -107,9 +108,7 @@ export function CardStack(props) {
           className={cx(classes.subChild, classes[dynamicShape], allRefsDone && classes.transitionsEnabled)}
           key="begin"
         >
-          <div className={cx(classes.action, dynamicShape && classes[dynamicShape], allRefsDone && classes.transitionsEnabled)}>
-            Change Lead Topic
-          </div>
+          <ActionCard className={cx(classes.flatTop, dynamicShape && classes[dynamicShape], allRefsDone && classes.transitionsEnabled)} name="Change Lead Topic" />
         </div>
         <div
           ref={e => e && setControlsHeight(e.clientHeight)}
@@ -219,22 +218,8 @@ const useStyles = createUseStyles({
       cursor: 'pointer',
     }
   },
-  action: {
-    textAlign: 'center',
-    alignItems: 'center',
-    verticalAlign: 'middle',
-    margin: 0,
-    background: Blue,
-    color: 'white',
-    fontSize: '2em',
-    fontFamily: 'Roboto',
-    fontStyle: 'normal',
-    fontWeight: 500,
-    padding: '2rem',
+  flatTop: {
     borderRadius: '0 0 1rem 1rem',
-    '&:hover': {
-      cursor: 'pointer',
-    },
     '&$minimized': {
       backgroundColor: '#4C4C4C',
     },

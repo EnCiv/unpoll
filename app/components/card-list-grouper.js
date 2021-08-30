@@ -1,15 +1,16 @@
 'use strict'
 
-// See https://github.com/EnCiv/unpoll/issues/15
+// https://github.com/EnCiv/unpoll/issues/15
 
 import React, { useRef, useState, useEffect, useLayoutEffect } from 'react'
 import { createUseStyles } from 'react-jss'
 import cx from 'classnames'
 import CardStack from './card-stack'
 import TopicCard from './topic-card'
+import ActionCard from './action-card'
 
 export const CardListGrouper = props => {
-    const { cards, selectedIds, maxSelected = 2, onDone, ...otherProps } = props
+    const { className, style, cards, selectedIds, maxSelected = 2, onDone, ...otherProps } = props
     const [group, setGroup] = useState('')
     const [refresh, setRefresh] = useState(0) // some events need to cause a rerender
 
@@ -71,25 +72,26 @@ export const CardListGrouper = props => {
             setGroup('')
     }
     return (
-        <>
-            <div className={classes.list} key="card-list">
-                {cards.map(card => {
-                    if (Array.isArray(card))
-                        return <div className={classes.topic} key={card[0]._id + 'array'}>
-                            <CardStack shape={group === card[0]._id ? "normal" : "minimized"} onShapeChange={group === card[0]._id ? activeGroupShapeChange : shape => inactiveGroupShapeChange(card[0]._id, shape)}>
-                                {card.map((subCard, i) => (
-                                    <TopicCard topicObj={subCard} key={subCard._id} onToggleSelect={i === 0 ? toggleSelect : subChildToggle} />
-                                ))}
-                            </CardStack>
-                        </div>
-                    else
-                        return <div className={classes.topic} key={card._id}>
-                            <TopicCard topicObj={card} onToggleSelect={toggleSelect} key={'clickable' + card._id} />
-                        </div>
-                })
-                }
-            </div>
-        </>
+        <div className={cx(className, classes.list)} style={style} >
+            {cards.map(card => {
+                if (Array.isArray(card))
+                    return (
+                        <CardStack
+                            className={classes.topic}
+                            shape={group === card[0]._id ? "normal" : "minimized"}
+                            onShapeChange={group === card[0]._id ? activeGroupShapeChange : shape => inactiveGroupShapeChange(card[0]._id, shape)}
+                            key={card[0]._id}
+                        >
+                            {card.map((subCard, i) => (
+                                <TopicCard topicObj={subCard} key={subCard._id} onToggleSelect={i === 0 ? toggleSelect : subChildToggle} />
+                            ))}
+                        </CardStack>
+                    )
+                else
+                    return <TopicCard topicObj={card} onToggleSelect={toggleSelect} className={classes.topic} key={card._id} />
+            })}
+            <ActionCard className={classes.action} active={!group && "true"} name={group ? "Complete Group before continuing" : "Continue"} onDone={onDone} />
+        </div>
     )
 }
 
@@ -106,6 +108,9 @@ const useStyles = createUseStyles({
         "&:first-child": {
             marginTop: 0
         }
+    },
+    action: {
+        marginTop: '1rem'
     }
 })
 
