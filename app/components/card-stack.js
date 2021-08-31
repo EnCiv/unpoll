@@ -16,7 +16,7 @@ const offsetHeight = 1.25
 const Blue = '#418AF9'
 
 export function CardStack(props) {
-  const { className, style, shape, displacement = 0.1, onShapeChange } = props
+  const { className, style, shape, displacement = 0.1, onShapeChange, onChangeLeadTopic } = props
   const classes = useStyles(props)
   const reversed = useMemo(
     () =>
@@ -78,8 +78,13 @@ export function CardStack(props) {
       setLastRefDone(true)
   }, [refs, lastRefDone])
 
+  const [changeLeadTopic, setChangeLeadTopic] = useState(false)
+
   const shapeOfChild = i => {
-    if (i == last) return 'firstChild'
+    if (i == last) {
+      if (!changeLeadTopic) return 'firstChild'
+      else return 'firstChildLikeInner'
+    }
     if (i == 0) return 'lastChild'
     return 'innerChild'
   }
@@ -97,7 +102,7 @@ export function CardStack(props) {
       : (reversed.length + 1) * controlsHeight * offsetHeight + controlsHeight || undefined // don't set maxheight if 0, likely on the first time through
   return (
     <div style={{ ...style, height: wrapperHeight }} className={cx(className, classes.wrapper, allRefsDone && classes.transitionsEnabled)}>
-      <div className={cx(classes.borderWrapper, dynamicShape && classes[dynamicShape])}>
+      <div className={cx(classes.borderWrapper, dynamicShape && classes.dynamicShape, changeLeadTopic && classes.unwrapped)}>
         <div
           style={{
             top:
@@ -108,7 +113,10 @@ export function CardStack(props) {
           className={cx(classes.subChild, classes[dynamicShape], allRefsDone && classes.transitionsEnabled)}
           key="begin"
         >
-          <ActionCard className={cx(classes.flatTop, dynamicShape && classes[dynamicShape], allRefsDone && classes.transitionsEnabled)} name="Change Lead Topic" />
+          <ActionCard
+            className={cx(classes.flatTop, dynamicShape && classes[dynamicShape], allRefsDone && classes.transitionsEnabled)}
+            active={reversed.length > 1 ? "true" : "false"} name="Change Lead Topic"
+            onDone={(val) => { setChangeLeadTopic(!changeLeadTopic); onChangeLeadTopic && onChangeLeadTopic(!changeLeadTopic) }} />
         </div>
         <div
           ref={e => e && setControlsHeight(e.clientHeight)}
@@ -127,7 +135,7 @@ export function CardStack(props) {
         </div>
         {reversed.map((newChild, i) => (
           <div
-            style={{ top: dynamicShape === 'minimized' ? 0 : (last - i) * controlsHeight * offsetHeight + 'px' }}
+            style={{ top: dynamicShape === 'minimized' ? 0 : `calc( ${(last - i) * controlsHeight * offsetHeight}px ${changeLeadTopic ? " + 1rem" : ""})` }}
             className={cx(
               classes.subChild,
               classes[shapeOfChild(i)],
@@ -167,6 +175,10 @@ const useStyles = createUseStyles({
     '&$minimized': {
       border: 'none',
     },
+    '&$unwrapped': {
+      borderTop: '1px solid white',
+      borderBottom: '1px solid white'
+    }
   },
   subChild: {
     position: 'absolute',
@@ -234,6 +246,15 @@ const useStyles = createUseStyles({
       borderRadius: '1rem',
     },
   },
+  firstChildLikeInner: {
+    marginLeft: '1rem',
+    marginRight: '1rem',
+    borderRadius: '1rem',
+    '&$minimized': {
+      marginLeft: 0,
+      marginRight: 0,
+    },
+  },
   innerChild: {
     marginLeft: '1rem',
     marginRight: '1rem',
@@ -254,6 +275,9 @@ const useStyles = createUseStyles({
   },
   pointerEvents: {
     pointerEvents: 'all'
+  },
+  unwrapped: {
+
   }
 })
 

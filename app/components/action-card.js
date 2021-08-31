@@ -37,6 +37,7 @@ const useStyles = createUseStyles({
         fontWeight: 500,
         padding: '2rem',
         borderRadius: '1rem',
+        pointerEvents: 'auto',
         '&:hover': {
             cursor: 'pointer',
         },

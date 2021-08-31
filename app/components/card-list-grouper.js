@@ -43,7 +43,7 @@ export const CardListGrouper = props => {
         }
     }
     const subChildToggle = (id) => {
-        if (group) {
+        if (group && !changeLeadTopic) {
             let groupIndex = cards.findIndex(crd => Array.isArray(crd) && crd[0]._id === group)
             let subChildIndex = cards[groupIndex].findIndex(card => card._id === id)
             if (subChildIndex >= 0) {
@@ -52,6 +52,17 @@ export const CardListGrouper = props => {
                 cards.push(card)
             }
             setRefresh(refresh + 1) // have to redraw
+        } else if (group && changeLeadTopic) {
+            let groupIndex = cards.findIndex(crd => Array.isArray(crd) && crd[0]._id === group)
+            let subChildIndex = cards[groupIndex].findIndex(card => card._id === id)
+            if (subChildIndex >= 0) {
+                let card = cards[groupIndex][subChildIndex]
+                cards[groupIndex].splice(subChildIndex, 1)
+                cards[groupIndex].unshift(card)
+                setGroup(card._id)
+            }
+            setRefresh(refresh + 1) // have to redraw
+            setChangeLeadTopic(false)
         }
     }
     const activeGroupShapeChange = shape => {
@@ -71,6 +82,7 @@ export const CardListGrouper = props => {
         else
             setGroup('')
     }
+    const [changeLeadTopic, setChangeLeadTopic] = useState(false)
     return (
         <div className={cx(className, classes.list)} style={style} >
             {cards.map(card => {
@@ -81,6 +93,7 @@ export const CardListGrouper = props => {
                             shape={group === card[0]._id ? "normal" : "minimized"}
                             onShapeChange={group === card[0]._id ? activeGroupShapeChange : shape => inactiveGroupShapeChange(card[0]._id, shape)}
                             key={card[0]._id}
+                            onChangeLeadTopic={() => setChangeLeadTopic(!changeLeadTopic)}
                         >
                             {card.map((subCard, i) => (
                                 <TopicCard topicObj={subCard} key={subCard._id} onToggleSelect={i === 0 ? toggleSelect : subChildToggle} />
