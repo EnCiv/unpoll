@@ -69,7 +69,7 @@ export const CardListGrouper = props => {
         cards.push(child)
         setRefresh(refresh + 1) // have to redraw
         let emptyChildIndex = cards.findIndex(card => Array.isArray(card) && !card.length)
-        if (emptyChildIndex) cards.splice(emptyChildIndex, 1)
+        if (emptyChildIndex>=0) cards.splice(emptyChildIndex, 1)
         if (child._id === group)
             setGroup('')
     }
