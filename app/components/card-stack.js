@@ -2,7 +2,7 @@
 
 // https://github.com/EnCiv/unpoll/issues/4
 
-import React, { useState, useLayoutEffect, useMemo, useEffect } from 'react'
+import React, { useState, useLayoutEffect, useMemo, useEffect, useReducer } from 'react'
 import ReactDom from 'react-dom'
 import { createUseStyles } from 'react-jss'
 import cx from 'classnames'
@@ -11,22 +11,15 @@ import SvgPencil from '../svgr/pencil'
 import SvgCaret from '../svgr/caret'
 import SvgCaretDown from '../svgr/caret-down'
 import ActionCard from './action-card'
+import TopicCard from './topic-card'
 
 const offsetHeight = 1.25
 const Blue = '#418AF9'
 
 export function CardStack(props) {
-  const { className, style, shape, displacement = 0.1, onShapeChange, onChangeLeadTopic } = props
+  const { className, style, cards, shape, displacement = 0.1, onShapeChange, onChangeLeadTopic, refresh } = props
   const classes = useStyles(props)
-  const reversed = useMemo(
-    () =>
-      React.Children.toArray(props.children)
-        .reverse()
-        .map((child, i) => <div ref={node => doSetRefs(i, node)}>{child}</div>),
-    [props.children]
-  ) // reversed so the first child will be rendered last and on top of the other children -
-  // memo of cloneElement to prevent rerender loop on state change
-  const last = reversed.length - 1
+
   const [refs, setRefs] = useState([])
   const [lastRefDone, setLastRefDone] = useState(false)
   const [allRefsDone, setAllRefsDone] = useState(false) // don't apply transitions until all refs are done
@@ -40,33 +33,50 @@ export function CardStack(props) {
   useEffect(() => { setDynamicShape(shape) }, [shape])
 
 
-  /****
-   * These are not used right now - but we might need them when we get to variable height cards
-  
-
-  function refHeight(n) {
-    const node = refs[n] && ReactDom.findDOMNode(refs[n])
-    return node ? node.getBoundingClientRect().height : 0
+  function reducer(state, action){
+    switch(action.type){
+      case 'toggleSelect': 
+        if (state.changeLeadTopic) {
+          let index = cards.findIndex(card => card._id === action.id)
+          if (index >= 0) {
+            let card = cards[index]
+            cards.splice(index, 1)
+            cards.unshift(card)
+          }
+          return({...state, changeLeadTopic: false})
+        }else {
+          // eject the child
+          let index = cards.findIndex(card => card._id === action.id)
+          if (index >= 0) {
+            let card = cards[index]
+            cards.splice(index, 1)
+            if(props.reducer)
+              props.reducer({type: "ejectCard", card})
+          }
+          return({...state, changeLeadTopic: false})
+        }
+      case 'toggleChangeLeadTopic': 
+        return {...state, changeLeadTopic: !state.changeLeadTopic}
+      case 'clearChangeLeadTopic':
+        return {...state, changeLeadTopic: false}
+      default: 
+        throw new Error()
+    }
   }
 
-  // sum height of all children above i
-  function aboveHeight(i) {
-    let height = 0
-    let n = 0
-    while (n < i) height += refHeight(n++) * offsetHeight
-    return height + controlsHeight
-  }
+  const [state, dispatch]=useReducer(reducer,{changeLeadTopic: false})
 
-  // sum height of all children below i, and reduce to displacement if minimized
-  function belowHeight(i) {
-    let height = 0
-    let n = i + 1
-    while (n < refs.length) height += refHeight(n++) * (shape === 'minimized' ? displacement : offsetHeight)
-    return height
-  }
-***/
+  const reversed = useMemo(
+    () =>
+      cards
+        .map((card, i) => <div ref={node => doSetRefs(i, node)} key={card._id}>{<TopicCard topicObj={card} onToggleSelect={()=>dispatch({type: "toggleSelect", id: card._id})} />}</div>)
+        .reverse(),
+    [cards, state, refresh]
+  ) // reversed so the first child will be rendered last and on top of the other children -
+  // memo to prevent rerender loop on state change
 
-  // without this, on initial render user will see the children drawn in reverse order, and then they will move into the correct order
+  const last = reversed.length - 1
+    // without this, on initial render user will see the children drawn in reverse order, and then they will move into the correct order
   useLayoutEffect(() => {
     if (allRefsDone) return
     if (lastRefDone) {
@@ -77,12 +87,11 @@ export function CardStack(props) {
       refs.every(node => ReactDom.findDOMNode(node).clientHeight) &&
       setLastRefDone(true)
   }, [refs, lastRefDone])
-
-  const [changeLeadTopic, setChangeLeadTopic] = useState(false)
+  
 
   const shapeOfChild = i => {
     if (i == last) {
-      if (!changeLeadTopic) return 'firstChild'
+      if (!state.changeLeadTopic) return 'firstChild'
       else return 'firstChildLikeInner'
     }
     if (i == 0) return 'lastChild'
@@ -100,9 +109,10 @@ export function CardStack(props) {
     dynamicShape === 'minimized'
       ? controlsHeight + controlsHeight * displacement * 2
       : (reversed.length + 1) * controlsHeight * offsetHeight + controlsHeight || undefined // don't set maxheight if 0, likely on the first time through
+
   return (
     <div style={{ ...style, height: wrapperHeight }} className={cx(className, classes.wrapper, allRefsDone && classes.transitionsEnabled)}>
-      <div className={cx(classes.borderWrapper, dynamicShape && classes.dynamicShape, changeLeadTopic && classes.unwrapped)}>
+      <div className={cx(classes.borderWrapper, dynamicShape && classes.dynamicShape, state.changeLeadTopic && classes.unwrapped)}>
         <div
           style={{
             top:
@@ -116,7 +126,7 @@ export function CardStack(props) {
           <ActionCard
             className={cx(classes.flatTop, dynamicShape && classes[dynamicShape], allRefsDone && classes.transitionsEnabled)}
             active={reversed.length > 1 ? "true" : "false"} name="Change Lead Topic"
-            onDone={(val) => { setChangeLeadTopic(!changeLeadTopic); onChangeLeadTopic && onChangeLeadTopic(!changeLeadTopic) }} />
+            onDone={(val) => { dispatch({type: "toggleChangeLeadTopic"}); onChangeLeadTopic && onChangeLeadTopic(!state.changeLeadTopic) }} />
         </div>
         <div
           ref={e => e && setControlsHeight(e.clientHeight)}
@@ -135,14 +145,14 @@ export function CardStack(props) {
         </div>
         {reversed.map((newChild, i) => (
           <div
-            style={{ top: dynamicShape === 'minimized' ? 0 : `calc( ${(last - i) * controlsHeight * offsetHeight}px ${changeLeadTopic ? " + 1rem" : ""})` }}
+            style={{ top: dynamicShape === 'minimized' ? 0 : `calc( ${(last - i) * controlsHeight * offsetHeight}px ${state.changeLeadTopic ? " + 1rem" : ""})` }}
             className={cx(
               classes.subChild,
               classes[shapeOfChild(i)],
               classes[dynamicShape],
               allRefsDone && classes.transitionsEnabled
             )}
-            key={newChild.props?.children?.key}
+            key={newChild.key}
           >
             {newChild}
           </div>
@@ -282,3 +292,30 @@ const useStyles = createUseStyles({
 })
 
 export default CardStack
+
+
+  /****
+   * These are not used right now - but we might need them when we get to variable height cards
+  
+
+  function refHeight(n) {
+    const node = refs[n] && ReactDom.findDOMNode(refs[n])
+    return node ? node.getBoundingClientRect().height : 0
+  }
+
+  // sum height of all children above i
+  function aboveHeight(i) {
+    let height = 0
+    let n = 0
+    while (n < i) height += refHeight(n++) * offsetHeight
+    return height + controlsHeight
+  }
+
+  // sum height of all children below i, and reduce to displacement if minimized
+  function belowHeight(i) {
+    let height = 0
+    let n = i + 1
+    while (n < refs.length) height += refHeight(n++) * (shape === 'minimized' ? displacement : offsetHeight)
+    return height
+  }
+***/

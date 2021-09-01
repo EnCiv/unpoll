@@ -65,6 +65,15 @@ export const CardListGrouper = props => {
             setChangeLeadTopic(false)
         }
     }
+    const catchEjectedSubChild = (child) => {
+        cards.push(child)
+        setRefresh(refresh + 1) // have to redraw
+        let emptyChildIndex = cards.findIndex(card => Array.isArray(card) && !card.length)
+        if (emptyChildIndex) cards.splice(emptyChildIndex, 1)
+        if (child._id === group)
+            setGroup('')
+    }
+
     const activeGroupShapeChange = shape => {
         if (shape === 'minimized') maybeDemoteGroup(group)
         setGroup('')
@@ -94,11 +103,10 @@ export const CardListGrouper = props => {
                             onShapeChange={group === card[0]._id ? activeGroupShapeChange : shape => inactiveGroupShapeChange(card[0]._id, shape)}
                             key={card[0]._id}
                             onChangeLeadTopic={() => setChangeLeadTopic(!changeLeadTopic)}
-                        >
-                            {card.map((subCard, i) => (
-                                <TopicCard topicObj={subCard} key={subCard._id} onToggleSelect={i === 0 ? toggleSelect : subChildToggle} />
-                            ))}
-                        </CardStack>
+                            cards={card}
+                            refresh={refresh}
+                            reducer={(action) => catchEjectedSubChild(action.card)}
+                        />
                     )
                 else
                     return <TopicCard topicObj={card} onToggleSelect={toggleSelect} className={classes.topic} key={card._id} />

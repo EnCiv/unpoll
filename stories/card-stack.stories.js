@@ -28,9 +28,6 @@ const Template = args => (
         }}
       >
         <Component {...args}>
-          {cardObjs(args.cards).map(card => (
-            <TopicCard topicObj={card} key={card._id} />
-          ))}
         </Component>
       </div>
     </div>
@@ -43,8 +40,8 @@ const cardObjs = i => {
   return a
 }
 export const Open = Template.bind({})
-Open.args = { cards: 5 }
+Open.args = { cards: cardObjs(5) }
 export const Minimized = Template.bind({})
-Minimized.args = { cards: 5, shape: 'minimized' }
+Minimized.args = { cards: cardObjs(5), shape: 'minimized' }
 export const OneCard = Template.bind({})
 OneCard.args = { cards: 1, shape: 'minimized' }
