@@ -69,7 +69,7 @@ export const CardListGrouper = props => {
         cards.push(child)
         setRefresh(refresh + 1) // have to redraw
         let emptyChildIndex = cards.findIndex(card => Array.isArray(card) && !card.length)
-        if (emptyChildIndex>=0) cards.splice(emptyChildIndex, 1)
+        if (emptyChildIndex >= 0) cards.splice(emptyChildIndex, 1)
         if (child._id === group)
             setGroup('')
     }
@@ -99,7 +99,7 @@ export const CardListGrouper = props => {
                     return (
                         <CardStack
                             className={classes.topic}
-                            shape={group === card[0]._id ? "normal" : "minimized"}
+                            shape={group === card[0]._id ? "add-remove" : "minimized"}
                             onShapeChange={group === card[0]._id ? activeGroupShapeChange : shape => inactiveGroupShapeChange(card[0]._id, shape)}
                             key={card[0]._id}
                             onChangeLeadTopic={() => setChangeLeadTopic(!changeLeadTopic)}

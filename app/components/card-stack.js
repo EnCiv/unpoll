@@ -17,54 +17,100 @@ const offsetHeight = 1.25
 const Blue = '#418AF9'
 
 export function CardStack(props) {
-  const { className, style, cards, shape, displacement = 0.1, onShapeChange, onChangeLeadTopic, refresh } = props
+  const { className, style, cards, shape="open", displacement = 0.1, onShapeChange, onChangeLeadTopic, refresh } = props
   const classes = useStyles(props)
 
   const [refs, setRefs] = useState([])
   const [lastRefDone, setLastRefDone] = useState(false)
   const [allRefsDone, setAllRefsDone] = useState(false) // don't apply transitions until all refs are done
   const doSetRefs = (i, node) => {
+    // i===0 is the first one in cards which should go at the top of the 
+    // seems obvious but we are going to render the last card at the bottom and then 
+    // then one before that, above it, etc.
     if (!node) delete refs[i]
     else refs[i] = node
     if (node || refs[i]) setRefs([...refs])
   }
-  const [controlsHeight, setControlsHeight] = useState(0)
-  const [dynamicShape, setDynamicShape] = useState(shape)
-  useEffect(() => { setDynamicShape(shape) }, [shape])
+  function refHeight(n) {
+    const node = refs[n] && ReactDom.findDOMNode(refs[n])
+    return node ? node.getBoundingClientRect().height : 0
+  }
+  // sum height of all children above i
+  function aboveHeight(i) {
+    let height = 0
+    let n = 0
+    while (n < i) height += refHeight(n++) * offsetHeight
+    return height
+  }
 
+  // sum height of all children below i, and reduce to displacement if minimized
+  function belowHeight(i) {
+    let height = 0
+    let n = i + 1
+    while (n < refs.length) height += refHeight(n++) * (shape === 'minimized' ? displacement : offsetHeight)
+    return height
+  }
+
+
+
+  const [controlsHeight, setControlsHeight] = useState(0)
+  const [instructHeight, setInstructHeight] = useState(0)
+  useEffect(() => { dispatch({type: "parentShapeChange", shape}) }, [shape])
+
+  // shapes: minimized, open, add-remove, change-lead
 
   function reducer(state, action){
     switch(action.type){
+      case 'parentShapeChange':
+        return {...state, shape: action.shape}
+      case 'minimize':
+        onShapeChange && onShapeChange("minimized")
+        return {...state, shape: "minimized"}
+      case 'open':
+        onShapeChange && onShapeChange("open")
+        return {...state, shape: 'open'}
       case 'toggleSelect': 
-        if (state.changeLeadTopic) {
-          let index = cards.findIndex(card => card._id === action.id)
-          if (index >= 0) {
-            let card = cards[index]
-            cards.splice(index, 1)
-            cards.unshift(card)
-          }
-          return({...state, changeLeadTopic: false})
-        }else {
-          // eject the child
-          let index = cards.findIndex(card => card._id === action.id)
-          if (index >= 0) {
-            let card = cards[index]
-            cards.splice(index, 1)
-            if(props.reducer)
-              props.reducer({type: "ejectCard", card})
-          }
-          return({...state, changeLeadTopic: false})
+        switch(state.shape){
+          case "change-lead":
+            let index = cards.findIndex(card => card._id === action.id)
+            if (index >= 0) {
+              let card = cards[index]
+              cards.splice(index, 1)
+              cards.unshift(card)
+            }
+            onShapeChange && onShapeChange("open")
+            return({...state, shape: 'open'})
+          case "add-remove":
+            // eject the child
+            let idx = cards.findIndex(card => card._id === action.id)
+            if (idx >= 0) {
+              let card = cards[idx]
+              cards.splice(idx, 1)
+              if(props.reducer)
+                props.reducer({type: "ejectCard", card})
+            }
+            return {...state, refresh: state.refresh+1} // refresh so there's a state change to cause a redraw because cards is always the same
+          case "open":
+            return state
+          case "minimized": 
+            onShapeChange && onShapeChange("open")
+            return {...state, shape: 'open'}
+          default:
+            throw new Error()
         }
-      case 'toggleChangeLeadTopic': 
-        return {...state, changeLeadTopic: !state.changeLeadTopic}
+      case 'toggleChangeLeadTopic':
+        const newShape=state.shape==='change-lead'?'open':'change-lead'
+        onShapeChange && onShapeChange(newShape)
+        return {...state, shape: newShape}
       case 'clearChangeLeadTopic':
-        return {...state, changeLeadTopic: false}
+        onShapeChange && onShapeChange("open")
+        return {...state, shape: 'open'}
       default: 
         throw new Error()
     }
   }
 
-  const [state, dispatch]=useReducer(reducer,{changeLeadTopic: false})
+  const [state, dispatch]=useReducer(reducer,{shape, refresh: 0})
 
   const reversed = useMemo(
     () =>
@@ -91,65 +137,72 @@ export function CardStack(props) {
 
   const shapeOfChild = i => {
     if (i == last) {
-      if (!state.changeLeadTopic) return 'firstChild'
-      else return 'firstChildLikeInner'
+      switch(state.shape){
+        case 'change-lead':
+        case 'add-remove':
+            return 'firstChildLikeInner'
+        case 'open':
+        case 'minimized':
+            return 'firstChild'
+      }
     }
     if (i == 0) return 'lastChild'
     return 'innerChild'
   }
 
-  const changeShape = (shape) => {
-    setDynamicShape(shape)
-    if (onShapeChange)
-      onShapeChange(shape)
-  }
 
   // the wrapper div will not shrink when the children stack - so we force it
   const wrapperHeight =
-    dynamicShape === 'minimized'
+    state.shape === 'minimized'
       ? controlsHeight + controlsHeight * displacement * 2
-      : (reversed.length + 1) * controlsHeight * offsetHeight + controlsHeight || undefined // don't set maxheight if 0, likely on the first time through
+      : aboveHeight(cards.length) + controlsHeight * offsetHeight + controlsHeight + instructHeight|| undefined // don't set maxheight if 0, likely on the first time through
 
   return (
     <div style={{ ...style, height: wrapperHeight }} className={cx(className, classes.wrapper, allRefsDone && classes.transitionsEnabled)}>
-      <div className={cx(classes.borderWrapper, dynamicShape && classes.dynamicShape, state.changeLeadTopic && classes.unwrapped)}>
+      <div className={cx(classes.borderWrapper, classes[state.shape])}>
+        <div style={{top: aboveHeight(cards.length)}} 
+          className={cx(classes.instruct,classes[state.shape],allRefsDone&&classes.transitionsEnabled)}
+          ref={e => e ? setInstructHeight(e.clientHeight) : setInstructHeight(0)}
+        >
+          {state.shape==="add-remove" ? "Tap on cards to add or remove them" : state.shape==="change-lead" ? "Pick the topick which best represents the group" : ""}
+        </div>
         <div
           style={{
             top:
-              dynamicShape === 'minimized'
-                ? controlsHeight * 2 * displacement
-                : (reversed.length + 1) * controlsHeight * offsetHeight + 'px',
+              state.shape === 'minimized'
+                ? controlsHeight * displacement
+                : aboveHeight(cards.length) + controlsHeight + instructHeight,
           }}
-          className={cx(classes.subChild, classes[dynamicShape], allRefsDone && classes.transitionsEnabled)}
+          className={cx(classes.subChild, classes[state.shape], allRefsDone && classes.transitionsEnabled)}
           key="begin"
         >
           <ActionCard
-            className={cx(classes.flatTop, dynamicShape && classes[dynamicShape], allRefsDone && classes.transitionsEnabled)}
+            className={cx(classes.action, classes.flatTop, classes[state.shape], allRefsDone && classes.transitionsEnabled)}
             active={reversed.length > 1 ? "true" : "false"} name="Change Lead Topic"
-            onDone={(val) => { dispatch({type: "toggleChangeLeadTopic"}); onChangeLeadTopic && onChangeLeadTopic(!state.changeLeadTopic) }} />
+            onDone={(val) => { dispatch({type: "toggleChangeLeadTopic"}); onChangeLeadTopic && onChangeLeadTopic(!state.shape==='change-lead')}} />
         </div>
         <div
           ref={e => e && setControlsHeight(e.clientHeight)}
           style={{
             top:
-              dynamicShape === 'minimized'
+              state.shape === 'minimized'
                 ? controlsHeight * displacement
                 : reversed.length * controlsHeight * offsetHeight + 'px',
           }}
-          className={cx(classes.subChild, classes[dynamicShape], allRefsDone && classes.transitionsEnabled)}
+          className={cx(classes.subChild, classes[state.shape], allRefsDone && classes.transitionsEnabled)}
           key="head"
         >
-          <div className={cx(classes.controls, dynamicShape && classes[dynamicShape], allRefsDone && classes.transitionsEnabled)}>
-            {[<SvgTrashCan />, <SvgPencil />, <SvgCaret onClick={() => changeShape('minimized')} />].map(item => <div className={classes.controlsItem}>{item}</div>)}
+          <div className={cx(classes.controls, classes[state.shape], allRefsDone && classes.transitionsEnabled)}>
+            {[<SvgTrashCan />, <SvgPencil />, <SvgCaret onClick={() => dispatch({type: 'minimize'})} />].map(item => <div className={classes.controlsItem}>{item}</div>)}
           </div>
         </div>
         {reversed.map((newChild, i) => (
           <div
-            style={{ top: dynamicShape === 'minimized' ? 0 : `calc( ${(last - i) * controlsHeight * offsetHeight}px ${state.changeLeadTopic ? " + 1rem" : ""})` }}
+            style={{ top: state.shape === 'minimized' ? 0 : `calc( ${aboveHeight(last - i)}px ${(state.shape==="change-lead" || state.shape==="add-remove" )? " + 1rem" : ""})` }}
             className={cx(
               classes.subChild,
               classes[shapeOfChild(i)],
-              classes[dynamicShape],
+              classes[state.shape],
               allRefsDone && classes.transitionsEnabled
             )}
             key={newChild.key}
@@ -157,10 +210,10 @@ export function CardStack(props) {
             {newChild}
           </div>
         ))}
-        <div className={cx(classes.topControls, classes[dynamicShape])} key="last">
+        <div className={cx(classes.topControls, classes[state.shape])} key="last">
           <div className={classes.controlsItem} />
           <div className={classes.controlsItem} />
-          <div className={cx(classes.controlsItem, classes.pointerEvents)}><SvgCaretDown onClick={() => changeShape('')} /></div>
+          <div className={cx(classes.controlsItem, classes.pointerEvents)}><SvgCaretDown onClick={() => dispatch({type: 'open'})} /></div>
         </div>
       </div>
     </div>
@@ -185,7 +238,11 @@ const useStyles = createUseStyles({
     '&$minimized': {
       border: 'none',
     },
-    '&$unwrapped': {
+    '&$change-lead': {
+      borderTop: '1px solid white',
+      borderBottom: '1px solid white'
+    },
+    '&$add-remove': {
       borderTop: '1px solid white',
       borderBottom: '1px solid white'
     }
@@ -199,8 +256,10 @@ const useStyles = createUseStyles({
       transition: '0.5s linear all',
     },
   },
-  subChildWrapper: {},
-  minimized: {},
+  minimized: {}, // a shape 
+  'open': {}, // a shape
+  'add-remove': {}, // a shape
+  'change-lead': {}, // a shape
   transitionsEnabled: {},
   controls: {
     pointerEvents: 'auto',
@@ -214,7 +273,13 @@ const useStyles = createUseStyles({
     },
     display: 'table',
     tableLayout: 'fixed',
-    width: '100%'
+    width: '100%',
+    '&$add-remove': {
+      display: 'none',
+    },
+    '&$change-lead': {
+      display: 'none',
+    }
   },
   topControls: {
     position: 'absolute',
@@ -286,8 +351,30 @@ const useStyles = createUseStyles({
   pointerEvents: {
     pointerEvents: 'all'
   },
-  unwrapped: {
-
+  action: {
+    '&$add-remove': {
+      display: 'none'
+    },
+    '&$change-lead': {
+      display: 'none'
+    }
+  },
+  instruct: {
+    display: 'none',
+    position: 'relative',
+    textAlign: "center",
+    paddingTop: "1rem",
+    paddingBottom: "1rem",
+    color: "white",
+    '&$add-remove':{
+      display: "inline-block"
+    },
+    '&$change-lead':{
+      display: "inline-block"
+    },
+    '&$transitionsEnabled': {
+      transition: '0.5s linear all',
+    },
   }
 })
 
