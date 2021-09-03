@@ -3,8 +3,7 @@
 import React from 'react'
 import ArrowButton from './arrow-button'
 import TitleBar from './title-bar'
-import Rectangle13 from '../svgr/rectangle-13'
-import Rectangle14 from '../svgr/rectangle-14'
+import SvgUnpollLogoBackground from '../svgr/unpoll-logo-background'
 import { createUseStyles } from 'react-jss'
 
 export function StartPage({subject, description, buttonName, textSize, onDone}) {
@@ -15,9 +14,7 @@ export function StartPage({subject, description, buttonName, textSize, onDone}) 
                   <TitleBar className={classes.titleBar}/>
                   <div className={classes.wrapper}>
                     <span>
-                        <Rectangle14 className={`${classes.rectangle} ${classes.rectangle1}`}/>
-                        <Rectangle13 className={`${classes.rectangle} ${classes.rectangle2}`}/>
-                        <Rectangle14 className={`${classes.rectangle} ${classes.rectangle3}`}/>
+                        <SvgUnpollLogoBackground width="40%" height="auto" className={classes.rectangle}/>
                     </span>
                     <div className={textSize === 'large' ? classes.largeSubj : classes.smallSubj}>{subject}</div>
                     <div className={textSize === 'large' ? classes.largeDesc : classes.smallDesc}>{description}</div>
@@ -33,8 +30,6 @@ export function StartPage({subject, description, buttonName, textSize, onDone}) 
 const useStyles = createUseStyles({
     startContainer: {
         position: 'relative',
-        width: '23.438rem',
-        height: '41.688rem',
         backgroundColor: '#1480ff',
     },
     titleBar: {
@@ -50,23 +45,13 @@ const useStyles = createUseStyles({
         position: 'relative',
     },
     rectangle: {
-        borderRadius: '1.875rem',
-        margin: '.375rem',
+        // borderRadius: '1.875rem',
+        // margin: '.375rem',
         position: 'absolute',
-        zIndex: '1',
-        opacity: '0.2',       
-    },
-    rectangle1: {
-        left: '7.063rem',
-        top: '7.375rem',
-    },
-    rectangle2: {
-        left: '10.716rem',
-        top: '5.5rem',
-    },
-    rectangle3: {
-        left: '14.375rem',
-        top: '7.375rem',
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        // zIndex: '1',
+        // opacity: '0.2',       
     },
     largeSubj: {
         zIndex: '10',
@@ -112,8 +97,11 @@ const useStyles = createUseStyles({
         fontWeight: '400',
     },
     arrowButton: {
-        marginTop: '5.313rem',
+        marginTop: '15%',
         textAlign: 'center',
+        position: 'fixed',
+        marginRight: 'auto',
+        marginLeft: 'auto',
     }
 })
 
