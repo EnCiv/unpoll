@@ -1,12 +1,14 @@
 'use strict'
 
-import React, { useState } from 'react'
+import React, { useState, forceUpdate } from 'react'
 import { createUseStyles } from 'react-jss'
 import cx from 'classnames'
+import TextareaAutosize from 'react-textarea-autosize'
 
 const useStyles = createUseStyles({
     topicContainer: {
         width: '100%',
+        height: '100%'
     },
     topicInput: {
         border: '2px solid #ffffff',
@@ -38,21 +40,26 @@ const useStyles = createUseStyles({
         outline: 'none',
         fontSize: '1.25rem',
         lineHeight: '1.25rem',
+        fontFamily: 'Roboto',
+        fontStyle: 'normal',
+        fortWeight: '500'
+
     },
     topicInputTitle: {
         textAlign: 'left',
-        lineHeight: '16px',
-        fontSize: '14px',
+        lineHeight: '.9rem',
+        fontSize: '.8rem',
         fontWeight: 'bold',
-        fontFamily: 'sans-serif',
+        fontFamily: 'Roboto',
+        marginBottom: '1rem'
     },
     topicFilled: {
         textAlign: 'left',
         fontSize: '18px',
-        lineHeight: '21.09px',
-        fontFamily: 'sans-serif',
+        lineHeight: '1.2rem',
+        fontFamily: 'Roboto',
         border: '2px solid #fff',
-        borderRadius: '10px',
+        borderRadius: '.5rem',
         padding: '1rem',
     },
     textCount: {
@@ -62,7 +69,7 @@ const useStyles = createUseStyles({
 })
 
 
-export function InputElement({ name, maxLength = 50, defaultValue = "", className, style, onChange, onDone }) {
+export function TextAreaElement({ name, maxLength = 50, defaultValue = "", className, style, onChange, onDone }) {
     const classes = useStyles();
     const [state, setState] = useState(defaultValue.length ? "filled" : "begin");
     const [formData, setFormData] = useState({ value: defaultValue });
@@ -104,7 +111,7 @@ export function InputElement({ name, maxLength = 50, defaultValue = "", classNam
                 <>
                     <div className={classes.topicInputClicked} onKeyPress={e => handleKeyPress(e)} onBlur={handleSubmit} key="clicked">
                         <div className={classes.topicInputTitle}>{name}</div>
-                        <input maxLength={maxLength} autoFocus name={name} value={formData.value} onChange={handleChange} className={classes['topicInputText']} />
+                        <TextareaAutosize maxLength={maxLength} autoFocus name={name} onChange={handleChange} className={classes['topicInputText']} value={formData.value} />
                     </div>
                     <div className={classes.textCount}>{formData.value.length}/{maxLength}</div>
                 </>
@@ -123,4 +130,4 @@ export function InputElement({ name, maxLength = 50, defaultValue = "", classNam
     )
 }
 
-export default InputElement
+export default TextAreaElement
