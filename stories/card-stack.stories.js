@@ -36,7 +36,7 @@ const Template = args => (
 
 const cardObjs = i => {
   let a = []
-  for (let n = 0; n < i; n++) a.push({ _id: n + 1 + '', description: `Topic ${n + 1}` })
+  for (let n = 0; n < i; n++) a.push({ _id: n + 1 + 'abc', description: `Topic ${n + 1}` })
   return a
 }
 export const Open = Template.bind({})
