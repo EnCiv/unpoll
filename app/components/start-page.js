@@ -13,11 +13,11 @@ export function StartPage({subject, description, buttonName, textSize, onDone}) 
                 <div className={classes.topicContainer}>
                   <TitleBar className={classes.titleBar}/>
                   <div className={classes.wrapper}>
-                    <span>
-                        <SvgUnpollLogoBackground width="40%" height="auto" className={classes.rectangle}/>
-                    </span>
-                    <div className={textSize === 'large' ? classes.largeSubj : classes.smallSubj}>{subject}</div>
-                    <div className={textSize === 'large' ? classes.largeDesc : classes.smallDesc}>{description}</div>
+                    <SvgUnpollLogoBackground width="40%" height="auto" className={classes.rectangle}/>
+                    <div className={classes.textWrapper}>
+                        <div className={textSize === 'large' ? classes.largeSubj : classes.smallSubj}>{subject}</div>
+                        <div className={textSize === 'large' ? classes.largeDesc : classes.smallDesc}>{description}</div>
+                    </div>
                   </div>
                   <div className={classes.arrowButton} >
                     <ArrowButton name={buttonName} onClick={e => onDone && onDone(true)}/>
@@ -31,6 +31,7 @@ const useStyles = createUseStyles({
     startContainer: {
         position: 'relative',
         backgroundColor: '#1480ff',
+        height: '100vh',
     },
     titleBar: {
         fontFamily: 'Staatliches, sans-serif',
@@ -45,20 +46,21 @@ const useStyles = createUseStyles({
         position: 'relative',
     },
     rectangle: {
-        // borderRadius: '1.875rem',
-        // margin: '.375rem',
         position: 'absolute',
-        marginLeft: 'auto',
-        marginRight: 'auto',
-        // zIndex: '1',
-        // opacity: '0.2',       
+        left: '29%',
+        marginTop: '88px'     
+    },
+    textWrapper: {
+        height: '50vh',
+        overflowY: 'scroll',   
+        marginTop: '10vh', 
     },
     largeSubj: {
         zIndex: '10',
         color: '#ffffff',
         textAlign: 'left',
-        marginTop: '10.25rem',      
         marginLeft: '2.063rem',
+        marginRight: '2.063rem',
         fontSize: '3.125rem',
         fontFamily: 'sans-serif',
         fontWeight: 'bold',
@@ -68,6 +70,7 @@ const useStyles = createUseStyles({
         color: '#ffffff',
         textAlign: 'left',
         marginLeft: '2.063rem',
+        marginRight: '2.063rem',
         fontSize: '2.5rem',
         fontFamily: 'sans-serif',
         fontWeight: 'bold',
@@ -76,7 +79,6 @@ const useStyles = createUseStyles({
         zIndex: '10',
         color: '#ffffff',
         textAlign: 'left',
-        marginTop: '9.375rem',      
         marginLeft: '3.313rem',
         fontSize: '1.875rem',
         fontFamily: 'sans-serif',
@@ -88,7 +90,6 @@ const useStyles = createUseStyles({
         textAlign: 'left',
         marginLeft: '3.313rem',
         marginRight: '3.5rem',
-        marginTop: '.938rem',
         fontSize: '1.25rem',
         fontFamily: 'sans-serif',
         textAlign: 'justify',
@@ -97,11 +98,10 @@ const useStyles = createUseStyles({
         fontWeight: '400',
     },
     arrowButton: {
-        marginTop: '15%',
-        textAlign: 'center',
+        bottom: '2rem',
         position: 'fixed',
-        marginRight: 'auto',
-        marginLeft: 'auto',
+        width: '100%',
+        left: 0
     }
 })
 

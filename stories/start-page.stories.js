@@ -33,7 +33,7 @@ const Template = args => (
 
 export const WelcomePage = Template.bind({})
 WelcomePage.args = { subject: 'Hello!', 
-                     description: 'You have been invited to a short survey.',
+                     description: 'You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.',
                      buttonName: 'START',
                      textSize: 'large',
                      onDone: true

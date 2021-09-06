@@ -27,7 +27,6 @@ const useStyles = createUseStyles({
         display: 'flex',
         width: '100%',
         height: '3.75rem',
-        backgroundColor: '#3180ff',
         color: '#fff',
         alignItems: 'center',
         justifyContent: 'center',
