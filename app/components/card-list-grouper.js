@@ -66,7 +66,9 @@ export const CardListGrouper = props => {
         }
     }
     const catchEjectedSubChild = (child) => {
-        cards.push(child)
+        // put the ejected child right below the group it was ejected from - or at the end of the list
+        let groupIndex = group && (cards.findIndex(card => Array.isArray(card) && (card.length === 0 || card[0]._id === group)) + 1) || cards.length
+        cards.splice(groupIndex, 0, child)
         setRefresh(refresh + 1) // have to redraw
         let emptyChildIndex = cards.findIndex(card => Array.isArray(card) && !card.length)
         if (emptyChildIndex >= 0) cards.splice(emptyChildIndex, 1)
@@ -96,18 +98,20 @@ export const CardListGrouper = props => {
         <div className={cx(className, classes.list)} style={style} >
             {cards.map(card => {
                 if (Array.isArray(card))
-                    return (
-                        <CardStack
-                            className={classes.topic}
-                            shape={group === card[0]._id ? "add-remove" : "minimized"}
-                            onShapeChange={group === card[0]._id ? activeGroupShapeChange : shape => inactiveGroupShapeChange(card[0]._id, shape)}
-                            key={card[0]._id}
-                            onChangeLeadTopic={() => setChangeLeadTopic(!changeLeadTopic)}
-                            cards={card}
-                            refresh={refresh}
-                            reducer={(action) => catchEjectedSubChild(action.card)}
-                        />
-                    )
+                    if (card.length)
+                        return (
+                            <CardStack
+                                className={classes.topic}
+                                shape={group === card[0]._id ? "add-remove" : "minimized"}
+                                onShapeChange={group === card[0]._id ? activeGroupShapeChange : shape => inactiveGroupShapeChange(card[0]._id, shape)}
+                                key={card[0]._id}
+                                onChangeLeadTopic={() => setChangeLeadTopic(!changeLeadTopic)}
+                                cards={card}
+                                refresh={refresh}
+                                reducer={(action) => catchEjectedSubChild(action.card)}
+                            />
+                        )
+                    else return null
                 else
                     return <TopicCard topicObj={card} onToggleSelect={toggleSelect} className={classes.topic} key={card._id} />
             })}
