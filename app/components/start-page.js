@@ -6,36 +6,36 @@ import TitleBar from './title-bar'
 import SvgUnpollLogoBackground from '../svgr/unpoll-logo-background'
 import { createUseStyles } from 'react-jss'
 
-export function StartPage({subject, description, buttonName, textSize, onDone}) {
+export function StartPage({ subject, description, buttonName, textSize, onDone }) {
     const classes = useStyles();
-        return (
-            <div className={classes.startContainer}>
-                <div className={classes.topicContainer}>
-                  <TitleBar className={classes.titleBar}/>
-                  <div className={classes.wrapper}>
-                    <SvgUnpollLogoBackground width="40%" height="auto" className={classes.rectangle}/>
+    return (
+        <div className={classes.startContainer}>
+            <div className={classes.topicContainer}>
+                <TitleBar className={classes.titleBar} />
+                <div className={classes.wrapper}>
+                    <SvgUnpollLogoBackground width="40%" height="80vh" className={classes.unpollLogoBackground} />
                     <div className={classes.textWrapper}>
                         <div className={textSize === 'large' ? classes.largeSubj : classes.smallSubj}>{subject}</div>
                         <div className={textSize === 'large' ? classes.largeDesc : classes.smallDesc}>{description}</div>
                     </div>
-                  </div>
-                  <div className={classes.arrowButton} >
-                    <ArrowButton name={buttonName} onClick={e => onDone && onDone(true)}/>
-                  </div>
+                </div>
+                <div className={classes.arrowButton} >
+                    <ArrowButton name={buttonName} onClick={e => onDone && onDone(true)} />
                 </div>
             </div>
-        )
+        </div>
+    )
 }
 
 const useStyles = createUseStyles({
     startContainer: {
         position: 'relative',
         backgroundColor: '#1480ff',
-        height: '100vh',
+        height: '100%',
     },
     titleBar: {
         fontFamily: 'Staatliches, sans-serif',
-        fontSize: '1rem',     
+        fontSize: '1rem',
     },
     topicContainer: {
         display: 'flex',
@@ -45,18 +45,16 @@ const useStyles = createUseStyles({
     wrapper: {
         position: 'relative',
     },
-    rectangle: {
+    unpollLogoBackground: {
         position: 'absolute',
         left: '29%',
-        marginTop: '88px'     
+        top: 0
     },
     textWrapper: {
-        height: '50vh',
-        overflowY: 'scroll',   
-        marginTop: '10vh', 
+        marginTop: '10vh',
+        minHeight: '100vh'
     },
     largeSubj: {
-        zIndex: '10',
         color: '#ffffff',
         textAlign: 'left',
         marginLeft: '2.063rem',
@@ -66,17 +64,18 @@ const useStyles = createUseStyles({
         fontWeight: 'bold',
     },
     largeDesc: {
-        zIndex: '10',
         color: '#ffffff',
         textAlign: 'left',
         marginLeft: '2.063rem',
         marginRight: '2.063rem',
+        marginTop: '2rem',
+        marginBottom: '2rem',
         fontSize: '2.5rem',
         fontFamily: 'sans-serif',
         fontWeight: 'bold',
+
     },
     smallSubj: {
-        zIndex: '10',
         color: '#ffffff',
         textAlign: 'left',
         marginLeft: '3.313rem',
@@ -85,7 +84,6 @@ const useStyles = createUseStyles({
         fontWeight: 'bold',
     },
     smallDesc: {
-        zIndex: '10',
         color: '#ffffff',
         textAlign: 'left',
         marginLeft: '3.313rem',
@@ -96,6 +94,8 @@ const useStyles = createUseStyles({
         lineHeight: '1.438rem',
         fontStyle: 'normal',
         fontWeight: '400',
+        marginTop: '2rem',
+        marginBottom: '2rem'
     },
     arrowButton: {
         bottom: '2rem',
