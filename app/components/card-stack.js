@@ -187,7 +187,7 @@ export function CardStack(props) {
   // the wrapper div will not shrink when the children stack - so we force it
   const wrapperHeight =
     state.shape === 'minimized'
-      ? refHeight('action') * displacement * 2
+      ? refHeight('action') * 1 + (displacement * 2)
       : aboveHeight("all") || undefined // don't set maxheight if 0, likely on the first time through
 
   return (
