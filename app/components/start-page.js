@@ -44,6 +44,7 @@ const useStyles = createUseStyles({
     },
     wrapper: {
         position: 'relative',
+        marginBottom: '4rem', //make room to move the text above the arrow button
     },
     unpollLogoBackground: {
         position: 'absolute',
