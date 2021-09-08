@@ -27,7 +27,6 @@ const useStyles = createUseStyles({
         display: 'flex',
         width: '100%',
         height: '3.75rem',
-        backgroundColor: '#000',
         color: '#fff',
         alignItems: 'center',
         justifyContent: 'center',
@@ -41,7 +40,11 @@ const useStyles = createUseStyles({
         width: '70%',
         display: 'flex',
         justifyContent: 'center',
-        fontSize: '1.5em'
+        fontSize: '1rem',
+        fontFamily: 'Staatliches, sans-serif',
+        letterSpacing: '.32em',
+        lineHeight: '1.25rem',
+        fontWeight: '400',
     },
     right: {
         width: '15%',
