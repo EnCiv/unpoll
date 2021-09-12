@@ -17,7 +17,7 @@ const offsetHeight = 1.25
 const Blue = '#418AF9'
 
 export function CardStack(props) {
-  const { className, style, cards, shape = "open", displacement = 0.1, onShapeChange, onChangeLeadTopic, refresh } = props
+  const { className, style, cards, shape = "open", displacement = 0.1, onShapeChange, refresh } = props
   const classes = useStyles(props)
 
   const [refs, setRefs] = useState({ action: undefined, controls: undefined, instruct: undefined })
@@ -75,6 +75,8 @@ export function CardStack(props) {
 
   function reducer(state, action) {
     switch (action.type) {
+      case 'toggleAddRemove':
+        return { ...state, shape: state.shape === 'add-remove' ? 'open' : 'add-remove' }
       case 'refresh':
         return ({ ...state, refresh: state.refresh + 1 })
       case 'transitionEnd':
@@ -87,6 +89,16 @@ export function CardStack(props) {
       case 'open':
         onShapeChange && sideEffects.push(() => onShapeChange("open"))
         return { ...state, shape: 'open' }
+      case 'ejectAllCards':
+        if (cards.length) {
+          let card = cards.pop();
+          sideEffects.push(() => setTimeout(() => {
+            props?.grouperMethods?.catchEjectedCard && props.grouperMethods.catchEjectedCard(card)
+            dispatch({ type: "ejectAllCards" })
+          }
+            , 500))
+        }
+        return { ...state, refresh: state.refresh + 1 }
       case 'toggleSelect':
         switch (state.shape) {
           case "change-lead":
@@ -96,7 +108,7 @@ export function CardStack(props) {
               cards.splice(index, 1)
               cards.unshift(card)
             }
-            onShapeChange && sideEffects.push(() => setTimeout(() => onShapeChange("open"), 500))
+            onShapeChange && sideEffects.push(() => setTimeout(() => onShapeChange("minimized"), 500))
             return ({ ...state, shape: 'open', refresh: state.refresh + 1 })
           case "add-remove":
             // eject the child
@@ -104,8 +116,8 @@ export function CardStack(props) {
             if (idx >= 0) {
               let card = cards[idx]
               cards.splice(idx, 1)
-              if (props.reducer)
-                sideEffects.push(() => setTimeout(() => props.reducer({ type: "ejectCard", card }), 500))
+              if (props?.grouperMethods?.catchEjectedCard)
+                sideEffects.push(() => setTimeout(() => props.grouperMethods.catchEjectedCard(card), 500))
             }
             return { ...state, refresh: state.refresh + 1 } // refresh so there's a state change to cause a redraw because cards is always the same
           case "open":
@@ -117,9 +129,8 @@ export function CardStack(props) {
             throw new Error()
         }
       case 'toggleChangeLeadTopic':
-        const newShape = state.shape === 'change-lead' ? 'open' : 'change-lead'
-        onShapeChange && sideEffects.push(() => onShapeChange(newShape))
-        return { ...state, shape: newShape }
+        onShapeChange && sideEffects.push(() => onShapeChange('change-lead'))
+        return { ...state, shape: 'change-lead' }
       case 'clearChangeLeadTopic':
         onShapeChange && sideEffects.push(() => onShapeChange("open"))
         return { ...state, shape: 'open' }
@@ -129,7 +140,8 @@ export function CardStack(props) {
   }
 
   const [state, dispatch] = useReducer(reducer, { shape, refresh: 0, transitionCount: 0 })
-  useEffect(() => { dispatch({ type: "parentShapeChange", shape: state.shape }) }, [state.shape])
+  //useEffect(() => { dispatch({ type: "parentShapeChange", shape: state.shape }) }, [shape, state.shape])
+  useEffect(() => { dispatch({ type: "refresh" }) }, [state.shape]) // if shape changes refresh cause we need to calculate hight again after display: none takes effect
   const reversed = useMemo(
     () =>
       cards
@@ -213,8 +225,9 @@ export function CardStack(props) {
         >
           <ActionCard
             className={cx(classes.action, classes.flatTop, classes[state.shape], allRefsDone && classes.transitionsEnabled)}
-            active={cards.length > 1 ? "true" : "false"} name="Change Lead Topic"
-            onDone={(val) => { dispatch({ type: "toggleChangeLeadTopic" }); onChangeLeadTopic && onChangeLeadTopic(!state.shape === 'change-lead') }} />
+            active={cards.length > 1 ? "true" : "false"}
+            name={state.shape === "open" ? "Change Lead Topic" : "Group Topics"}
+            onDone={(val) => { dispatch({ type: "toggleChangeLeadTopic" }) }} />
         </div>
         <div
           ref={node => doSetRefs('controls', node)}
@@ -228,7 +241,7 @@ export function CardStack(props) {
           key="controls"
         >
           <div className={cx(classes.controls, classes[state.shape], allRefsDone && classes.transitionsEnabled)}>
-            {[<SvgTrashCan />, <SvgPencil />, <SvgCaret onClick={() => dispatch({ type: 'minimize' })} />].map(item => <div className={classes.controlsItem}>{item}</div>)}
+            {[<SvgTrashCan onClick={() => dispatch({ type: "ejectAllCards" })} />, <SvgPencil onClick={() => dispatch({ type: "toggleAddRemove" })} />, <SvgCaret onClick={() => dispatch({ type: 'minimize' })} />].map(item => <div className={classes.controlsItem}>{item}</div>)}
           </div>
         </div>
         {reversed.map((newChild, i) => (
@@ -246,24 +259,6 @@ export function CardStack(props) {
             {newChild}
           </div>
         ))}
-        {/*cards
-          .map((card, i) => (
-            <div
-              style={{ top: state.shape === 'minimized' ? 0 : `calc( ${aboveHeight(card._id)}px ${(state.shape === "change-lead" || state.shape === "add-remove") ? " + 1rem" : ""})` }}
-              className={cx(
-                classes.subChild,
-                classes[shapeOfChild(i)],
-                classes[state.shape],
-                allRefsDone && classes.transitionsEnabled
-              )}
-              ref={node => doSetRefs(card._id, node)}
-              key={card._id}
-            >
-              <TopicCard topicObj={card} onToggleSelect={() => dispatch({ type: "toggleSelect", id: card._id })} />
-            </div>
-          ))
-          .reverse()
-          */}
         <div className={cx(classes.topControls, classes[state.shape])} key="last">
           <div className={classes.controlsItem} />
           <div className={classes.controlsItem} />
@@ -283,6 +278,7 @@ const useStyles = createUseStyles({
   },
   borderWrapper: {
     position: 'relative',
+    boxSizing: 'border-box',
     border: '1px solid white',
     borderRadius: '1rem',
     height: '100%',
@@ -406,9 +402,6 @@ const useStyles = createUseStyles({
     pointerEvents: 'all'
   },
   action: {
-    /*   '&$add-remove': {
-         display: 'none'
-       },*/
     '&$change-lead': {
       display: 'none'
     }
