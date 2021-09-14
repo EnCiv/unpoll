@@ -99,8 +99,8 @@ const useStyles = createUseStyles({
         marginBottom: '2rem'
     },
     arrowButton: {
-        bottom: '2rem',
-        position: 'fixed',
+        marginBottom: '2rem',
+        //position: 'fixed',
         width: '100%',
         left: 0
     }

@@ -141,7 +141,7 @@ export const CardListGrouper = props => {
                 else
                     return <TopicCard topicObj={card} onToggleSelect={methods.toggleSelect} className={classes.topic} key={card._id} />
             })}
-            <ActionCard className={classes.action} active={!methodState.group && "true"} name={methodState.group ? "Complete Group before continuing" : "Continue"} onDone={() => methods.reset()} />
+            <ActionCard className={classes.action} active={!methodState.group && "true"} name={methodState.group ? "Complete Group before continuing" : "Continue"} onDone={onDone} />
         </div>
     )
 }
