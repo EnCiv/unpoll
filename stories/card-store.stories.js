@@ -10,6 +10,9 @@ export default {
     argTypes: {},
 }
 
+if (typeof logger === "undefined")
+    global.logger = console
+
 const Template = args => {
     const [backgroundColor, setBackgroundColor] = useState("white")
     return (
@@ -47,5 +50,5 @@ const cards = [
 
 
 export const Normal = Template.bind({})
-Normal.args = { cards }
+Normal.args = { defaultValue: cards }
 

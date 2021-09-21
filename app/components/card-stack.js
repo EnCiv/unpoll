@@ -4,6 +4,7 @@
 
 import React, { useState, useLayoutEffect, useMemo, useEffect, useReducer } from 'react'
 import ReactDom from 'react-dom'
+import useMethods from '../lib/use-methods'
 import { createUseStyles } from 'react-jss'
 import cx from 'classnames'
 import SvgTrashCan from '../svgr/trash-can'
@@ -17,36 +18,25 @@ const offsetHeight = 1.25
 const Blue = '#418AF9'
 
 export function CardStack(props) {
-  const { className, style, cards, shape = "open", displacement = 0.1, onShapeChange, refresh } = props
+  const { className, style, defaultShape = "open", displacement = 0.1, cardStore, group, groupMethods } = props
   const classes = useStyles(props)
 
-  const [refs, setRefs] = useState({ action: undefined, controls: undefined, instruct: undefined })
+  const groupIndex = cardStore.methodState.cards.findIndex(crd => Array.isArray(crd) && crd[0]._id === group)
+
+  const [refs, neverSetRefs] = useState({ action: undefined, controls: undefined, instruct: undefined })
   const [lastRefDone, setLastRefDone] = useState(false)
   const [allRefsDone, setAllRefsDone] = useState(false) // don't apply transitions until all refs are done
 
   function refsInOrder() {
     let keys = []
-    cards.forEach(card => keys.push(card._id))
+    if (groupIndex < 0) throw new Error()
+    cardStore.methodState.cards[groupIndex].forEach(card => keys.push(card._id))
     keys.push('instruct', 'controls', 'action')
     let newRefs = {}
     keys.forEach(key => newRefs[key] = refs[key])
     return newRefs
   }
 
-  const doSetRefs = (i, node) => {
-    // i===0 is the first one in cards which should go at the top of the 
-    // seems obvious but we are going to render the last card at the bottom and then 
-    // then one before that, above it, etc.
-    if (!node && refs[i]) {
-      //delete refs[i]
-      //if (allRefsDone) dispatch({ type: "refresh" }) // refresh because a child has been deleted
-    }
-    else if (refs[i] !== node) {
-      refs[i] = node
-      if (allRefsDone) dispatch({ type: "refresh" }) // refresh because a child has been added
-    }
-    // else don't setRefs cause your cause a loop
-  }
   function refHeight(n) {
     const node = refs[n] && ReactDom.findDOMNode(refs[n])
     return node ? node.getBoundingClientRect().height : 0
@@ -63,9 +53,6 @@ export function CardStack(props) {
     return height
   }
 
-  useEffect(() => dispatch({ type: "transitionEnd", id: "new" }), [cards.length])
-  // shapes: minimized, open, add-remove, change-lead
-
   // can't send actions to parent from within reducer, so save them as sideeffects and let them run after
   const [sideEffects, neverSetSideEffects] = useState([])
   useEffect(() => {
@@ -73,85 +60,99 @@ export function CardStack(props) {
       sideEffects.shift()()
   }, [sideEffects.length])
 
-  function reducer(state, action) {
-    switch (action.type) {
-      case 'toggleAddRemove':
-        return { ...state, shape: state.shape === 'add-remove' ? 'open' : 'add-remove' }
-      case 'refresh':
-        return ({ ...state, refresh: state.refresh + 1 })
-      case 'transitionEnd':
-        return { ...state, transitionCount: state.transitionCount + 1 }
-      case 'parentShapeChange':
-        return { ...state, shape: action.shape }
-      case 'minimize':
-        onShapeChange && sideEffects.push(() => onShapeChange("minimized"))
-        return { ...state, shape: "minimized" }
-      case 'open':
-        onShapeChange && sideEffects.push(() => onShapeChange("open"))
-        return { ...state, shape: 'open' }
-      case 'ejectAllCards':
-        if (cards.length) {
-          let card = cards.pop();
-          sideEffects.push(() => setTimeout(() => {
-            props?.grouperMethods?.catchEjectedCard && props.grouperMethods.catchEjectedCard(card)
-            dispatch({ type: "ejectAllCards" })
-          }
-            , 500))
-        }
-        return { ...state, refresh: state.refresh + 1 }
-      case 'toggleSelect':
-        switch (state.shape) {
-          case "change-lead":
-            let index = cards.findIndex(card => card._id === action.id)
-            if (index >= 0) {
-              let card = cards[index]
-              cards.splice(index, 1)
-              cards.unshift(card)
+  const [lstate, lmethods] = useMethods((dispatch, lstate) => ({
+    toggleAddRemove() {
+      dispatch({ shape: lstate.shape === 'add-remove' ? 'open' : 'add-remove' })
+    },
+    refresh() {
+      dispatch({ refresh: lstate.refresh + 1 })
+    },
+    transitionEnd() {
+      dispatch({ transitionCount: lstate.transitionCount + 1 })
+    },
+    minimize() {
+      dispatch({ shape: "minimized" })
+    },
+    open() {
+      dispatch({ shape: "open" })
+    },
+    ejectAllCards() {
+      if (cardStore.methodState.cards[groupIndex].length) {
+        let card = cardStore.methodState.cards[groupIndex].pop();
+        props.cardStore.methods.fromGroupRemoveId(group, card._id)
+        sideEffects.push(() => setTimeout(ejectAllCards, 500))
+      }
+      dispatch({ refresh: lstate.refresh + 1 })
+    },
+    changeLeadTopic() {
+      dispatch({ shape: 'change-lead' })
+    },
+    toggleCard(id) {
+      switch (lstate.shape) {
+        case "change-lead":
+          return props.groupMethods.changeLead(group, id)
+        case "add-remove":
+          // eject the child
+          return props.groupMethods.fromGroupRemoveId(group, id)
+        case "open":
+        case "minimized":
+          return // just ignore it
+        default:
+          throw new Error()
+      }
+    },
+    updateStaticSetRefs() {
+      let keys = []
+      cardStore.methodState.cards[groupIndex].forEach(card => keys.push(card._id))
+      keys.push('instruct', 'controls', 'action')
+      keys.forEach(key => {
+        if (!lstate.staticSetRefs[key]) {
+          lstate.staticSetRefs[key] =
+            node => {
+              if (!node && refs[key]) {
+                console.info("node is null for:", key)
+                //delete refs[i]
+                //if (allRefsDone) dispatch({ type: "refresh" }) // refresh because a child has been deleted
+              }
+              else if (refs[key] !== node) {
+                refs[key] = node
+                if (allRefsDone) lmethods.refresh() // refresh because a child has been added
+              }
+              // else don't setRefs cause your cause a loop
             }
-            onShapeChange && sideEffects.push(() => setTimeout(() => onShapeChange("minimized"), 500))
-            return ({ ...state, shape: 'open', refresh: state.refresh + 1 })
-          case "add-remove":
-            // eject the child
-            let idx = cards.findIndex(card => card._id === action.id)
-            if (idx >= 0) {
-              let card = cards[idx]
-              cards.splice(idx, 1)
-              if (props?.grouperMethods?.catchEjectedCard)
-                sideEffects.push(() => setTimeout(() => props.grouperMethods.catchEjectedCard(card), 500))
-            }
-            return { ...state, refresh: state.refresh + 1 } // refresh so there's a state change to cause a redraw because cards is always the same
-          case "open":
-            return state
-          case "minimized":
-            onShapeChange && sideEffects.push(() => onShapeChange("open"))
-            return { ...state, shape: 'open' }
-          default:
-            throw new Error()
         }
-      case 'toggleChangeLeadTopic':
-        onShapeChange && sideEffects.push(() => onShapeChange('change-lead'))
-        return { ...state, shape: 'change-lead' }
-      case 'clearChangeLeadTopic':
-        onShapeChange && sideEffects.push(() => onShapeChange("open"))
-        return { ...state, shape: 'open' }
-      default:
-        throw new Error()
+      }
+      )
+      // do not call dispatch - we are changing lState directly because we don't want to cause a rerender
+      dispatch({ transitionEnd: lstate.transitionCount + 1 })
     }
-  }
+  }), { shape: defaultShape, refresh: 0, transitionCount: 0, staticSetRefs: [] })
+  const [never, neverNever] = useState(lmethods.updateStaticSetRefs) // after creating lmethod above, we need to initialize updateStaticSetref - but only once. so we made a useState for it
 
-  const [state, dispatch] = useReducer(reducer, { shape, refresh: 0, transitionCount: 0 })
-  //useEffect(() => { dispatch({ type: "parentShapeChange", shape: state.shape }) }, [shape, state.shape])
-  useEffect(() => { dispatch({ type: "refresh" }) }, [state.shape]) // if shape changes refresh cause we need to calculate hight again after display: none takes effect
+  useEffect(lmethods.updateStaticSetRefs, [cardStore.methodState.cards[groupIndex]])
+
+  useEffect(lmethods.transitionEnd, [cardStore.methodState.cards[groupIndex]])
+  // shapes: minimized, open, add-remove, change-lead
+
+  useEffect(lmethods.refresh, [lstate.shape]) // if shape changes refresh cause we need to calculate hight again after display: none takes effect
   const reversed = useMemo(
-    () =>
-      cards
-        .map((card, i) => <div ref={node => doSetRefs(card._id, node)} key={card._id}>{<TopicCard topicObj={card} onToggleSelect={() => dispatch({ type: "toggleSelect", id: card._id })} />}</div>)
-        .reverse(),
-    [cards, state.transitionCount /*, state, refresh*/]
+    () => {
+      console.info("reversed updated")
+      return cardStore.methodState.cards[groupIndex]
+        .map((card, i) => (
+          <div ref={lstate.staticSetRefs[card._id]} key={card._id}>
+            <TopicCard topicObj={card}
+              onToggleSelect={lmethods.toggleCard}
+            />
+          </div>))
+        .reverse()
+    },
+    [cardStore.methodState.cards[groupIndex]]
   ) // reversed so the first child will be rendered last and on top of the other children -
   // memo to prevent rerender loop on state change
 
-  const last = cards.length - 1
+  const last = cardStore.methodState.cards[groupIndex].length - 1
+
   // without this, on initial render user will see the children drawn in reverse order, and then they will move into the correct order
   useLayoutEffect(() => {
     if (allRefsDone) return
@@ -160,7 +161,7 @@ export function CardStack(props) {
       return
     }
     let keys = Object.keys(refs);
-    keys.length === (cards.length + 3) &&
+    keys.length === (cardStore.methodState.cards[groupIndex].length + 3) &&
       keys.every(key => !!refs[key]) &&
       setLastRefDone(true)
   }, [refs, lastRefDone])
@@ -168,7 +169,7 @@ export function CardStack(props) {
 
   const shapeOfChild = i => {
     if (i == last) {
-      switch (state.shape) {
+      switch (lstate.shape) {
         case 'change-lead':
         case 'add-remove':
           return 'firstChildLikeInner'
@@ -182,87 +183,79 @@ export function CardStack(props) {
   }
 
   const shapeOfChildById = id => {
-    const i = cards.findIndex(card => card._id === id)
+    const i = cardStore.methodState.cards[groupIndex].findIndex(card => card._id === id)
     if (i < 0) return 'innerChild' // child may be being removed
     return shapeOfChild(last - i)
   }
 
 
-  const onChildTransitionEnd = (id) => {
-    dispatch({ type: "transitionEnd" })
-  }
-
-
-  const doSetInstruct = useMemo(() => (node) => doSetRefs('instruct', node))
-
-
   // the wrapper div will not shrink when the children stack - so we force it
   const wrapperHeight =
-    state.shape === 'minimized'
+    lstate.shape === 'minimized'
       ? refHeight('action') * 1 + (displacement * 2)
       : aboveHeight("all") || undefined // don't set maxheight if 0, likely on the first time through
 
   return (
     <div style={{ ...style, height: wrapperHeight }} className={cx(className, classes.wrapper, allRefsDone && classes.transitionsEnabled)}>
-      <div className={cx(classes.borderWrapper, classes[state.shape])}>
+      <div className={cx(classes.borderWrapper, classes[lstate.shape])}>
         <div style={{ top: aboveHeight('instruct') }}
-          className={cx(classes.instruct, classes[state.shape], allRefsDone && classes.transitionsEnabled)}
-          ref={doSetInstruct}
+          className={cx(classes.instruct, classes[lstate.shape], allRefsDone && classes.transitionsEnabled)}
+          ref={lstate.staticSetRefs["instruct"]}
           key="instruct"
         >
-          {state.shape === "add-remove" ? "Tap on cards to add or remove them" : state.shape === "change-lead" ? "Pick the topick which best represents the group" : ""}
+          {lstate.shape === "add-remove" ? "Tap on cards to add or remove them" : lstate.shape === "change-lead" ? "Pick the topick which best represents the group" : ""}
         </div>
         <div
           style={{
             top:
-              state.shape === 'minimized'
+              lstate.shape === 'minimized'
                 ? refHeight('action') * displacement
                 : aboveHeight('action'),
           }}
-          className={cx(classes.subChild, classes[state.shape], allRefsDone && classes.transitionsEnabled)}
+          className={cx(classes.subChild, classes[lstate.shape], allRefsDone && classes.transitionsEnabled)}
           key="action"
-          ref={node => doSetRefs('action', node)}
+          ref={lstate.staticSetRefs['action']}
         >
           <ActionCard
-            className={cx(classes.action, classes.flatTop, classes[state.shape], allRefsDone && classes.transitionsEnabled)}
-            active={cards.length > 1 ? "true" : "false"}
-            name={state.shape === "open" ? "Change Lead Topic" : "Group Topics"}
-            onDone={(val) => { dispatch({ type: "toggleChangeLeadTopic" }) }} />
+            className={cx(classes.action, classes.flatTop, classes[lstate.shape], allRefsDone && classes.transitionsEnabled)}
+            active={cardStore.methodState.cards[groupIndex].length > 1 ? "true" : "false"}
+            name={lstate.shape === "open" ? "Change Lead Topic" : "Group Topics"}
+            onDone={lmethods.changeLeadTopic} />
         </div>
         <div
-          ref={node => doSetRefs('controls', node)}
+          ref={lstate.staticSetRefs['controls']}
           style={{
             top:
-              state.shape === 'minimized'
+              lstate.shape === 'minimized'
                 ? refHeight('action') * displacement
                 : aboveHeight('controls') + 'px',
           }}
-          className={cx(classes.subChild, classes[state.shape], allRefsDone && classes.transitionsEnabled)}
+          className={cx(classes.subChild, classes[lstate.shape], allRefsDone && classes.transitionsEnabled)}
           key="controls"
         >
-          <div className={cx(classes.controls, classes[state.shape], allRefsDone && classes.transitionsEnabled)}>
-            {[<SvgTrashCan onClick={() => dispatch({ type: "ejectAllCards" })} />, <SvgPencil onClick={() => dispatch({ type: "toggleAddRemove" })} />, <SvgCaret onClick={() => dispatch({ type: 'minimize' })} />].map(item => <div className={classes.controlsItem}>{item}</div>)}
+          <div className={cx(classes.controls, classes[lstate.shape], allRefsDone && classes.transitionsEnabled)}>
+            {[<SvgTrashCan onClick={lmethods.ejectAllCards} />, <SvgPencil onClick={lmethods.toggleAddRemove} />, <SvgCaret onClick={lmethods.minimize} />].map(item => <div className={classes.controlsItem}>{item}</div>)}
           </div>
         </div>
         {reversed.map((newChild, i) => (
           <div
-            style={{ top: state.shape === 'minimized' ? 0 : `calc( ${aboveHeight(newChild.key)}px ${(state.shape === "change-lead" || state.shape === "add-remove") ? " + 1rem" : ""})` }}
+            style={{ top: lstate.shape === 'minimized' ? 0 : `calc( ${aboveHeight(newChild.key)}px ${(lstate.shape === "change-lead" || lstate.shape === "add-remove") ? " + 1rem" : ""})` }}
             className={cx(
               classes.subChild,
               classes[shapeOfChildById(newChild.key)],
-              classes[state.shape],
+              classes[lstate.shape],
               allRefsDone && classes.transitionsEnabled
             )}
             key={newChild.key}
-            onTransitionEnd={() => onChildTransitionEnd(newChild.key)}
+            onTransitionEnd={lmethods.transitionEnd}
           >
             {newChild}
           </div>
         ))}
-        <div className={cx(classes.topControls, classes[state.shape])} key="last">
+        <div className={cx(classes.topControls, classes[lstate.shape])} key="last">
           <div className={classes.controlsItem} />
           <div className={classes.controlsItem} />
-          <div className={cx(classes.controlsItem, classes.pointerEvents)}><SvgCaretDown onClick={() => dispatch({ type: 'open' })} /></div>
+          <div className={cx(classes.controlsItem, classes.pointerEvents)}><SvgCaretDown onClick={lmethods.open} /></div>
         </div>
       </div>
     </div>
