@@ -66,6 +66,7 @@ export const CardListGrouper = props => {
                                 group={card[0]._id}
                                 defaultShape={"add-remove"}
                                 groupMethods={groupMethods}
+                                iteration={methodState.iteration}
                             />
                         )
                     else return null

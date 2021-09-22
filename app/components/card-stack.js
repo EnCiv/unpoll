@@ -18,7 +18,7 @@ const offsetHeight = 1.25
 const Blue = '#418AF9'
 
 export function CardStack(props) {
-  const { className, style, defaultShape = "open", displacement = 0.1, cardStore, group, groupMethods } = props
+  const { className, style, defaultShape = "open", displacement = 0.1, cardStore, group, groupMethods, iteration } = props
   const classes = useStyles(props)
 
   const groupIndex = cardStore.methodState.cards.findIndex(crd => Array.isArray(crd) && crd[0]._id === group)
@@ -103,7 +103,9 @@ export function CardStack(props) {
     },
     updateStaticSetRefs() {
       let keys = []
+      const groupIndex = cardStore.methodState.cards.findIndex(crd => Array.isArray(crd) && crd[0]._id === props.group) // need to calc groupIndex in here becasue parent's groupIndex will never change in here
       cardStore.methodState.cards[groupIndex].forEach(card => keys.push(card._id))
+
       keys.push('instruct', 'controls', 'action')
       keys.forEach(key => {
         if (!lstate.staticSetRefs[key]) {
@@ -124,32 +126,17 @@ export function CardStack(props) {
       }
       )
       // do not call dispatch - we are changing lState directly because we don't want to cause a rerender
-      dispatch({ transitionEnd: lstate.transitionCount + 1 })
     }
   }), { shape: defaultShape, refresh: 0, transitionCount: 0, staticSetRefs: [] })
-  const [never, neverNever] = useState(lmethods.updateStaticSetRefs) // after creating lmethod above, we need to initialize updateStaticSetref - but only once. so we made a useState for it
+  lmethods.updateStaticSetRefs() // it's quick if nothing to do but initial, and anytime a card is added this needs to be done
 
-  useEffect(lmethods.updateStaticSetRefs, [cardStore.methodState.cards[groupIndex]])
+  useEffect(lmethods.updateStaticSetRefs, [cardStore.methodState.cards[groupIndex], iteration])
 
-  useEffect(lmethods.transitionEnd, [cardStore.methodState.cards[groupIndex]])
+  useEffect(lmethods.transitionEnd, [cardStore.methodState.cards[groupIndex], iteration])
   // shapes: minimized, open, add-remove, change-lead
 
   useEffect(lmethods.refresh, [lstate.shape]) // if shape changes refresh cause we need to calculate hight again after display: none takes effect
-  const reversed = useMemo(
-    () => {
-      console.info("reversed updated")
-      return cardStore.methodState.cards[groupIndex]
-        .map((card, i) => (
-          <div ref={lstate.staticSetRefs[card._id]} key={card._id}>
-            <TopicCard topicObj={card}
-              onToggleSelect={lmethods.toggleCard}
-            />
-          </div>))
-        .reverse()
-    },
-    [cardStore.methodState.cards[groupIndex]]
-  ) // reversed so the first child will be rendered last and on top of the other children -
-  // memo to prevent rerender loop on state change
+
 
   const last = cardStore.methodState.cards[groupIndex].length - 1
 
@@ -188,6 +175,33 @@ export function CardStack(props) {
     return shapeOfChild(last - i)
   }
 
+  const reversed = useMemo(
+    () => {
+      console.info("reversed updated")
+      return cardStore.methodState.cards[groupIndex]
+        .map((card, i) => (
+          <div
+            style={{ top: lstate.shape === 'minimized' ? 0 : `calc( ${aboveHeight(card._id)}px ${(lstate.shape === "change-lead" || lstate.shape === "add-remove") ? " + 1rem" : ""})` }}
+            className={cx(
+              classes.subChild,
+              classes[shapeOfChildById(card._id)],
+              classes[lstate.shape],
+              allRefsDone && classes.transitionsEnabled
+            )}
+            key={card._id}
+            onTransitionEnd={lmethods.transitionEnd}
+          >
+            <div ref={lstate.staticSetRefs[card._id]} key={card._id}>
+              <TopicCard topicObj={card}
+                onToggleSelect={lmethods.toggleCard}
+              />
+            </div>
+          </div>))
+        .reverse()
+    },
+    [cardStore.methodState.cards[groupIndex], iteration]
+  ) // reversed so the first child will be rendered last and on top of the other children -
+  // memo to prevent rerender loop on state change
 
   // the wrapper div will not shrink when the children stack - so we force it
   const wrapperHeight =
@@ -237,21 +251,7 @@ export function CardStack(props) {
             {[<SvgTrashCan onClick={lmethods.ejectAllCards} />, <SvgPencil onClick={lmethods.toggleAddRemove} />, <SvgCaret onClick={lmethods.minimize} />].map(item => <div className={classes.controlsItem}>{item}</div>)}
           </div>
         </div>
-        {reversed.map((newChild, i) => (
-          <div
-            style={{ top: lstate.shape === 'minimized' ? 0 : `calc( ${aboveHeight(newChild.key)}px ${(lstate.shape === "change-lead" || lstate.shape === "add-remove") ? " + 1rem" : ""})` }}
-            className={cx(
-              classes.subChild,
-              classes[shapeOfChildById(newChild.key)],
-              classes[lstate.shape],
-              allRefsDone && classes.transitionsEnabled
-            )}
-            key={newChild.key}
-            onTransitionEnd={lmethods.transitionEnd}
-          >
-            {newChild}
-          </div>
-        ))}
+        {reversed}
         <div className={cx(classes.topControls, classes[lstate.shape])} key="last">
           <div className={classes.controlsItem} />
           <div className={classes.controlsItem} />
