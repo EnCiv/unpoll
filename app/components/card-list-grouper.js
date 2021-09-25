@@ -16,27 +16,22 @@ export const CardListGrouper = props => {
 
     const [lState, lMethods] = useMethods((dispatch, lState) => (
         {
-            setGroup(id) {
-                dispatch({ group: id })
+            fromGroupRemoveId(group, id) {
+                // before removing the id, check if we are ending the grouping
+                const groupIndex = methodState.cards.findIndex(crd => crd.cards && crd._id === group)
+                if (methodState.cards[groupIndex].cards.length <= 1)
+                    dispatch({ group: '' })
+                methods.fromGroupRemoveId(group, id)
+            },
+            toggleSelect(id) {
+                if (!lState.group) {
+                    methods.toGroupAddId('', id)
+                    dispatch({ group: methodState.cards.find(crd => crd.cards && crd.cards[0]._id === id)?._id })
+                } else
+                    methods.toGroupAddId(lState.group, id)
             },
             resetGroup() {
                 dispatch({ group: '' })
-            },
-            fromGroupRemoveId(group, id) {
-                // before removing the id, check if we are ending the grouping
-                const groupIndex = methodState.cards.findIndex(crd => Array.isArray(crd) && crd[0]._id === group)
-                if (id === group) {
-                    if (methodState.cards[groupIndex].length > 1) {
-                        dispatch({ group: methodState.cards[groupIndex][1]._id })
-                    } else {
-                        dispatch({ group: '' })
-                    }
-                }
-                methods.fromGroupRemoveId(group, id)
-            },
-            changeLead(group, id) {
-                dispatch({ group: id })
-                methods.changeLead(group, id)
             }
         }
     ), { group: '' })
@@ -45,34 +40,27 @@ export const CardListGrouper = props => {
 
     const classes = useStyles(props)
 
-    const toggleSelect = (id) => {
-        if (!lState.group) {
-            lMethods.setGroup(id)
-            methods.toGroupAddId('', id)
-        } else
-            methods.toGroupAddId(lState.group, id)
-    }
-
     return (
         <div className={cx(className, classes.list)} style={style} >
-            {methodState.cards.map((card, cardIndex) => {
-                if (Array.isArray(card))
-                    if (card.length)
+            {methodState.cards.map(card => {
+                if (card.cards)
+                    if (card.cards.length)
                         return (
                             <CardStack
                                 className={classes.topic}
-                                key={card[0]._id}
+                                key={card._id}
                                 cardStore={cardStore}
-                                group={card[0]._id}
+                                group={card._id}
                                 defaultShape={"add-remove"}
                                 groupMethods={groupMethods}
                                 iteration={methodState.iteration}
+                                cards={card.cards}
                             />
                         )
                     else return null
                 else
                     return <TopicCard topicObj={card} className={classes.topic} key={card._id}
-                        onToggleSelect={toggleSelect}
+                        onToggleSelect={lMethods.toggleSelect}
                     />
             })}
             <ActionCard className={classes.action} active={!lState.group && "true"} name={lState.group ? "Complete Group before continuing" : "Continue"} onDone={onDone} />

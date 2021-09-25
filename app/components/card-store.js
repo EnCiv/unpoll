@@ -11,15 +11,14 @@ export const CardStore = props => {
             return (
                 {
                     toGroupAddId(group, id) {
-                        const groupIndex = methodState.cards.findIndex(crd => Array.isArray(crd) && crd[0]._id === group)
+                        const groupIndex = methodState.cards.findIndex(crd => crd.cards && crd._id === group)
                         if (groupIndex >= 0) {
                             if (groupIndex >= 0) {
                                 let cardIndex = methodState.cards.findIndex(crd => crd._id === id)
                                 if (cardIndex >= 0) {
-                                    let cards = methodState.cards//.slice() // make a copy
+                                    let cards = methodState.cards
                                     let card = cards[cardIndex]
-                                    //cards[groupIndex] = cards[groupIndex].slice()
-                                    cards[groupIndex].push(card) // a copy so that components will know it's changed
+                                    cards[groupIndex].cards.push(card) // a copy so that components will know it's changed
                                     cards.splice(cardIndex, 1) // remove card from list after manipulation because removing will change index
                                     dispatch({ cards, iteration: methodState.iteration + 1 })
                                     return
@@ -28,23 +27,22 @@ export const CardStore = props => {
                         } else { // create group with the card 
                             let cardIndex = methodState.cards.findIndex(card => card._id === id)
                             if (cardIndex >= 0) {
-                                methodState.cards[cardIndex] = [methodState.cards[cardIndex]]
+                                methodState.cards[cardIndex] = { _id: cardIndex + '-' + Date.now().toString(36), cards: [methodState.cards[cardIndex]] }
                                 dispatch({ iteration: methodState.iteration + 1 }) //cards: methodState.cards })
                                 return
                             } logger.error("cardStore.toGroupAddId id:", id, "not found.")
                         }
                     },
                     fromGroupRemoveId(group, id) {
-                        const groupIndex = methodState.cards.findIndex(crd => Array.isArray(crd) && crd[0]._id === group)
+                        const groupIndex = methodState.cards.findIndex(crd => crd.cards && crd._id === group)
                         if (groupIndex => 0) {
-                            let cardIndex = methodState.cards[groupIndex].findIndex(crd => crd._id === id)
+                            let cardIndex = methodState.cards[groupIndex].cards.findIndex(crd => crd._id === id)
                             if (cardIndex >= 0) {
-                                let subCards = methodState.cards[groupIndex]//.slice()
+                                let subCards = methodState.cards[groupIndex].cards
                                 let card = subCards[cardIndex]
                                 subCards.splice(cardIndex, 1)
-                                let cards = methodState.cards //.slice()
+                                let cards = methodState.cards
                                 if (subCards.length) {// there are still cards
-                                    //cards[groupIndex] = subCards
                                     cards.splice(groupIndex + 1, 0, card)
                                 } else
                                     cards[groupIndex] = card
@@ -54,15 +52,14 @@ export const CardStore = props => {
                         } else logger.error("cardStore.fromGroupRemoveId group:", groupIndex, "not found")
                     },
                     changeLead(group, id) {
-                        const groupIndex = methodState.cards.findIndex(crd => Array.isArray(crd) && crd[0]._id === group)
-                        let cardIndex = methodState.cards[groupIndex].findIndex(card => card._id === id)
+                        const groupIndex = methodState.cards.findIndex(crd => crd.cards && crd._id === group)
+                        let cardIndex = methodState.cards[groupIndex].cards.findIndex(card => card._id === id)
                         if (groupIndex >= 0 && cardIndex >= 0) {
                             let cards = methodState.cards
-                            let card = cards[groupIndex][cardIndex]
-                            let cardStack = cards[groupIndex]//.slice()
+                            let card = cards[groupIndex].cards[cardIndex]
+                            let cardStack = cards[groupIndex].cards
                             cardStack.splice(cardIndex, 1)
                             cardStack.unshift(card)
-                            //cards[groupIndex] = cardStack
                             dispatch({ cards, iteration: methodState.iteration + 1 }) // we havent really changeed cards - we just mutated it
                             return
                         } else logger.error("cardStore.changeLead group:", groupIndex, "id:", id, "not found")

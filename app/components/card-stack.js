@@ -18,10 +18,8 @@ const offsetHeight = 1.25
 const Blue = '#418AF9'
 
 export function CardStack(props) {
-  const { className, style, defaultShape = "open", displacement = 0.1, cardStore, group, groupMethods, iteration } = props
+  const { className, style, defaultShape = "open", displacement = 0.1, cardStore, group, groupMethods, iteration, cards } = props
   const classes = useStyles(props)
-
-  const groupIndex = cardStore.methodState.cards.findIndex(crd => Array.isArray(crd) && crd[0]._id === group)
 
   const [refs, neverSetRefs] = useState({ action: undefined, controls: undefined, instruct: undefined })
   const [lastRefDone, setLastRefDone] = useState(false)
@@ -29,8 +27,7 @@ export function CardStack(props) {
 
   function refsInOrder() {
     let keys = []
-    if (groupIndex < 0) throw new Error()
-    cardStore.methodState.cards[groupIndex].forEach(card => keys.push(card._id))
+    cards.forEach(card => keys.push(card._id))
     keys.push('instruct', 'controls', 'action')
     let newRefs = {}
     keys.forEach(key => newRefs[key] = refs[key])
@@ -77,12 +74,12 @@ export function CardStack(props) {
       dispatch({ shape: "open" })
     },
     ejectAllCards() {
-      if (cardStore.methodState.cards[groupIndex].length) {
-        let card = cardStore.methodState.cards[groupIndex].pop();
-        props.cardStore.methods.fromGroupRemoveId(group, card._id)
-        sideEffects.push(() => setTimeout(ejectAllCards, 500))
+      if (cards.length) {
+        let card = cards.pop();
+        props.groupMethods.fromGroupRemoveId(group, card._id)
+        sideEffects.push(() => setTimeout(this.ejectAllCards, 500))
       }
-      dispatch({ refresh: lstate.refresh + 1 })
+      sideEffects.push(() => setTimeout(() => dispatch({ refresh: lstate.refresh + 1 }), 500))
     },
     changeLeadTopic() {
       dispatch({ shape: 'change-lead' })
@@ -90,7 +87,10 @@ export function CardStack(props) {
     toggleCard(id) {
       switch (lstate.shape) {
         case "change-lead":
-          return props.groupMethods.changeLead(group, id)
+          props.groupMethods.changeLead(group, id)
+          props.groupMethods.resetGroup()
+          sideEffects.push(() => setTimeout(() => dispatch({ shape: 'open' }), 500))
+          return
         case "add-remove":
           // eject the child
           return props.groupMethods.fromGroupRemoveId(group, id)
@@ -103,8 +103,7 @@ export function CardStack(props) {
     },
     updateStaticSetRefs() {
       let keys = []
-      const groupIndex = cardStore.methodState.cards.findIndex(crd => Array.isArray(crd) && crd[0]._id === props.group) // need to calc groupIndex in here becasue parent's groupIndex will never change in here
-      cardStore.methodState.cards[groupIndex].forEach(card => keys.push(card._id))
+      cards.forEach(card => keys.push(card._id))
 
       keys.push('instruct', 'controls', 'action')
       keys.forEach(key => {
@@ -130,15 +129,15 @@ export function CardStack(props) {
   }), { shape: defaultShape, refresh: 0, transitionCount: 0, staticSetRefs: [] })
   lmethods.updateStaticSetRefs() // it's quick if nothing to do but initial, and anytime a card is added this needs to be done
 
-  useEffect(lmethods.updateStaticSetRefs, [cardStore.methodState.cards[groupIndex], iteration])
+  useEffect(lmethods.updateStaticSetRefs, [cards, iteration])
 
-  useEffect(lmethods.transitionEnd, [cardStore.methodState.cards[groupIndex], iteration])
+  useEffect(lmethods.transitionEnd, [cards, iteration])
   // shapes: minimized, open, add-remove, change-lead
 
   useEffect(lmethods.refresh, [lstate.shape]) // if shape changes refresh cause we need to calculate hight again after display: none takes effect
 
 
-  const last = cardStore.methodState.cards[groupIndex].length - 1
+  const last = cards.length - 1
 
   // without this, on initial render user will see the children drawn in reverse order, and then they will move into the correct order
   useLayoutEffect(() => {
@@ -148,7 +147,7 @@ export function CardStack(props) {
       return
     }
     let keys = Object.keys(refs);
-    keys.length === (cardStore.methodState.cards[groupIndex].length + 3) &&
+    keys.length === (cards.length + 3) &&
       keys.every(key => !!refs[key]) &&
       setLastRefDone(true)
   }, [refs, lastRefDone])
@@ -170,7 +169,7 @@ export function CardStack(props) {
   }
 
   const shapeOfChildById = id => {
-    const i = cardStore.methodState.cards[groupIndex].findIndex(card => card._id === id)
+    const i = cards.findIndex(card => card._id === id)
     if (i < 0) return 'innerChild' // child may be being removed
     return shapeOfChild(last - i)
   }
@@ -178,7 +177,7 @@ export function CardStack(props) {
   const reversed = useMemo(
     () => {
       console.info("reversed updated")
-      return cardStore.methodState.cards[groupIndex]
+      return cards
         .map((card, i) => (
           <div
             style={{ top: lstate.shape === 'minimized' ? 0 : `calc( ${aboveHeight(card._id)}px ${(lstate.shape === "change-lead" || lstate.shape === "add-remove") ? " + 1rem" : ""})` }}
@@ -199,7 +198,7 @@ export function CardStack(props) {
           </div>))
         .reverse()
     },
-    [cardStore.methodState.cards[groupIndex], iteration]
+    [cards, iteration]
   ) // reversed so the first child will be rendered last and on top of the other children -
   // memo to prevent rerender loop on state change
 
@@ -232,7 +231,7 @@ export function CardStack(props) {
         >
           <ActionCard
             className={cx(classes.action, classes.flatTop, classes[lstate.shape], allRefsDone && classes.transitionsEnabled)}
-            active={cardStore.methodState.cards[groupIndex].length > 1 ? "true" : "false"}
+            active={cards.length > 1 ? "true" : "false"}
             name={lstate.shape === "open" ? "Change Lead Topic" : "Group Topics"}
             onDone={lmethods.changeLeadTopic} />
         </div>
