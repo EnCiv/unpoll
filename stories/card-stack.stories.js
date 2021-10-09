@@ -40,12 +40,12 @@ const cardObjs = i => {
   return a
 }
 export const Open = Template.bind({})
-Open.args = { cards: cardObjs(5), shape: 'open' }
+Open.args = { cards: cardObjs(5), defaultShape: 'open' }
 export const Minimized = Template.bind({})
-Minimized.args = { cards: cardObjs(5), shape: 'minimized' }
+Minimized.args = { cards: cardObjs(5), defaultShape: 'minimized' }
 export const AddRemove = Template.bind({})
-AddRemove.args = { cards: cardObjs(5), shape: 'add-remove' }
+AddRemove.args = { cards: cardObjs(5), defaultShape: 'add-remove' }
 export const ChangeLead = Template.bind({})
-ChangeLead.args = { cards: cardObjs(5), shape: 'change-lead' }
+ChangeLead.args = { cards: cardObjs(5), defaultShape: 'change-lead' }
 export const OneCard = Template.bind({})
-OneCard.args = { cards: cardObjs(1), shape: 'minimized' }
+OneCard.args = { cards: cardObjs(1), defaultShape: 'minimized' }

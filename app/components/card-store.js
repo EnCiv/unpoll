@@ -2,6 +2,18 @@ import React, { useRef, useState, useEffect, useLayoutEffect, useMemo, useReduce
 
 import useMethods from '../lib/use-methods'
 
+/**
+ methodState: {
+     cards: [
+         {_id: string, description: "string"}, 
+         {_id: string, cards: []},
+         ...
+        ],
+    iteration: number
+ }
+ the object methodState.cards will be mutated but never changed
+ iteration will increase with each change to cards or one of it's childern
+ */
 export const CardStore = props => {
     const { children, defaultValue, ...otherProps } = props
     const initialState = { cards: props.defaultValue.slice(), iteration: 0 }
@@ -20,7 +32,7 @@ export const CardStore = props => {
                                     let card = cards[cardIndex]
                                     cards[groupIndex].cards.push(card) // a copy so that components will know it's changed
                                     cards.splice(cardIndex, 1) // remove card from list after manipulation because removing will change index
-                                    dispatch({ cards, iteration: methodState.iteration + 1 })
+                                    dispatch({ iteration: methodState.iteration + 1 })
                                     return
                                 } else logger.error("cardStore.toGroupAddId id:", id, "not found.")
                             } else logger.error("cardStore.toGroupAddId group:", group, "not found.")
@@ -46,7 +58,7 @@ export const CardStore = props => {
                                     cards.splice(groupIndex + 1, 0, card)
                                 } else
                                     cards[groupIndex] = card
-                                dispatch({ cards, iteration: methodState.iteration + 1 })
+                                dispatch({ iteration: methodState.iteration + 1 })
                                 return
                             } else logger.error("cardStore.fromGroupRemoveId group:", groupIndex, "id: ", id, "not found")
                         } else logger.error("cardStore.fromGroupRemoveId group:", groupIndex, "not found")
@@ -60,7 +72,7 @@ export const CardStore = props => {
                             let cardStack = cards[groupIndex].cards
                             cardStack.splice(cardIndex, 1)
                             cardStack.unshift(card)
-                            dispatch({ cards, iteration: methodState.iteration + 1 }) // we havent really changeed cards - we just mutated it
+                            dispatch({ iteration: methodState.iteration + 1 }) // we havent really changeed cards - we just mutated it
                             return
                         } else logger.error("cardStore.changeLead group:", groupIndex, "id:", id, "not found")
                     }

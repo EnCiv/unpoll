@@ -7,9 +7,14 @@ import StartPage from '../app/components/start-page'
 import { Ask } from '../app/components/ask';
 import CardListGrouper from '../app/components/card-list-grouper'
 import CardListSelector from '../app/components/card-list-selector'
+import CardStore from '../app/components/card-store';
 
 function Unpoll(props) {
-    return <ComponentListSlider {...props} />
+    return (
+        <CardStore {...props} >
+            <ComponentListSlider {...props} />
+        </CardStore>
+    )
 }
 
 export default {
@@ -80,18 +85,35 @@ const list = [
         minorLine="What questions do you have regarding the topics"
         asks={asks}
     />,
-    <ComponentListSlider NavBar={NavBar} children={[
-        <CardListGrouper cards={cards} />,
-        <CardListSelector cards={cards} selectedIds={selectedIds} />
-    ]} />,
+    <CardListGrouper />,
+    <CardListSelector selectedIds={selectedIds} maxSelected={2} />
+
+    /*
+        <CardStoreListGrouper />
+    <CardStore >
+        <ComponentListSlider NavBar={NavBar} children={[
+            <CardListGrouper />,
+            <CardListSelector selectedIds={selectedIds} />
+        ]} />
+    </CardStore>,*/
 
 ]
 
+function CardStoreListGrouper(props) {
+    return (
+        <CardStore {...props} >
+            <CardListGrouper />
+        </CardStore>
+    )
+}
+const shortList = [
+    <CardStoreListGrouper />,
+]
 export const NoNavBar = Template.bind({})
-NoNavBar.args = { children: list }
+NoNavBar.args = { children: list, defaultValue: cards }
 
 export const WithNavBar = Template.bind({})
-WithNavBar.args = { NavBar: NavBar, children: list }
+WithNavBar.args = { NavBar: NavBar, children: list, defaultValue: cards }
 
 
 const list2 = [

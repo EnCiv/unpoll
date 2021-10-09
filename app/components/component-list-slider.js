@@ -5,11 +5,14 @@
 import React, { useState, useEffect, useLayoutEffect, useMemo, useReducer, createRef } from 'react'
 import { createUseStyles } from 'react-jss'
 import cx from 'classnames'
+import shallowEqual from 'shallowequal'
 
 import PerfectScrollbar from 'react-perfect-scrollbar'
 import 'react-perfect-scrollbar/dist/css/styles.css';
 
 const delayedSideEffect = setTimeout  // basically put the side effect on the process queue and do it later
+
+
 
 export const ComponentListSlider = (props) => {
     const { children, onDone, NavBar = React.forwardRef((props, ref) => null), ...otherProps } = props
@@ -19,6 +22,14 @@ export const ComponentListSlider = (props) => {
     const [navBarRect, setNavBarRect] = useState({ height: 0, width: 0, bottom: 0 })
     const [outerRect, setOuterRect] = useState({ height: 0, width: 0 })
     const [transitions, setTransitions] = useState(false)
+
+    // if the other props have changed, we need to rerender the children
+    // latest.otherProps is only changed if it's shallow - different
+    // latest is written directcly because we don't want to cause another rerender - we just want to save the value for next time
+    const [latest, neverSetLatest] = useState({ otherProps })
+    if (!shallowEqual(latest.otherProps, otherProps)) latest.otherProps = otherProps
+
+
     // has to be useLaoutEffect not useEffect or transitions will get enabled before the first render of the children and it will be blurry
     useLayoutEffect(() => {
         if (navRef.current) {
@@ -61,7 +72,7 @@ export const ComponentListSlider = (props) => {
         () => children.map(child =>
             React.cloneElement(child, { ...otherProps, ...child.props, onDone: (val) => val && dispatch({ type: "increment" }) })
         )
-        , [children]
+        , [children, latest.otherProps]
     )
     // don't enable transitions until after the children have been rendered or the initial render will be blurry
     // the delayedSideEffect is necessary to delay the transitions until after the initial render

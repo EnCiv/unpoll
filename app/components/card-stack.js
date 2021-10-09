@@ -18,7 +18,7 @@ const offsetHeight = 1.25
 const Blue = '#418AF9'
 
 export function CardStack(props) {
-  const { className, style, defaultShape = "open", displacement = 0.1, cardStore, group, groupMethods, iteration, cards } = props
+  const { className, style, defaultShape = "open", displacement = 0.1, cardStore, group, groupMethods, cards = [] } = props
   const classes = useStyles(props)
 
   const [refs, neverSetRefs] = useState({ action: undefined, controls: undefined, instruct: undefined })
@@ -59,7 +59,13 @@ export function CardStack(props) {
 
   const [lstate, lmethods] = useMethods((dispatch, lstate) => ({
     toggleAddRemove() {
-      dispatch({ shape: lstate.shape === 'add-remove' ? 'open' : 'add-remove' })
+      if (lstate.shape === 'add-remove') {
+        dispatch({ shape: 'open' })
+        props.groupMethods.resetGroup(props.group)
+      } else {
+        dispatch({ shape: 'add-remove' })
+        props.groupMethods.setGroup(props.group)
+      }
     },
     refresh() {
       dispatch({ refresh: lstate.refresh + 1 })
@@ -75,11 +81,10 @@ export function CardStack(props) {
     },
     ejectAllCards() {
       if (cards.length) {
-        let card = cards.pop();
+        let card = cards[cards.length - 1];
         props.groupMethods.fromGroupRemoveId(group, card._id)
-        sideEffects.push(() => setTimeout(this.ejectAllCards, 500))
+        sideEffects.push(() => setTimeout(lmethods.ejectAllCards, 1000)) //allow user to experience the card in its now position after the transition before starting the next transition
       }
-      sideEffects.push(() => setTimeout(() => dispatch({ refresh: lstate.refresh + 1 }), 500))
     },
     changeLeadTopic() {
       dispatch({ shape: 'change-lead' })
@@ -87,9 +92,9 @@ export function CardStack(props) {
     toggleCard(id) {
       switch (lstate.shape) {
         case "change-lead":
-          props.groupMethods.changeLead(group, id)
-          props.groupMethods.resetGroup()
-          sideEffects.push(() => setTimeout(() => dispatch({ shape: 'open' }), 500))
+          props.groupMethods.changeLead(props.group, id)
+          props.groupMethods.resetGroup(props.group)
+          sideEffects.push(() => setTimeout(() => dispatch({ shape: 'minimized' }), 1000))
           return
         case "add-remove":
           // eject the child
@@ -129,9 +134,9 @@ export function CardStack(props) {
   }), { shape: defaultShape, refresh: 0, transitionCount: 0, staticSetRefs: [] })
   lmethods.updateStaticSetRefs() // it's quick if nothing to do but initial, and anytime a card is added this needs to be done
 
-  useEffect(lmethods.updateStaticSetRefs, [cards, iteration])
+  useEffect(lmethods.updateStaticSetRefs, [cards, cardStore])
 
-  useEffect(lmethods.transitionEnd, [cards, iteration])
+  useEffect(lmethods.transitionEnd, [cards, cardStore])
   // shapes: minimized, open, add-remove, change-lead
 
   useEffect(lmethods.refresh, [lstate.shape]) // if shape changes refresh cause we need to calculate hight again after display: none takes effect
@@ -177,8 +182,8 @@ export function CardStack(props) {
   const reversed = useMemo(
     () => {
       console.info("reversed updated")
-      return cards
-        .map((card, i) => (
+      return cards ?
+        cards.map((card, i) => (
           <div
             style={{ top: lstate.shape === 'minimized' ? 0 : `calc( ${aboveHeight(card._id)}px ${(lstate.shape === "change-lead" || lstate.shape === "add-remove") ? " + 1rem" : ""})` }}
             className={cx(
@@ -196,11 +201,13 @@ export function CardStack(props) {
               />
             </div>
           </div>))
-        .reverse()
+          .reverse() : []
     },
-    [cards, iteration]
+    [cards, cardStore, allRefsDone, lstate.shape]
   ) // reversed so the first child will be rendered last and on top of the other children -
   // memo to prevent rerender loop on state change
+  // allRefsDone to rerender them in position (aboveHeight) after their heights are known
+  // shape to change position when shape changes
 
   // the wrapper div will not shrink when the children stack - so we force it
   const wrapperHeight =

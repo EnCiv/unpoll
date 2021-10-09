@@ -18,8 +18,8 @@ export const CardListGrouper = props => {
         {
             fromGroupRemoveId(group, id) {
                 // before removing the id, check if we are ending the grouping
-                const groupIndex = methodState.cards.findIndex(crd => crd.cards && crd._id === group)
-                if (methodState.cards[groupIndex].cards.length <= 1)
+                const groupIndex = methodState.cards.findIndex(crd => crd.cards && crd._id === group) // might be ejecting cards from one group, while adding them to another
+                if (methodState.cards[groupIndex].cards.length <= 1 && group === lState.group)
                     dispatch({ group: '' })
                 methods.fromGroupRemoveId(group, id)
             },
@@ -30,8 +30,13 @@ export const CardListGrouper = props => {
                 } else
                     methods.toGroupAddId(lState.group, id)
             },
-            resetGroup() {
-                dispatch({ group: '' })
+            resetGroup(group) {
+                if (lState.group === group || !group)
+                    dispatch({ group: '' })
+            },
+            setGroup(group) {
+                if (!lState.group)
+                    dispatch({ group })
             }
         }
     ), { group: '' })
@@ -53,7 +58,6 @@ export const CardListGrouper = props => {
                                 group={card._id}
                                 defaultShape={"add-remove"}
                                 groupMethods={groupMethods}
-                                iteration={methodState.iteration}
                                 cards={card.cards}
                             />
                         )
