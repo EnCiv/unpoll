@@ -41,8 +41,7 @@ export const CardListSelector = props => {
                             return <div key={card._id} className={classes.topic}>
                                 <CardStack
                                     key={card._id}
-                                    defaultShape="minimized"
-                                    groupMethods={methods}
+                                    defaultShape="minimized-view"
                                     cards={card.cards}
                                     cardStore={cardStore}
                                 />

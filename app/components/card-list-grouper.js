@@ -54,10 +54,9 @@ export const CardListGrouper = props => {
                             <CardStack
                                 className={classes.topic}
                                 key={card._id}
-                                cardStore={cardStore}
+                                cardStore={{ ...cardStore, methods: groupMethods }}
                                 group={card._id}
                                 defaultShape={"add-remove"}
-                                groupMethods={groupMethods}
                                 cards={card.cards}
                             />
                         )

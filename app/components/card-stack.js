@@ -18,7 +18,7 @@ const offsetHeight = 1.25
 const Blue = '#418AF9'
 
 export function CardStack(props) {
-  const { className, style, defaultShape = "open", displacement = 0.1, cardStore, group, groupMethods, cards = [] } = props
+  const { className, style, defaultShape = "open", displacement = 0.1, cardStore, group, cards = [] } = props
   const classes = useStyles(props)
 
   const [refs, neverSetRefs] = useState({ action: undefined, controls: undefined, instruct: undefined })
@@ -61,10 +61,10 @@ export function CardStack(props) {
     toggleAddRemove() {
       if (lstate.shape === 'add-remove') {
         dispatch({ shape: 'open' })
-        props.groupMethods.resetGroup(props.group)
+        props.cardStore.methods.resetGroup(props.group)
       } else {
         dispatch({ shape: 'add-remove' })
-        props.groupMethods.setGroup(props.group)
+        props.cardStore.methods.setGroup(props.group)
       }
     },
     refresh() {
@@ -74,15 +74,34 @@ export function CardStack(props) {
       dispatch({ transitionCount: lstate.transitionCount + 1 })
     },
     minimize() {
-      dispatch({ shape: "minimized" })
+      if (lstate.shape === 'open-view') {
+        dispatch({ shape: 'minimized-view-start' })
+        sideEffects.push(() => setTimeout(() => dispatch({ shape: 'minimized-view' }), 475))
+      }
+      else dispatch({ shape: "minimized" })
     },
     open() {
-      dispatch({ shape: "open" })
+      /*if (lstate.shape === 'minimized-view-start' || lstate.shape === 'minimized-view') dispatch({ shape: 'open-view' })
+      else dispatch({ shape: "open" })*/
+      switch (lstate.shape) {
+        case 'minimized-view-start':
+          return dispatch({ shape: 'open-view' })
+        case 'minimized-view':
+          return dispatch({ shape: 'open-view' })
+        case 'open-view':
+          dispatch({ shape: 'minimized-view-start' })
+          sideEffects.push(() => setTimeout(() => dispatch({ shape: 'minimized-view' }), 475))
+          return
+        case 'minimized':
+          return dispatch({ shape: 'open' })
+        default:
+          return dispatch({ shape: 'minimized' })
+      }
     },
     ejectAllCards() {
       if (cards.length) {
         let card = cards[cards.length - 1];
-        props.groupMethods.fromGroupRemoveId(group, card._id)
+        props.cardStore.methods.fromGroupRemoveId(group, card._id)
         sideEffects.push(() => setTimeout(lmethods.ejectAllCards, 1000)) //allow user to experience the card in its now position after the transition before starting the next transition
       }
     },
@@ -92,15 +111,18 @@ export function CardStack(props) {
     toggleCard(id) {
       switch (lstate.shape) {
         case "change-lead":
-          props.groupMethods.changeLead(props.group, id)
-          props.groupMethods.resetGroup(props.group)
+          props.cardStore.methods.changeLead(props.group, id)
+          props.cardStore.methods.resetGroup(props.group)
           sideEffects.push(() => setTimeout(() => dispatch({ shape: 'minimized' }), 1000))
           return
         case "add-remove":
           // eject the child
-          return props.groupMethods.fromGroupRemoveId(group, id)
+          return props.cardStore.methods.fromGroupRemoveId(group, id)
         case "open":
         case "minimized":
+        case 'open-view':
+        case 'minimized-view-start':
+        case 'minized-view-late':
           return // just ignore it
         default:
           throw new Error()
@@ -137,7 +159,7 @@ export function CardStack(props) {
   useEffect(lmethods.updateStaticSetRefs, [cards, cardStore])
 
   useEffect(lmethods.transitionEnd, [cards, cardStore])
-  // shapes: minimized, open, add-remove, change-lead
+  // shapes: minimized, open, add-remove, change-lead, open-view, minimized-view, minimized-view-late
 
   useEffect(lmethods.refresh, [lstate.shape]) // if shape changes refresh cause we need to calculate hight again after display: none takes effect
 
@@ -165,7 +187,10 @@ export function CardStack(props) {
         case 'add-remove':
           return 'firstChildLikeInner'
         case 'open':
+        case 'open-view':
         case 'minimized':
+        case 'minimized-view-start':
+        case 'minimized-view':
           return 'firstChild'
       }
     }
@@ -185,7 +210,7 @@ export function CardStack(props) {
       return cards ?
         cards.map((card, i) => (
           <div
-            style={{ top: lstate.shape === 'minimized' ? 0 : `calc( ${aboveHeight(card._id)}px ${(lstate.shape === "change-lead" || lstate.shape === "add-remove") ? " + 1rem" : ""})` }}
+            style={{ top: lstate.shape === 'minimized' || lstate.shape === 'minimized-view-start' || lstate.shape === 'minimized-view' ? 0 : `calc( ${aboveHeight(card._id)}px ${(lstate.shape === "change-lead" || lstate.shape === "add-remove") ? " + 1rem" : ""})` }}
             className={cx(
               classes.subChild,
               classes[shapeOfChildById(card._id)],
@@ -211,8 +236,8 @@ export function CardStack(props) {
 
   // the wrapper div will not shrink when the children stack - so we force it
   const wrapperHeight =
-    lstate.shape === 'minimized'
-      ? refHeight('action') * 1 + (displacement * 2)
+    lstate.shape === 'minimized' || lstate.shape === 'minimized-view-start' || lstate.shape === 'minimized-view'
+      ? refHeight(cards[0]._id) * (1 + (displacement * 2))
       : aboveHeight("all") || undefined // don't set maxheight if 0, likely on the first time through
 
   return (
@@ -223,13 +248,15 @@ export function CardStack(props) {
           ref={lstate.staticSetRefs["instruct"]}
           key="instruct"
         >
-          {lstate.shape === "add-remove" ? "Tap on cards to add or remove them" : lstate.shape === "change-lead" ? "Pick the topick which best represents the group" : ""}
+          <div className={classes.instructTxt} >
+            {lstate.shape === "add-remove" ? "Tap on cards to add or remove them" : lstate.shape === "change-lead" ? "Pick the topick which best represents the group" : ""}
+          </div>
         </div>
         <div
           style={{
             top:
-              lstate.shape === 'minimized'
-                ? refHeight('action') * displacement
+              lstate.shape === 'minimized' || lstate.shape === 'minimized-view-start' || lstate.shape === 'minimized-view'
+                ? refHeight(cards[0]._id) * displacement * 2
                 : aboveHeight('action'),
           }}
           className={cx(classes.subChild, classes[lstate.shape], allRefsDone && classes.transitionsEnabled)}
@@ -246,9 +273,12 @@ export function CardStack(props) {
           ref={lstate.staticSetRefs['controls']}
           style={{
             top:
-              lstate.shape === 'minimized'
-                ? refHeight('action') * displacement
+              lstate.shape === 'minimized' || lstate.shape === 'minimized-view-start' || lstate.shape === 'minimized-view'
+                ? refHeight(cards[0]._id) * displacement
                 : aboveHeight('controls') + 'px',
+            maxHeight: lstate.shape === 'minimized' || lstate.shape === 'minimized-view-start' || lstate.shape === 'minimized-view' // or the cards below the top won't look evenly distributed
+              ? refHeight(cards[0]._id)
+              : undefined
           }}
           className={cx(classes.subChild, classes[lstate.shape], allRefsDone && classes.transitionsEnabled)}
           key="controls"
@@ -258,10 +288,11 @@ export function CardStack(props) {
           </div>
         </div>
         {reversed}
-        <div className={cx(classes.topControls, classes[lstate.shape])} key="last">
+        <div style={{ top: lstate.shape === 'minimized' || lstate.shape === 'minimized-view-start' || lstate.shape === 'minimized-view' ? 0 : (lstate.shape === "change-lead" || lstate.shape === "add-remove") ? "1rem" : 0 }}
+          className={cx(classes.topControls, classes[lstate.shape])} key="last">
           <div className={classes.controlsItem} />
           <div className={classes.controlsItem} />
-          <div className={cx(classes.controlsItem, classes.pointerEvents)}><SvgCaretDown onClick={lmethods.open} /></div>
+          <div className={cx(classes.controlsItem, classes.pointerEvents)} ><SvgCaretDown style={{ transition: '0.5s linear all', transform: (lstate.shape === 'minimized' || lstate.shape === 'minimized-view-start' || lstate.shape === 'minimized-view') ? 'rotate(0deg)' : 'rotate(180deg)' }} onClick={lmethods.open} /></div>
         </div>
       </div>
     </div>
@@ -282,9 +313,16 @@ const useStyles = createUseStyles({
     borderRadius: '1rem',
     height: '100%',
     backgroundColor: 'black',
+    overflow: 'hidden',
     borderBottom: 'none',
     borderTop: 'none',
     '&$minimized': {
+      border: 'none',
+    },
+    '&$minimized-view': {
+      border: 'none',
+    },
+    '&$minimized-view-start': {
       border: 'none',
     },
     '&$change-lead': {
@@ -294,7 +332,10 @@ const useStyles = createUseStyles({
     '&$add-remove': {
       borderTop: '1px solid white',
       borderBottom: '1px solid white'
-    }
+    },
+    '&$open-view': {
+      borderBottom: '1px solid white'
+    },
   },
   subChild: {
     position: 'absolute',
@@ -309,11 +350,22 @@ const useStyles = createUseStyles({
   'open': {}, // a shape
   'add-remove': {}, // a shape
   'change-lead': {}, // a shape
+  'open-view': {}, // a shape
+  'minimized-view-start': {}, // a shape
+  'minimized-view': {},
   transitionsEnabled: {},
   controls: {
     pointerEvents: 'auto',
     background: '#000000',
     '&$minimized': {
+      backgroundColor: '#949494',
+      borderRadius: '0 0 1rem 1rem',
+    },
+    '&$minimized-view': {
+      backgroundColor: '#949494',
+      borderRadius: '0 0 1rem 1rem',
+    },
+    '&$minimized-view-start': {
       backgroundColor: '#949494',
       borderRadius: '0 0 1rem 1rem',
     },
@@ -328,6 +380,12 @@ const useStyles = createUseStyles({
     },
     '&$change-lead': {
       display: 'none',
+    },
+    '&$open-view': {
+      display: 'none'
+    },
+    '&$minimized-view-start': {
+      display: 'none'
     }
   },
   topControls: {
@@ -336,7 +394,13 @@ const useStyles = createUseStyles({
     '&$minimized': {
       display: 'table'
     },
-    display: 'none',
+    '&$minimized-view': {
+      display: 'table'
+    },
+    '&$minimized-view-start': {
+      display: 'table'
+    },
+    display: 'table',
     tableLayout: 'fixed',
     width: '100%'
   },
@@ -359,6 +423,12 @@ const useStyles = createUseStyles({
     '&$minimized': {
       backgroundColor: '#4C4C4C',
     },
+    '&$minimized-view': {
+      backgroundColor: '#4C4C4C',
+    },
+    '&$minimized-view-start': {
+      backgroundColor: '#4C4C4C',
+    },
     '&$transitionsEnabled': {
       transition: '0.5s linear all',
     },
@@ -369,12 +439,26 @@ const useStyles = createUseStyles({
     '&$minimized': {
       borderRadius: '1rem',
     },
+    '&$minimized-view': {
+      borderRadius: '1rem',
+    },
+    '&$minimized-view-start': {
+      borderRadius: '1rem',
+    },
   },
   firstChildLikeInner: {
     marginLeft: '1rem',
     marginRight: '1rem',
     borderRadius: '1rem',
     '&$minimized': {
+      marginLeft: 0,
+      marginRight: 0,
+    },
+    '&$minimized-view': {
+      marginLeft: 0,
+      marginRight: 0,
+    },
+    '&$minimized-view-start': {
       marginLeft: 0,
       marginRight: 0,
     },
@@ -387,12 +471,28 @@ const useStyles = createUseStyles({
       marginLeft: 0,
       marginRight: 0,
     },
+    '&$minimized-view': {
+      marginLeft: 0,
+      marginRight: 0,
+    },
+    '&$minimized-view-start': {
+      marginLeft: 0,
+      marginRight: 0,
+    },
   },
   lastChild: {
     marginLeft: '1rem',
     marginRight: '1rem',
     borderRadius: '1rem',
     '&$minimized': {
+      marginLeft: 0,
+      marginRight: 0,
+    },
+    '&$minimized-view': {
+      marginLeft: 0,
+      marginRight: 0,
+    },
+    '&$minimized-view-start': {
       marginLeft: 0,
       marginRight: 0,
     },
@@ -403,24 +503,36 @@ const useStyles = createUseStyles({
   action: {
     '&$change-lead': {
       display: 'none'
+    },
+    '&$open-view': {
+      display: 'none'
+    },
+    '&$minimized-view-start': {
+      display: 'none'
     }
   },
   instruct: {
     display: 'none',
-    position: 'relative',
-    textAlign: "center",
-    paddingTop: "1rem",
-    paddingBottom: "1rem",
+    position: 'absolute',
+    width: '100%',
+
     color: "white",
     '&$add-remove': {
-      display: "inline-block"
+      display: "block"
     },
     '&$change-lead': {
-      display: "inline-block"
+      display: "block"
     },
     '&$transitionsEnabled': {
       transition: '0.5s linear all',
     },
+  },
+  instructTxt: {
+    textAlign: "center",
+    paddingTop: "1rem",
+    paddingBottom: "1rem",
+    position: 'relative',
+    display: 'inline-block'
   }
 })
 
