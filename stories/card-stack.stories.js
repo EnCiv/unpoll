@@ -39,6 +39,20 @@ const cardObjs = i => {
   for (let n = 0; n < i; n++) a.push({ _id: n + 1 + 'abc', description: `Topic ${n + 1}` })
   return a
 }
+
+const variedCards1 = [
+  { _id: 'abc100', description: 'short line' },
+  { _id: 'abc101', description: 'long line, long line long line long line long line long line long line long line long line long line long line long line long line long line long line long line long line long line long line ' },
+  { _id: 'abc102', description: 'short line' },
+  { _id: 'abc103', description: 'long line, long line long line long line long line long line long line long line long line long line long line long line long line long line long line long line long line long line long line ' },
+]
+
+const variedCards2 = [
+  { _id: 'abc101', description: 'long line, long line long line long line long line long line long line long line long line long line long line long line long line long line long line long line long line long line long line ' },
+  { _id: 'abc102', description: 'short line' },
+  { _id: 'abc103', description: 'long line, long line long line long line long line long line long line long line long line long line long line long line long line long line long line long line long line long line long line ' },
+  { _id: 'abc104', description: 'short line' },
+]
 export const Open = Template.bind({})
 Open.args = { cards: cardObjs(5), defaultShape: 'open' }
 export const Minimized = Template.bind({})
@@ -55,3 +69,7 @@ export const MinimizedViewStart = Template.bind({})
 MinimizedViewStart.args = { cards: cardObjs(5), defaultShape: 'minimized-view-start' }
 export const OpenView = Template.bind({})
 OpenView.args = { cards: cardObjs(5), defaultShape: 'open-view' }
+export const VariedCards1 = Template.bind({})
+VariedCards1.args = { cards: variedCards1, defaultShape: 'open' }
+export const VariedCards2 = Template.bind({})
+VariedCards2.args = { cards: variedCards2, defaultShape: 'open' }

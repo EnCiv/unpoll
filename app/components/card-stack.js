@@ -40,14 +40,20 @@ export function CardStack(props) {
   }
   // sum height of all children above i
   // 'all' or any name not in the list will return the hight of all elements in the list
+
   function aboveHeight(i) {
     let iKey = i + '' // keys must be strings
     const refs = refsInOrder()
     const keys = Object.keys(refs)
     let height = 0
     let n = 0
-    while (keys[n] !== iKey && n < keys.length) height += refHeight(keys[n++]) * (n < keys.length ? offsetHeight : 1)
-    return height
+    let realCards = 0 // don't calculate space between cards with no hight
+    while (keys[n] !== iKey && n < keys.length) {
+      const h = refHeight(keys[n++])
+      height += h
+      if (h > 0) realCards++
+    }
+    return `calc(${height}px + ${n >= keys.length ? realCards - 1 : realCards} * 1rem)`
   }
 
   // can't send actions to parent from within reducer, so save them as sideeffects and let them run after
@@ -122,7 +128,7 @@ export function CardStack(props) {
         case "minimized":
         case 'open-view':
         case 'minimized-view-start':
-        case 'minized-view-late':
+        case 'minized-view':
           return // just ignore it
         default:
           throw new Error()
@@ -152,17 +158,19 @@ export function CardStack(props) {
       }
       )
       // do not call dispatch - we are changing lState directly because we don't want to cause a rerender
+    },
+    reversedRefresh() {
+      dispatch({ reversedCount: lstate.reversedCount + 1 })
     }
-  }), { shape: defaultShape, refresh: 0, transitionCount: 0, staticSetRefs: [] })
+  }), { shape: defaultShape, refresh: 0, transitionCount: 0, staticSetRefs: [], reversedCount: 0 })
   lmethods.updateStaticSetRefs() // it's quick if nothing to do but initial, and anytime a card is added this needs to be done
 
   useEffect(lmethods.updateStaticSetRefs, [cards, cardStore])
 
   useEffect(lmethods.transitionEnd, [cards, cardStore])
-  // shapes: minimized, open, add-remove, change-lead, open-view, minimized-view, minimized-view-late
+  // shapes: minimized, open, add-remove, change-lead, open-view, minimized-view, minimized-view-start
 
   useEffect(lmethods.refresh, [lstate.shape]) // if shape changes refresh cause we need to calculate hight again after display: none takes effect
-
 
   const last = cards.length - 1
 
@@ -204,13 +212,25 @@ export function CardStack(props) {
     return shapeOfChild(last - i)
   }
 
+  function checkFor0(height) {
+    if (height <= 0) {
+      sideEffects.push(lmethods.reversedRefresh)
+    }
+    return height
+  }
+
   const reversed = useMemo(
     () => {
       console.info("reversed updated")
       return cards ?
         cards.map((card, i) => (
           <div
-            style={{ top: lstate.shape === 'minimized' || lstate.shape === 'minimized-view-start' || lstate.shape === 'minimized-view' ? 0 : `calc( ${aboveHeight(card._id)}px ${(lstate.shape === "change-lead" || lstate.shape === "add-remove") ? " + 1rem" : ""})` }}
+            style={{
+              top: lstate.shape === 'minimized' || lstate.shape === 'minimized-view-start' || lstate.shape === 'minimized-view' ? 0 : `calc( ${aboveHeight(card._id)} ${(lstate.shape === "change-lead" || lstate.shape === "add-remove") ? " + 1rem" : ""})`,
+              maxHeight: lstate.shape === 'minimized' || lstate.shape === 'minimized-view-start' || lstate.shape === 'minimized-view' // or bigger cards will hang out under the first card
+                ? refHeight(cards[0]._id)
+                : checkFor0(refHeight(card._id))
+            }}
             className={cx(
               classes.subChild,
               classes[shapeOfChildById(card._id)],
@@ -228,16 +248,18 @@ export function CardStack(props) {
           </div>))
           .reverse() : []
     },
-    [cards, cardStore, allRefsDone, lstate.shape]
+    [cards, cardStore, allRefsDone, lstate.shape, lstate.reversedCount]
   ) // reversed so the first child will be rendered last and on top of the other children -
   // memo to prevent rerender loop on state change
   // allRefsDone to rerender them in position (aboveHeight) after their heights are known
   // shape to change position when shape changes
+  // lstate.reversedCount so that after new cards are added, their maxHeight will get updated (and they will grow on screen)
+
 
   // the wrapper div will not shrink when the children stack - so we force it
   const wrapperHeight =
     lstate.shape === 'minimized' || lstate.shape === 'minimized-view-start' || lstate.shape === 'minimized-view'
-      ? refHeight(cards[0]._id) * (1 + (displacement * 2))
+      ? `calc( ${refHeight(cards[0]._id)}px + 2rem)`
       : aboveHeight("all") || undefined // don't set maxheight if 0, likely on the first time through
 
   return (
@@ -256,7 +278,7 @@ export function CardStack(props) {
           style={{
             top:
               lstate.shape === 'minimized' || lstate.shape === 'minimized-view-start' || lstate.shape === 'minimized-view'
-                ? refHeight(cards[0]._id) * displacement * 2
+                ? `calc( ${refHeight(cards[0]._id) - refHeight('action')}px + 2rem )`
                 : aboveHeight('action'),
           }}
           className={cx(classes.subChild, classes[lstate.shape], allRefsDone && classes.transitionsEnabled)}
@@ -274,8 +296,8 @@ export function CardStack(props) {
           style={{
             top:
               lstate.shape === 'minimized' || lstate.shape === 'minimized-view-start' || lstate.shape === 'minimized-view'
-                ? refHeight(cards[0]._id) * displacement
-                : aboveHeight('controls') + 'px',
+                ? `calc( ${refHeight(cards[0]._id) - refHeight('controls')}px + 1rem )`
+                : aboveHeight('controls'),
             maxHeight: lstate.shape === 'minimized' || lstate.shape === 'minimized-view-start' || lstate.shape === 'minimized-view' // or the cards below the top won't look evenly distributed
               ? refHeight(cards[0]._id)
               : undefined

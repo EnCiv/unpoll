@@ -31,7 +31,7 @@ const useStyles = createUseStyles({
     startContainer: {
         position: 'relative',
         backgroundColor: '#1480ff',
-        height: '100%',
+        //height: '100%',
     },
     titleBar: {
         fontFamily: 'Staatliches, sans-serif',
