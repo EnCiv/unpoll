@@ -96,7 +96,16 @@ const list = [
             <CardListSelector selectedIds={selectedIds} />
         ]} />
     </CardStore>,*/
+]
 
+const subList = [
+    <Ask
+        majorLine="What topics would you like to ask the candidates"
+        minorLine="What questions do you have regarding the topics"
+        asks={asks}
+    />,
+    <CardListGrouper />,
+    <CardListSelector selectedIds={selectedIds} maxSelected={2} />
 ]
 
 function CardStoreListGrouper(props) {
@@ -129,13 +138,11 @@ const list2 = [
         buttonName='CONTINUE'
         textSize='small'
     />,
-    <ComponentListSlider NavBar={NavBar} children={list} />,
+    <ComponentListSlider NavBar={NavBar} children={subList} />,
     <Panel backGroundColor="aqua" />,
     <Panel backGroundColor="magenta" />,
 ]
 
 export const Nested = Template.bind({})
-Nested.args = { NavBar: undefined, children: list2 }
+Nested.args = { NavBar: undefined, children: list2, defaultValue: cards }
 
-export const NestedWithNavBar = Template.bind({})
-NestedWithNavBar.args = { NavBar: NavBar, children: list2 }

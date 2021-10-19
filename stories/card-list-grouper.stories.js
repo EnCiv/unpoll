@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import CardListGrouper from '../app/components/card-list-grouper'
+import CardStore from '../app/components/card-store'
 
 export default {
     title: 'CardListGrouper',
@@ -24,7 +25,9 @@ const Template = args => {
                     minHeight: '100vh',
                 }}
             >
-                <CardListGrouper {...args} onDone={(e) => backgroundColor === "white" ? setBackgroundColor("black") : setBackgroundColor("white")} />
+                <CardStore {...args} onDone={(e) => backgroundColor === "white" ? setBackgroundColor("black") : setBackgroundColor("white")} >
+                    <CardListGrouper />
+                </CardStore>
             </div>
         </div>
     )
@@ -44,5 +47,5 @@ const cards = [
 
 
 export const Normal = Template.bind({})
-Normal.args = { cards, selectedIds: [] }
+Normal.args = { defaultValue: cards }
 
