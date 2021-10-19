@@ -14,7 +14,9 @@ const selectedColor = 'white'
 const rootBackgroundColor = '#E5E5E5'
 
 export const CardListSelector = props => {
-    const { cards, selectedIds, maxSelected = 2, onDone, ...otherProps } = props
+    const { cardStore, selectedIds, maxSelected = 2, onDone, ...otherProps } = props
+    const { methods, methodState } = cardStore
+    const cards = methodState.cards
     if (typeof selectedIds === 'undefined') {
         console.error("CardListSelector: selectedIds must be defined by parent")
         return null
@@ -32,27 +34,30 @@ export const CardListSelector = props => {
     }
     return (
         <>
-            <div className={classes.list}>
+            <div className={classes.list} key="card-list">
                 {cards.map(card => {
-                    if (Array.isArray(card))
-                        return <div className={classes.topic}>
-                            <CardStack shape="minimized">
-                                {card.map(subCard => (
-                                    <TopicCard topicObj={subCard} key={subCard._id} />
-                                ))}
-                            </CardStack>
-                            {selectedIds.includes(card[0]._id) &&
-                                <div className={classes.selected}>
-                                    <div className={classes.selectedInner} >
-                                        <SelectedIcon />
+                    if (card.cards) {
+                        if (card.cards.length) {
+                            return <div key={card._id} className={classes.topic}>
+                                <CardStack
+                                    key={card._id}
+                                    defaultShape="minimized-view"
+                                    cards={card.cards}
+                                    cardStore={cardStore}
+                                />
+                                {selectedIds.includes(card._id) &&
+                                    <div className={classes.selected}>
+                                        <div className={classes.selectedInner} >
+                                            <SelectedIcon />
+                                        </div>
                                     </div>
-                                </div>
-                            }
-                            <div className={classes.clickable} onClick={() => toggleSelect(card[0]._id)} key={'clickable' + card._id} />
-                        </div>
-                    else
-                        return <div className={classes.topic}>
-                            <TopicCard topicObj={card} key={card._id} />
+                                }
+                                <div className={classes.clickable} onClick={() => toggleSelect(card._id)} key={'clickable' + card._id} />
+                            </div>
+                        } return null
+                    } else
+                        return <div className={classes.topic} key={card._id}>
+                            <TopicCard topicObj={card} />
                             {selectedIds.includes(card._id) &&
                                 <div className={classes.selected}>
                                     <div className={classes.selectedInner} >
@@ -65,14 +70,20 @@ export const CardListSelector = props => {
                 })
                 }
             </div>
-            <div className={classes.done}>
-                <PercentDoneButton name="DONE" percentComplete={count / maxSelected} onClick={(e) => onDone && onDone()} />
+            <div className={classes.doneButton} key="done-button">
+                <PercentDoneButton name="DONE" percentComplete={count / maxSelected} onClick={(e) => onDone && onDone(true)} />
             </div>
         </>
     )
 }
 
 const useStyles = createUseStyles({
+    doneButton: {
+        marginBottom: '2rem',
+        //position: 'fixed',
+        width: '100%',
+        left: 0
+    },
     done: {
         position: "fixed",
         bottom: "2rem",

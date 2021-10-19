@@ -28,9 +28,6 @@ const Template = args => (
         }}
       >
         <Component {...args}>
-          {cardObjs(args.cards).map(card => (
-            <TopicCard topicObj={card} key={card._id} />
-          ))}
         </Component>
       </div>
     </div>
@@ -39,12 +36,40 @@ const Template = args => (
 
 const cardObjs = i => {
   let a = []
-  for (let n = 0; n < i; n++) a.push({ _id: n + 1 + '', description: `Topic ${n + 1}` })
+  for (let n = 0; n < i; n++) a.push({ _id: n + 1 + 'abc', description: `Topic ${n + 1}` })
   return a
 }
+
+const variedCards1 = [
+  { _id: 'abc100', description: 'short line' },
+  { _id: 'abc101', description: 'long line, long line long line long line long line long line long line long line long line long line long line long line long line long line long line long line long line long line long line ' },
+  { _id: 'abc102', description: 'short line' },
+  { _id: 'abc103', description: 'long line, long line long line long line long line long line long line long line long line long line long line long line long line long line long line long line long line long line long line ' },
+]
+
+const variedCards2 = [
+  { _id: 'abc101', description: 'long line, long line long line long line long line long line long line long line long line long line long line long line long line long line long line long line long line long line long line ' },
+  { _id: 'abc102', description: 'short line' },
+  { _id: 'abc103', description: 'long line, long line long line long line long line long line long line long line long line long line long line long line long line long line long line long line long line long line long line ' },
+  { _id: 'abc104', description: 'short line' },
+]
 export const Open = Template.bind({})
-Open.args = { cards: 5 }
+Open.args = { cards: cardObjs(5), defaultShape: 'open' }
 export const Minimized = Template.bind({})
-Minimized.args = { cards: 5, shape: 'minimized' }
+Minimized.args = { cards: cardObjs(5), defaultShape: 'minimized' }
+export const AddRemove = Template.bind({})
+AddRemove.args = { cards: cardObjs(5), defaultShape: 'add-remove' }
+export const ChangeLead = Template.bind({})
+ChangeLead.args = { cards: cardObjs(5), defaultShape: 'change-lead' }
 export const OneCard = Template.bind({})
-OneCard.args = { cards: 1, shape: 'minimized' }
+OneCard.args = { cards: cardObjs(1), defaultShape: 'minimized' }
+export const MinimizedView = Template.bind({})
+MinimizedView.args = { cards: cardObjs(5), defaultShape: 'minimized-view' }
+export const MinimizedViewStart = Template.bind({})
+MinimizedViewStart.args = { cards: cardObjs(5), defaultShape: 'minimized-view-start' }
+export const OpenView = Template.bind({})
+OpenView.args = { cards: cardObjs(5), defaultShape: 'open-view' }
+export const VariedCards1 = Template.bind({})
+VariedCards1.args = { cards: variedCards1, defaultShape: 'open' }
+export const VariedCards2 = Template.bind({})
+VariedCards2.args = { cards: variedCards2, defaultShape: 'open' }

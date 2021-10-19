@@ -19,7 +19,7 @@ const Template = args => (
                 marginRight: 'auto',
                 textAlign: 'center',
                 padding: '1rem',
-                backgroundColor: '#fff',
+                backgroundColor: '#000',
                 height: '100vh',
             }}
         >

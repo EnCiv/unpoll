@@ -48,7 +48,7 @@ export const Ask = (props) => {
                 return a
             }, [])}
             <div className={classes.doneButton} key='done' >
-                <PercentDoneButton percentComplete={count / (asks.length * Object.keys(asks[0]).length)} onClick={onDone} />
+                <PercentDoneButton percentComplete={count / (asks.length * Object.keys(asks[0]).length)} onClick={onDone} key="percentDoneButton" />
             </div>
         </div>
     )
@@ -62,8 +62,8 @@ const useStyles = createUseStyles({
         paddingRight: '2rem'
     },
     doneButton: {
-        bottom: '2rem',
-        position: 'fixed',
+        marginBottom: '2rem',
+        //position: 'fixed',
         width: '100%',
         left: 0
     },

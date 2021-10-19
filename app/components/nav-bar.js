@@ -1,5 +1,7 @@
 'use strict'
 
+// https://github.com/EnCiv/unpoll/issues/6
+
 import React, { useEffect } from 'react';
 import { createUseStyles } from 'react-jss';
 import cx from 'classnames'

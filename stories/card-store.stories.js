@@ -1,14 +1,17 @@
+// https://github.com/EnCiv/unpoll/issues/15
+
 import React, { useState } from 'react'
-
-import CardListSelector from '../app/components/card-list-selector'
 import CardStore from '../app/components/card-store'
-
+import CardListGrouper from '../app/components/card-list-grouper'
 
 export default {
-    title: 'CardListSelector',
-    component: CardListSelector,
+    title: 'CardStore',
+    component: CardStore,
     argTypes: {},
 }
+
+if (typeof logger === "undefined")
+    global.logger = console
 
 const Template = args => {
     const [backgroundColor, setBackgroundColor] = useState("white")
@@ -26,7 +29,7 @@ const Template = args => {
                 }}
             >
                 <CardStore {...args} onDone={(e) => backgroundColor === "white" ? setBackgroundColor("black") : setBackgroundColor("white")} >
-                    <CardListSelector />
+                    <CardListGrouper />
                 </CardStore>
             </div>
         </div>
@@ -46,10 +49,6 @@ const cards = [
 ]
 
 
-export const CardListNormal = Template.bind({})
-CardListNormal.args = { defaultValue: cards, selectedIds: [] }
-
-export const CardList1Selected = Template.bind({})
-
-CardList1Selected.args = { defaultValue: cards, selectedIds: ['abc123'], maxSelected: 2 }
+export const Normal = Template.bind({})
+Normal.args = { defaultValue: cards }
 

@@ -31,7 +31,7 @@ const useStyles = createUseStyles({
     startContainer: {
         position: 'relative',
         backgroundColor: '#1480ff',
-        height: '100%',
+        //height: '100%',
     },
     titleBar: {
         fontFamily: 'Staatliches, sans-serif',
@@ -99,8 +99,8 @@ const useStyles = createUseStyles({
         marginBottom: '2rem'
     },
     arrowButton: {
-        bottom: '2rem',
-        position: 'fixed',
+        marginBottom: '2rem',
+        //position: 'fixed',
         width: '100%',
         left: 0
     }
