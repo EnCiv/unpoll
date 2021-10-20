@@ -15,7 +15,7 @@ const selectedColor = 'white'
 const rootBackgroundColor = '#E5E5E5'
 
 export const CardListSelector = props => {
-    const { cardStore, selectedIds, maxSelected = 2, onDone, majorLine = "Select the topics that are most important to you.", minorLine, ...otherProps } = props
+    const { cardStore, selectedIds, maxSelected = 2, onDone, majorLine = "Select 2 topics that are most important to you.", minorLine, ...otherProps } = props
     const { methods, methodState } = cardStore
     const cards = methodState.cards
     if (typeof selectedIds === 'undefined') {
