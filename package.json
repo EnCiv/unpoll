@@ -62,17 +62,21 @@
     "civil-server": "github:EnCiv/civil-server#v0.0.10",
     "classnames": "^2.2.6",
     "compression-webpack-plugin": "^7.1.2",
+    "isomorphic-mongo-objectid": "^1.0.9",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-flip-move": "^3.0.4",
     "react-hot-loader": "^4.12.10",
     "react-jss": "^10.1.1",
     "react-perfect-scrollbar": "^1.5.8",
-    "react-proactive-accordion": "git+https://github.com/ddfridley/react-proactive-accordion.git#functional",
     "react-textarea-autosize": "^8.3.3",
     "shallowequal": "^1.1.0",
     "webpack": "^4.46.0",
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.2"
+  },
+  "engines": {
+    "node": ">=14.x.x",
+    "npm": ">=7.17.x"
   }
 }

@@ -22,6 +22,10 @@ export const CardStore = props => {
         (dispatch, methodState) => {
             return (
                 {
+                    addCard(card) {
+                        methodState.cards.push(card)
+                        dispatch({ iteration: methodState.iteration + 1 })
+                    },
                     toGroupAddId(group, id) {
                         const groupIndex = methodState.cards.findIndex(crd => crd.cards && crd._id === group)
                         if (groupIndex >= 0) {

@@ -1,5 +1,6 @@
 const path = require('path')
 const webpack = require('webpack')
+const compressionplugin = require('compression-webpack-plugin')
 
 module.exports = {
   mode: 'production',
@@ -15,10 +16,14 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.css$/i,
+        use: ["style-loader", "css-loader"],
+      },
+      {
         test: /\.js|\.jsx$/,
         exclude: /node_modules/,
         use: 'babel-loader'
-      }                                                                             
+      }
     ],
   },
   resolve: {

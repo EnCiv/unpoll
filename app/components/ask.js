@@ -7,6 +7,8 @@ import InputElement from './input-element'
 import PageHeader from './page-header'
 import PercentDoneButton from './percent-done-button'
 import TextAreaElement from './text-area-element'
+import objectid from 'isomorphic-mongo-objectid'
+
 
 const asksDone = (asks) => asks.reduce((a, pair) => {
     Object.values(pair).forEach(val => val && val.length && a++)
@@ -14,9 +16,23 @@ const asksDone = (asks) => asks.reduce((a, pair) => {
 }, 0)
 
 export const Ask = (props) => {
-    const { majorLine, minorLine, asks, onDone, className, style } = props;
+    const { majorLine, minorLine, asks, onDone, className, style, cardStore } = props;
     const classes = useStyles();
     const [count, setCount] = useState(0);
+
+    const onDoneAddCards = (done) => {
+        if (done) {
+            asks.forEach(ask => {
+                const [topic, question] = Object.keys(ask) // ignoring the question for now
+                let card = {
+                    _id: objectid().toString(),
+                    description: ask[topic]
+                }
+                cardStore.methods.addCard(card)
+            })
+        }
+        onDone(done)
+    }
 
     return (
         <div className={cx(className, classes.askOuter)} style={style}>
@@ -48,7 +64,7 @@ export const Ask = (props) => {
                 return a
             }, [])}
             <div className={classes.doneButton} key='done' >
-                <PercentDoneButton percentComplete={count / (asks.length * Object.keys(asks[0]).length)} onClick={onDone} key="percentDoneButton" />
+                <PercentDoneButton percentComplete={count / (asks.length * Object.keys(asks[0]).length)} onClick={onDoneAddCards} key="percentDoneButton" />
             </div>
         </div>
     )

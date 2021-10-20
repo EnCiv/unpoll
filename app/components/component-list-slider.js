@@ -8,7 +8,8 @@ import cx from 'classnames'
 import shallowEqual from 'shallowequal'
 
 import PerfectScrollbar from 'react-perfect-scrollbar'
-import 'react-perfect-scrollbar/dist/css/styles.css';
+if (typeof window !== "undefined")
+    require('react-perfect-scrollbar/dist/css/styles.css')
 
 const delayedSideEffect = setTimeout  // basically put the side effect on the process queue and do it later
 
