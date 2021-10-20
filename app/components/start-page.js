@@ -18,9 +18,9 @@ export function StartPage({ subject, description, buttonName, textSize, onDone }
                         <div className={textSize === 'large' ? classes.largeSubj : classes.smallSubj}>{subject}</div>
                         <div className={textSize === 'large' ? classes.largeDesc : classes.smallDesc}>{description}</div>
                     </div>
-                </div>
-                <div className={classes.arrowButton} >
-                    <ArrowButton name={buttonName} onClick={e => onDone && onDone(true)} />
+                    <div className={classes.arrowButton} >
+                        <ArrowButton name={buttonName} onClick={e => onDone && onDone(true)} />
+                    </div>
                 </div>
             </div>
         </div>
@@ -44,7 +44,6 @@ const useStyles = createUseStyles({
     },
     wrapper: {
         position: 'relative',
-        marginBottom: '4rem', //make room to move the text above the arrow button
     },
     unpollLogoBackground: {
         position: 'absolute',
@@ -53,7 +52,7 @@ const useStyles = createUseStyles({
     },
     textWrapper: {
         marginTop: '10vh',
-        minHeight: '100vh'
+        minHeight: 'calc( 90vh - 3.75rem)' // 3.75rem for the titleBar
     },
     largeSubj: {
         color: '#ffffff',
@@ -70,7 +69,7 @@ const useStyles = createUseStyles({
         marginLeft: '2.063rem',
         marginRight: '2.063rem',
         marginTop: '2rem',
-        marginBottom: '2rem',
+        marginBottom: '9rem', // include space at bottom for arrow button
         fontSize: '2.5rem',
         fontFamily: 'sans-serif',
         fontWeight: 'bold',
@@ -99,8 +98,8 @@ const useStyles = createUseStyles({
         marginBottom: '2rem'
     },
     arrowButton: {
-        marginBottom: '2rem',
-        //position: 'fixed',
+        position: 'absolute',
+        bottom: '4rem',
         width: '100%',
         left: 0
     }

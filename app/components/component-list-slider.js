@@ -2,7 +2,7 @@
 
 // https://github.com/EnCiv/unpoll/issues/25
 
-import React, { useState, useEffect, useLayoutEffect, useMemo, useReducer, createRef } from 'react'
+import React, { useState, useEffect, useLayoutEffect, useMemo, useReducer, useRef } from 'react'
 import { createUseStyles } from 'react-jss'
 import cx from 'classnames'
 import shallowEqual from 'shallowequal'
@@ -18,18 +18,34 @@ const delayedSideEffect = setTimeout  // basically put the side effect on the pr
 export const ComponentListSlider = (props) => {
     const { children, onDone, NavBar = React.forwardRef((props, ref) => null), ...otherProps } = props
     const classes = useStyles(props)
-    const navRef = createRef(); // didn't work right with ref= so navRef 
-    const outerRef = createRef()
+    const navRef = useRef(); // didn't work right with ref= so navRef 
+    const outerRef = useRef()
     const [navBarRect, setNavBarRect] = useState({ height: 0, width: 0, bottom: 0 })
     const [outerRect, setOuterRect] = useState({ height: 0, width: 0 })
     const [transitions, setTransitions] = useState(false)
+
+    // resizeHandler needs to access outerRef and setOuterRec but never change so that the event can be removed
+    const [resizeHandler] = useState(() =>
+        () => {
+            if (outerRef.current) {
+                let rect = outerRef.current.getBoundingClientRect()
+                if (rect.height && rect.width)
+                    setOuterRect(rect)
+            }
+        }
+    )
+
+    // if window resizes we need to recalculate or so the boxes are same size as new viewport
+    useEffect(() => {
+        window.addEventListener('resize', resizeHandler)
+        return () => window.removeEventListener('resize', resizeHandler)
+    }, [])
 
     // if the other props have changed, we need to rerender the children
     // latest.otherProps is only changed if it's shallow - different
     // latest is written directcly because we don't want to cause another rerender - we just want to save the value for next time
     const [latest, neverSetLatest] = useState({ otherProps })
     if (!shallowEqual(latest.otherProps, otherProps)) latest.otherProps = otherProps
-
 
     // has to be useLaoutEffect not useEffect or transitions will get enabled before the first render of the children and it will be blurry
     useLayoutEffect(() => {
@@ -40,14 +56,9 @@ export const ComponentListSlider = (props) => {
         }
     }
         , [navRef.current])
-    useLayoutEffect(() => {
-        if (outerRef.current) {
-            let rect = outerRef.current.getBoundingClientRect()
-            if (rect.height && rect.width)
-                setOuterRect(rect)
-        }
-    }
-        , [outerRef.current])
+    useLayoutEffect(resizeHandler, [outerRef.current])
+
+
     function reducer(state, action) {
         switch (action.type) {
             case 'increment':
@@ -124,7 +135,8 @@ const useStyles = createUseStyles({
         width: 'inherit',
         overflow: 'hidden',
         height: '100%',
-        clip: 'rect(0,auto,auto,0)' // to make sure the fixed position NavBar in a child is also hidden
+        clip: 'rect(0,auto,auto,0)', // to make sure the fixed position NavBar in a child is also hidden
+        backgroundColor: 'inherit' // otherwise background is white
     },
     wrapper: {
         width: '100%',
