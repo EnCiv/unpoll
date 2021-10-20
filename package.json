@@ -76,7 +76,7 @@
     "webpack-dev-server": "^3.11.2"
   },
   "engines": {
-    "node": ">=14.x.x",
-    "npm": ">=7.17.x"
+    "node": "~14.x.x",
+    "npm": "~7.17.x"
   }
 }
