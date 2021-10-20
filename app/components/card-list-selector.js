@@ -7,6 +7,7 @@ import CardStack from './card-stack'
 import TopicCard from './topic-card'
 import SelectedIcon from '../svgr/circle-check'
 import PercentDoneButton from './percent-done-button'
+import PageHeader from './page-header'
 
 const Blue = '#418AF9'
 const selectedBackgroundColor = Blue // blue
@@ -14,7 +15,7 @@ const selectedColor = 'white'
 const rootBackgroundColor = '#E5E5E5'
 
 export const CardListSelector = props => {
-    const { cardStore, selectedIds, maxSelected = 2, onDone, ...otherProps } = props
+    const { cardStore, selectedIds, maxSelected = 2, onDone, majorLine = "Select the topics that are most important to you.", minorLine, ...otherProps } = props
     const { methods, methodState } = cardStore
     const cards = methodState.cards
     if (typeof selectedIds === 'undefined') {
@@ -35,6 +36,7 @@ export const CardListSelector = props => {
     return (
         <>
             <div className={classes.list} key="card-list">
+                <PageHeader majorLine={majorLine} minorLine={minorLine} />
                 {cards.map(card => {
                     if (card.cards) {
                         if (card.cards.length) {

@@ -9,9 +9,10 @@ import CardStack from './card-stack'
 import TopicCard from './topic-card'
 import ActionCard from './action-card'
 import useMethods from '../lib/use-methods'
+import PageHeader from './page-header'
 
 export const CardListGrouper = props => {
-    const { className, style, cardStore, onDone, ...otherProps } = props
+    const { className, style, cardStore, onDone, majorLine = "Select the topics you find similar enough to be combined (If any).", minorLine = "Below are topics submited by you and other participans", ...otherProps } = props
     const { methods, methodState } = cardStore
 
     const [lState, lMethods] = useMethods((dispatch, lState) => (
@@ -47,6 +48,7 @@ export const CardListGrouper = props => {
 
     return (
         <div className={cx(className, classes.list)} style={style} >
+            <PageHeader majorLine={majorLine} minorLine={minorLine} />
             {methodState.cards.map(card => {
                 if (card.cards)
                     if (card.cards.length)
