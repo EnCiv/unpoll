@@ -260,7 +260,7 @@ export function CardStack(props) {
   const wrapperHeight =
     lstate.shape === 'minimized' || lstate.shape === 'minimized-view-start' || lstate.shape === 'minimized-view'
       ? `calc( ${refHeight(cards[0]._id)}px + 2rem)`
-      : aboveHeight("all") || undefined // don't set maxheight if 0, likely on the first time through
+      : `calc( ${aboveHeight("all")} + ${lstate.shape === 'open-view' ? '1rem' : '0px'} )` || undefined // don't set maxheight if 0, likely on the first time through
 
   return (
     <div style={{ ...style, height: wrapperHeight }} className={cx(className, classes.wrapper, allRefsDone && classes.transitionsEnabled)}>

@@ -15,124 +15,127 @@ const selectedColor = 'white'
 const rootBackgroundColor = '#E5E5E5'
 
 export const CardListSelector = props => {
-    const { cardStore, selectedIds, maxSelected = 2, onDone, majorLine = "Select 2 topics that are most important to you.", minorLine, ...otherProps } = props
-    const { methods, methodState } = cardStore
-    const cards = methodState.cards
-    if (typeof selectedIds === 'undefined') {
-        console.error("CardListSelector: selectedIds must be defined by parent")
-        return null
-    }
-    const classes = useStyles(props)
-    const [count, setCount] = useState(selectedIds.length)
-    function toggleSelect(id) {
-        let index = selectedIds.indexOf(id)
-        if (index < 0) {
-            if (selectedIds.length < maxSelected)
-                selectedIds.push(id)
-        } else
-            selectedIds.splice(index, 1)
-        setCount(selectedIds.length) // force a rerender because we are changing the state of a passed in array
-    }
-    return (
-        <>
-            <div className={classes.list} key="card-list">
-                <PageHeader majorLine={majorLine} minorLine={minorLine} />
-                {cards.map(card => {
-                    if (card.cards) {
-                        if (card.cards.length) {
-                            return <div key={card._id} className={classes.topic}>
-                                <CardStack
-                                    key={card._id}
-                                    defaultShape="minimized-view"
-                                    cards={card.cards}
-                                    cardStore={cardStore}
-                                />
-                                {selectedIds.includes(card._id) &&
-                                    <div className={classes.selected}>
-                                        <div className={classes.selectedInner} >
-                                            <SelectedIcon />
-                                        </div>
-                                    </div>
-                                }
-                                <div className={classes.clickable} onClick={() => toggleSelect(card._id)} key={'clickable' + card._id} />
-                            </div>
-                        } return null
-                    } else
-                        return <div className={classes.topic} key={card._id}>
-                            <TopicCard topicObj={card} />
-                            {selectedIds.includes(card._id) &&
-                                <div className={classes.selected}>
-                                    <div className={classes.selectedInner} >
-                                        <SelectedIcon />
-                                    </div>
-                                </div>
-                            }
-                            <div className={classes.clickable} onClick={() => toggleSelect(card._id)} key={'clickable' + card._id} />
-                        </div>
-                })
-                }
-            </div>
-            <div className={classes.doneButton} key="done-button">
-                <PercentDoneButton name="DONE" percentComplete={count / maxSelected} onClick={(e) => onDone && onDone(true)} />
-            </div>
-        </>
-    )
+  const {
+    cardStore,
+    selectedCards,
+    maxSelected = 2,
+    onDone,
+    majorLine = 'Select 2 topics that are most important to you.',
+    minorLine,
+    ...otherProps
+  } = props
+  const { methods, methodState } = cardStore
+  const cards = methodState.cards
+  if (typeof selectedCards === 'undefined') {
+    console.error('CardListSelector: selectedCards must be defined by parent')
+    return null
+  }
+  const classes = useStyles(props)
+  const [count, setCount] = useState(selectedCards.length)
+  function toggleSelect(card) {
+    let index = selectedCards.indexOf(card)
+    if (index < 0) {
+      if (selectedCards.length < maxSelected) selectedCards.push(card)
+    } else selectedCards.splice(index, 1)
+    setCount(selectedCards.length) // force a rerender because we are changing the state of a passed in array
+  }
+  return (
+    <>
+      <div className={classes.list} key="card-list">
+        <PageHeader majorLine={majorLine} minorLine={minorLine} />
+        {cards.map(card => {
+          if (card.cards) {
+            if (card.cards.length) {
+              return (
+                <div key={card._id} className={classes.topic}>
+                  <CardStack key={card._id} defaultShape="minimized-view" cards={card.cards} cardStore={cardStore} />
+                  {selectedCards.includes(card) && (
+                    <div className={classes.selected}>
+                      <div className={classes.selectedInner}>
+                        <SelectedIcon />
+                      </div>
+                    </div>
+                  )}
+                  <div className={classes.clickable} onClick={() => toggleSelect(card)} key={'clickable' + card._id} />
+                </div>
+              )
+            }
+            return null
+          } else
+            return (
+              <div className={classes.topic} key={card._id}>
+                <TopicCard topicObj={card} />
+                {selectedCards.includes(card) && (
+                  <div className={classes.selected}>
+                    <div className={classes.selectedInner}>
+                      <SelectedIcon />
+                    </div>
+                  </div>
+                )}
+                <div className={classes.clickable} onClick={() => toggleSelect(card)} key={'clickable' + card._id} />
+              </div>
+            )
+        })}
+      </div>
+      <div className={classes.doneButton} key="done-button">
+        <PercentDoneButton name="DONE" percentComplete={count / maxSelected} onClick={e => onDone && onDone(true)} />
+      </div>
+    </>
+  )
 }
 
 const useStyles = createUseStyles({
-    doneButton: {
-        marginBottom: '2rem',
-        //position: 'fixed',
-        width: '100%',
-        left: 0
+  doneButton: {
+    marginBottom: '2rem',
+    //position: 'fixed',
+    width: '100%',
+    left: 0,
+  },
+  done: {
+    position: 'fixed',
+    bottom: '2rem',
+    left: 0,
+    width: '100%',
+    height: 'auto',
+  },
+  clickable: {
+    position: 'absolute',
+    height: '6rem',
+    width: '6rem',
+    top: 0,
+    left: 0,
+    '&:hover': {
+      cursor: 'pointer',
     },
-    done: {
-        position: "fixed",
-        bottom: "2rem",
-        left: 0,
-        width: "100%",
-        height: 'auto'
-
+  },
+  selected: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    height: '100%',
+  },
+  selectedInner: {
+    position: 'absolute',
+    top: '2rem',
+    marginLeft: '2rem',
+    fontSize: '2rem',
+    lineHeight: '1em',
+    '& svg': {
+      verticalAlign: 'middle',
     },
-    clickable: {
-        position: 'absolute',
-        height: '6rem',
-        width: '6rem',
-        top: 0,
-        left: 0,
-        '&:hover': {
-            cursor: 'pointer'
-        }
+  },
+  list: {
+    padding: '1rem',
+  },
+  topic: {
+    position: 'relative',
+    borderRadius: '1rem',
+    overflow: 'hidden',
+    marginTop: '1rem',
+    '&:first-child': {
+      marginTop: 0,
     },
-    selected: {
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        height: "100%"
-    },
-    selectedInner: {
-        position: 'absolute',
-        top: '2rem',
-        marginLeft: '2rem',
-        fontSize: '2rem',
-        lineHeight: '1em',
-        '& svg': {
-            verticalAlign: 'middle'
-        },
-    },
-    list: {
-        padding: '1rem'
-
-    },
-    topic: {
-        position: 'relative',
-        borderRadius: '1rem',
-        overflow: 'hidden',
-        marginTop: '1rem',
-        "&:first-child": {
-            marginTop: 0
-        }
-    }
+  },
 })
 
 export default CardListSelector
