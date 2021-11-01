@@ -58,7 +58,7 @@ export default function Unpoll(props) {
           <IotaDbFilter store={'topicStore'} filter={topicFilter}>
             <IotaDbFilter store={'question0Store'} filter={questionFilter0} dependencies={cardStoreProp}>
               <IotaDbFilter store={'question1Store'} filter={questionFilter1} dependencies={cardStoreProp}>
-                <ComponentListSlider NavBar={NavBar}>
+                <ComponentListSlider NavBar={undefined}>
                   <StartPage
                     subject="Hello!"
                     description="You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey."
