@@ -329,8 +329,8 @@ export function CardStack(props) {
         >
           <div className={cx(classes.controls, classes[lstate.shape], allRefsDone && classes.transitionsEnabled)}>
             {[
-              <SvgTrashCan onClick={lstate.shape === 'open' && lmethods.ejectAllCards} />,
-              <SvgPencil onClick={lstate.shape === 'open' && lmethods.toggleAddRemove} />,
+              <SvgTrashCan onClick={lstate.shape === 'open' ? lmethods.ejectAllCards : undefined} />,
+              <SvgPencil onClick={lstate.shape === 'open' ? lmethods.toggleAddRemove : undefined} />,
               <SvgCaret onClick={lmethods.minimize} />,
             ].map(item => (
               <div className={classes.controlsItem}>{item}</div>

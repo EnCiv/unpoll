@@ -8,6 +8,7 @@ import TopicCard from './topic-card'
 import SelectedIcon from '../svgr/circle-check'
 import PercentDoneButton from './percent-done-button'
 import PageHeader from './page-header'
+import TopicHeader from './topic-header'
 
 const Blue = '#418AF9'
 const selectedBackgroundColor = Blue // blue
@@ -54,6 +55,7 @@ export const CardListSelector = props => {
   return (
     <>
       <div className={classes.list} key="card-list">
+        {topicCard && <TopicHeader card={topicCard} />}
         <PageHeader majorLine={majorLine} minorLine={minorLine} />
         {cards.map(card => {
           if (card.cards) {
@@ -92,7 +94,7 @@ export const CardListSelector = props => {
       <div className={classes.doneButton} key="done-button">
         <PercentDoneButton
           name="DONE"
-          percentComplete={selectedCards.length / maxSelected}
+          percentComplete={selectedCards.length / Math.min(maxSelected, cards.length)}
           onClick={e => onDone && onDone(true)}
         />
       </div>

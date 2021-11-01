@@ -84,15 +84,17 @@ export default function Unpoll(props) {
                       setSelectedCards={setSelectedCards}
                       maxSelected={2}
                     />
-                    <CardListGrouper store={'question0Store'} />
+                    <CardListGrouper topicCard={selectedCards[0]} store={'question0Store'} />
                     <CardListSelector
+                      topicCard={selectedCards[0]}
                       store={'question0Store'}
                       selectedCards={selectedQuestions0}
                       setSelectedCards={setSelectedQuestions0}
                       maxSelected={2}
                     />
-                    <CardListGrouper store={'question1Store'} />
+                    <CardListGrouper topicCard={selectedCards[1]} store={'question1Store'} />
                     <CardListSelector
+                      topicCard={selectedCards[1]}
                       store={'question1Store'}
                       selectedCards={selectedQuestions1}
                       setSelectedCards={setSelectedQuestions1}

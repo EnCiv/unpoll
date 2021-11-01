@@ -85,9 +85,10 @@ export const ComponentListSlider = props => {
   )
   // don't enable transitions until after the children have been rendered or the initial render will be blurry
   // the delayedSideEffect is necessary to delay the transitions until after the initial render
-  useLayoutEffect(() => {
-    if (clonedChildren) delayedSideEffect(() => setTransitions(true))
-  }, [clonedChildren])
+  if (typeof window !== 'undefined')
+    useLayoutEffect(() => {
+      if (clonedChildren) delayedSideEffect(() => setTransitions(true))
+    }, [clonedChildren])
   useEffect(() => {
     if (state.sendDoneToParent) {
       dispatch({ type: 'clearSendDoneToParent' })
