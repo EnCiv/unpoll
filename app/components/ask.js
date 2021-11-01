@@ -8,9 +8,10 @@ import PageHeader from './page-header'
 import PercentDoneButton from './percent-done-button'
 import TextAreaElement from './text-area-element'
 import objectid from 'isomorphic-mongo-objectid'
+import { createTopic, createQuestion } from './iota-db'
 
 export const Ask = props => {
-  const { majorLine, minorLine, asks, onDone, className, style, cardStore } = props
+  const { majorLine, minorLine, asks, onDone, className, style, cardStore, unmobQuestionId } = props
   const classes = useStyles()
   const [count, setCount] = useState(0)
   const [topicCards] = useState(
@@ -20,6 +21,9 @@ export const Ask = props => {
       return {
         _id: objectid().toString(),
         description: ask[topic],
+        subject: '',
+        parentId: unmobQuestionId,
+        webComponent: 'Topic',
       }
     })
   )
@@ -30,7 +34,9 @@ export const Ask = props => {
       return {
         _id: objectid().toString(),
         description: ask[question],
+        subject: '',
         parentId: topicCards[i]._id,
+        webComponent: 'Question',
       }
     })
   )
@@ -44,8 +50,14 @@ export const Ask = props => {
 
   const onDoneAddCards = done => {
     if (done) {
-      topicCards.forEach(card => cardStore.methods.addCard(card))
-      // need to do the questions too
+      topicCards.forEach(card => {
+        card.subject = card.description
+        createTopic(card)
+      })
+      questionCards.forEach((card, i) => {
+        card.subject = `Question of ${topicCards[i].description}`
+        createQuestion(card)
+      })
     }
     onDone(done)
   }

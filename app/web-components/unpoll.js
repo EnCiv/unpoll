@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useState, useCallback } from 'react'
 import { createUseStyles } from 'react-jss'
 import ComponentListSlider from '../components/component-list-slider'
 import NavBar from '../components/nav-bar'
@@ -7,24 +7,55 @@ import Ask from '../components/ask'
 import CardListGrouper from '../components/card-list-grouper'
 import CardListSelector from '../components/card-list-selector'
 import CardStore from '../components/card-store'
+import IotaDb from '../components/iota-db'
+import IotaDbFilter from '../components/iota-db-filter'
 
 const storybookPadding = '0px' // it padds the iframe with 1rem all around
+
+// Note to future dev's here: don't think of data flowing from one ComponentListSlider child to another,
+// think of each update goting up and then propogating down to all the children each time it happens
+//
+
+function allIds(card) {
+  if (!card) return []
+  if (!card.cards) return [card._id]
+  else return card.cards.map(card => card._id)
+}
 
 export default function Unpoll(props) {
   const classes = useStyles(props)
   const [backgroundColor, setBackgroundColor] = useState('white')
+  const [selectedCards, setSelectedCards] = useState([])
+  const [selectedQuestions0, setSelectedQuestions0] = useState([])
+  const [selectedQuestions1, setSelectedQuestions1] = useState([])
+
+  // question filters needs to be up here so that the function gets the latest selectedCards
+  // but useCallback so they don't change all the time
+  const questionFilter0 = useCallback(
+    doc => {
+      console.info('filter', selectedCards)
+      return doc.webComponent === 'Question' && allIds(selectedCards[0]).some(id => id === doc.parentId)
+    },
+    [selectedCards]
+  )
+  const questionFilter1 = useCallback(
+    doc => doc.webComponent === 'Question' && allIds(selectedCards[1]).some(id => id === doc.parentId),
+    [selectedCards]
+  )
+  const cardStoreProp = useCallback(props => [props.cardStore], [])
+  const topicFilter = useCallback(doc => doc.webComponent === 'Topic', [])
+  const toggleBackgroundColor = useCallback(
+    val => (val ? setBackgroundColor('black') : setBackgroundColor('white')),
+    []
+  )
 
   // on the server side render portrait will be true -
   // after first render on browser side, set it
   return (
     <div className={classes.unpollViewPort} style={{ backgroundColor }}>
       <div className={classes.unpollWrapper}>
-        <CardStore
-          NavBar={undefined}
-          onDone={val => (val ? setBackgroundColor('black') : setBackgroundColor('white'))}
-          {...props}
-        >
-          <ComponentListSlider>
+        <IotaDb onDone={toggleBackgroundColor} {...props}>
+          <ComponentListSlider NavBar={NavBar}>
             <StartPage
               subject="Hello!"
               description="You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey."
@@ -37,19 +68,43 @@ export default function Unpoll(props) {
               buttonName="CONTINUE"
               textSize="small"
             />
-            <ComponentListSlider NavBar={NavBar}>
-              <Ask
-                majorLine="What topics would you like to ask the candidates"
-                minorLine="What questions do you have regarding the topics"
-                asks={asks}
-              />
-              <CardListGrouper />
-              <CardListSelector selectedCards={selectedCards} maxSelected={2} />
-            </ComponentListSlider>
+            <IotaDbFilter filter={topicFilter}>
+              <CardStore>
+                <ComponentListSlider NavBar={NavBar}>
+                  <Ask
+                    majorLine="What topics would you like to ask the candidates"
+                    minorLine="What questions do you have regarding the topics"
+                    asks={asks}
+                  />
+                  <CardListGrouper />
+                  <CardListSelector selectedCards={selectedCards} setSelectedCards={setSelectedCards} maxSelected={2} />
+                  <IotaDbFilter filter={questionFilter0} dependencies={cardStoreProp}>
+                    <CardStore>
+                      <CardListGrouper />
+                      <CardListSelector
+                        selectedCards={selectedQuestions0}
+                        setSelectedCards={setSelectedQuestions0}
+                        maxSelected={2}
+                      />
+                    </CardStore>
+                  </IotaDbFilter>
+                  <IotaDbFilter filter={questionFilter1} dependencies={cardStoreProp}>
+                    <CardStore>
+                      <CardListGrouper />
+                      <CardListSelector
+                        selectedCards={selectedQuestions1}
+                        setSelectedCards={setSelectedQuestions1}
+                        maxSelected={2}
+                      />
+                    </CardStore>
+                  </IotaDbFilter>
+                </ComponentListSlider>
+              </CardStore>
+            </IotaDbFilter>
             <Panel backGroundColor="aqua" />
             <Panel backGroundColor="magenta" />
           </ComponentListSlider>
-        </CardStore>
+        </IotaDb>
       </div>
     </div>
   )

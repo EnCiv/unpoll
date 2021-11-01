@@ -47,7 +47,7 @@
     "description": "What are the most important questions for the Presidential Candidates to answer in the next debate?",
     "webComponent": {
       "webComponent": "Unpoll",
-      "unmobQuestion": "600f2e3d7be64409f0387718"
+      "unmobQuestionId": "600f2e3d7be64409f0387718"
     }
   }
 ]

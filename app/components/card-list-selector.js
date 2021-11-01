@@ -18,6 +18,7 @@ export const CardListSelector = props => {
   const {
     cardStore,
     selectedCards,
+    setSelectedCards,
     maxSelected = 2,
     onDone,
     majorLine = 'Select 2 topics that are most important to you.',
@@ -31,14 +32,24 @@ export const CardListSelector = props => {
     return null
   }
   const classes = useStyles(props)
-  const [count, setCount] = useState(selectedCards.length)
   function toggleSelect(card) {
     let index = selectedCards.indexOf(card)
     if (index < 0) {
-      if (selectedCards.length < maxSelected) selectedCards.push(card)
-    } else selectedCards.splice(index, 1)
-    setCount(selectedCards.length) // force a rerender because we are changing the state of a passed in array
+      if (selectedCards.length < maxSelected) setSelectedCards(selectedCards.concat([card]))
+    } else {
+      let _selectedCards = selectedCards.slice()
+      _selectedCards.splice(index, 1)
+      setSelectedCards(_selectedCards)
+    }
   }
+  // the cards might change, and if one of the selected cards is not there anymore we need to unselect it
+  useEffect(() => {
+    let _selectedCards = []
+    for (const card of selectedCards) {
+      if (methodState.cards.some(crd => crd._id === card._id)) _selectedCards.push(card)
+    }
+    if (_selectedCards.length !== selectedCards.length) setSelectedCards(_selectedCards)
+  }, [cardStore]) //methodState.cards never changes but cardStore will change when there are changes
   return (
     <>
       <div className={classes.list} key="card-list">
@@ -78,7 +89,11 @@ export const CardListSelector = props => {
         })}
       </div>
       <div className={classes.doneButton} key="done-button">
-        <PercentDoneButton name="DONE" percentComplete={count / maxSelected} onClick={e => onDone && onDone(true)} />
+        <PercentDoneButton
+          name="DONE"
+          percentComplete={selectedCards.length / maxSelected}
+          onClick={e => onDone && onDone(true)}
+        />
       </div>
     </>
   )

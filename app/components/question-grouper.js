@@ -1,15 +1,27 @@
 'use strict'
 
-import React, { useRef, useState, useEffect, useLayoutEffect } from 'react'
+import React, { useRef, useState, useEffect, useLayoutEffect, useMemo } from 'react'
 import { createUseStyles } from 'react-jss'
+import CardStore from './card-store'
+import CardListGrouper from './card-list-grouper'
 
 export function QuestionGrouper(props) {
   const { selectedCards, cardStore } = props
   const classes = useStyles(props)
+  const topicIds = selectedCards[0].cards ? selectedCards[0].cards.map(card => card._id) : selectedCards[0]._id
+  const selectedQuestions = useMemo(
+    () => questionCards.reduce((a, card) => (topicIds.some(id => card.parentId === id) ? (a.push(card), a) : a), []),
+    [selectedCards]
+  )
   return (
-    <div className={classes.panel}>
-      <h1>{majorLine}</h1>
-    </div>
+    <>
+      <div className={classes.panel}>
+        <h1>{selectedCards[0].cards ? selectedCards[0].cards[0].description : selectedCards[0]}</h1>
+      </div>
+      <CardStore defaultValue={selectedQuestions}>
+        <CardListGrouper />
+      </CardStore>
+    </>
   )
 }
 
