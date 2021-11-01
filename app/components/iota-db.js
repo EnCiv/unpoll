@@ -19,7 +19,11 @@ export function IotaDb(props) {
   const { children, ...otherProps } = props
   const [state, dispatch] = useReducer((state, action) => ({ iteration: state.iteration + 1 }), { iteration: 0 }) // action doesn't matter - always increment iteration
   if (!user) return <div style={{ color: 'white', width: '100%', textAlign: 'center' }}>User Login Required</div>
-  if (typeof socket === 'undefined') return children // probably running on storybook or the server
+  if (typeof socket === 'undefined') {
+    if (!IotaDb.subscribers) IotaDb.subscribers = []
+    if (!IotaDb.data) IotaDb.data = []
+    return children // probably running on storybook or the server
+  }
   useEffect(() => {
     return () => {
       console.info('unmounting IotaDb')
