@@ -42,7 +42,7 @@ export default function Unpoll(props) {
     doc => doc.webComponent === 'Question' && allIds(selectedCards[1]).some(id => id === doc.parentId),
     [selectedCards]
   )
-  const cardStoreProp = useCallback(props => [props.cardStore], [])
+  const cardStoreProp = useCallback(props => [props[props.store]], [])
   const topicFilter = useCallback(doc => doc.webComponent === 'Topic', [])
   const toggleBackgroundColor = useCallback(
     val => (val ? setBackgroundColor('black') : setBackgroundColor('white')),
@@ -55,55 +55,56 @@ export default function Unpoll(props) {
     <div className={classes.unpollViewPort} style={{ backgroundColor }}>
       <div className={classes.unpollWrapper}>
         <IotaDb onDone={toggleBackgroundColor} {...props}>
-          <ComponentListSlider NavBar={NavBar}>
-            <StartPage
-              subject="Hello!"
-              description="You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey."
-              buttonName="START"
-              textSize="large"
-            />
-            <StartPage
-              subject="What is Undebate?"
-              description="Undebate is an eleifend ipsum nibh massa ultiricies leo. Enim, tristique elit tempus senectus tempor augue. Enim mauris posuere dolor lacus. Egestas aliquam tellus id tristique. Accumsan id semper et sed fringilla vitae vitae eu."
-              buttonName="CONTINUE"
-              textSize="small"
-            />
-            <IotaDbFilter filter={topicFilter}>
-              <CardStore>
+          <IotaDbFilter store={'topicStore'} filter={topicFilter}>
+            <IotaDbFilter store={'question0Store'} filter={questionFilter0} dependencies={cardStoreProp}>
+              <IotaDbFilter store={'question1Store'} filter={questionFilter1} dependencies={cardStoreProp}>
                 <ComponentListSlider NavBar={NavBar}>
-                  <Ask
-                    majorLine="What topics would you like to ask the candidates"
-                    minorLine="What questions do you have regarding the topics"
-                    asks={asks}
+                  <StartPage
+                    subject="Hello!"
+                    description="You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey.You have been invited to a short survey."
+                    buttonName="START"
+                    textSize="large"
                   />
-                  <CardListGrouper />
-                  <CardListSelector selectedCards={selectedCards} setSelectedCards={setSelectedCards} maxSelected={2} />
-                  <IotaDbFilter filter={questionFilter0} dependencies={cardStoreProp}>
-                    <CardStore>
-                      <CardListGrouper />
-                      <CardListSelector
-                        selectedCards={selectedQuestions0}
-                        setSelectedCards={setSelectedQuestions0}
-                        maxSelected={2}
-                      />
-                    </CardStore>
-                  </IotaDbFilter>
-                  <IotaDbFilter filter={questionFilter1} dependencies={cardStoreProp}>
-                    <CardStore>
-                      <CardListGrouper />
-                      <CardListSelector
-                        selectedCards={selectedQuestions1}
-                        setSelectedCards={setSelectedQuestions1}
-                        maxSelected={2}
-                      />
-                    </CardStore>
-                  </IotaDbFilter>
+                  <StartPage
+                    subject="What is Undebate?"
+                    description="Undebate is an eleifend ipsum nibh massa ultiricies leo. Enim, tristique elit tempus senectus tempor augue. Enim mauris posuere dolor lacus. Egestas aliquam tellus id tristique. Accumsan id semper et sed fringilla vitae vitae eu."
+                    buttonName="CONTINUE"
+                    textSize="small"
+                  />
+                  <ComponentListSlider NavBar={NavBar}>
+                    <Ask
+                      majorLine="What topics would you like to ask the candidates"
+                      minorLine="What questions do you have regarding the topics"
+                      asks={asks}
+                    />
+                    <CardListGrouper store={'topicStore'} />
+                    <CardListSelector
+                      store={'topicStore'}
+                      selectedCards={selectedCards}
+                      setSelectedCards={setSelectedCards}
+                      maxSelected={2}
+                    />
+                    <CardListGrouper store={'question0Store'} />
+                    <CardListSelector
+                      store={'question0Store'}
+                      selectedCards={selectedQuestions0}
+                      setSelectedCards={setSelectedQuestions0}
+                      maxSelected={2}
+                    />
+                    <CardListGrouper store={'question1Store'} />
+                    <CardListSelector
+                      store={'question1Store'}
+                      selectedCards={selectedQuestions1}
+                      setSelectedCards={setSelectedQuestions1}
+                      maxSelected={2}
+                    />
+                  </ComponentListSlider>
+                  <Panel backGroundColor="aqua" />
+                  <Panel backGroundColor="magenta" />
                 </ComponentListSlider>
-              </CardStore>
+              </IotaDbFilter>
             </IotaDbFilter>
-            <Panel backGroundColor="aqua" />
-            <Panel backGroundColor="magenta" />
-          </ComponentListSlider>
+          </IotaDbFilter>
         </IotaDb>
       </div>
     </div>

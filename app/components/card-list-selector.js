@@ -16,16 +16,17 @@ const rootBackgroundColor = '#E5E5E5'
 
 export const CardListSelector = props => {
   const {
-    cardStore,
+    store,
     selectedCards,
     setSelectedCards,
     maxSelected = 2,
     onDone,
+    topicCard,
     majorLine = 'Select 2 topics that are most important to you.',
     minorLine,
     ...otherProps
   } = props
-  const { methods, methodState } = cardStore
+  const { methods, methodState } = props[store]
   const cards = methodState.cards
   if (typeof selectedCards === 'undefined') {
     console.error('CardListSelector: selectedCards must be defined by parent')
@@ -49,7 +50,7 @@ export const CardListSelector = props => {
       if (methodState.cards.some(crd => crd._id === card._id)) _selectedCards.push(card)
     }
     if (_selectedCards.length !== selectedCards.length) setSelectedCards(_selectedCards)
-  }, [cardStore]) //methodState.cards never changes but cardStore will change when there are changes
+  }, [props[store]]) //methodState.cards never changes but cardStore will change when there are changes
   return (
     <>
       <div className={classes.list} key="card-list">
@@ -59,7 +60,7 @@ export const CardListSelector = props => {
             if (card.cards.length) {
               return (
                 <div key={card._id} className={classes.topic}>
-                  <CardStack key={card._id} defaultShape="minimized-view" cards={card.cards} cardStore={cardStore} />
+                  <CardStack key={card._id} defaultShape="minimized-view" cards={card.cards} cardStore={props[store]} />
                   {selectedCards.includes(card) && (
                     <div className={classes.selected}>
                       <div className={classes.selectedInner}>

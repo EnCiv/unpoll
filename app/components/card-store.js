@@ -31,7 +31,7 @@ function isCardInCards(card, cards) {
   return false
 }
 export const CardStore = props => {
-  const { children, initialState, ...otherProps } = props
+  const { children, initialState, store, ...otherProps } = props
   if (!initialState.iteration) initialState.iteration = 0
   const [prev, neverSetPrev] = useState({ initialState })
 
@@ -110,10 +110,8 @@ export const CardStore = props => {
       }
     }
   }
-
-  //return React.cloneElement(React.Children.only(children), { ...otherProps, cardStore: { methodState, methods } })
   return React.Children.map(children, child =>
-    React.cloneElement(child, { ...otherProps, cardStore: { methodState, methods } })
+    React.cloneElement(child, { ...otherProps, [store]: { methodState, methods } })
   )
 }
 
