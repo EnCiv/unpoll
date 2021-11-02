@@ -54,7 +54,11 @@ export default function Unpoll(props) {
   return (
     <div className={classes.unpollViewPort} style={{ backgroundColor }}>
       <div className={classes.unpollWrapper}>
-        <IotaDb onDone={toggleBackgroundColor} {...props}>
+        <IotaDb
+          onDone={toggleBackgroundColor}
+          query={['get-topics-and-questions', props.unmobQuestionId, 0]}
+          {...props}
+        >
           <IotaDbFilter store={'topicStore'} filter={topicFilter}>
             <IotaDbFilter store={'question0Store'} filter={questionFilter0} dependencies={cardStoreProp}>
               <IotaDbFilter store={'question1Store'} filter={questionFilter1} dependencies={cardStoreProp}>

@@ -16,7 +16,7 @@ import React, { useRef, useState, useEffect, useLayoutEffect, useMemo, useReduce
 */
 export function IotaDb(props) {
   const { user, unmobQuestionId } = props // separate because these props should be in otherProps to pass to children
-  const { children, ...otherProps } = props
+  const { children, query, ...otherProps } = props
   const [state, dispatch] = useReducer((state, action) => ({ iteration: state.iteration + 1 }), { iteration: 0 }) // action doesn't matter - always increment iteration
   if (!user) return <div style={{ color: 'white', width: '100%', textAlign: 'center' }}>User Login Required</div>
   if (typeof socket === 'undefined') {
@@ -34,7 +34,7 @@ export function IotaDb(props) {
   if (!IotaDb.data && !IotaDb.subscribers) {
     // the first one through
     IotaDb.subscribers = [] // the first instance won't rerender unless we put dispatch here
-    socket.emit('get-topics-and-questions', unmobQuestionId, 0, results => {
+    socket.emit(...query, results => {
       IotaDb.data = results
       for (const subscriber of IotaDb.subscribers) subscriber()
     })
