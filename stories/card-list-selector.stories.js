@@ -11,6 +11,7 @@ export default {
 
 const Template = args => {
   const [backgroundColor, setBackgroundColor] = useState('white')
+  const [selectedCards, setSelectedCards] = useState(args.selectedCards || [])
   return (
     <div style={{ width: '100vw', minHeight: '100vh', backgroundColor: backgroundColor }}>
       <div
@@ -26,6 +27,8 @@ const Template = args => {
       >
         <CardStore
           {...args}
+          selectedCards={selectedCards}
+          setSelectedCards={setSelectedCards}
           onDone={e => (backgroundColor === 'white' ? setBackgroundColor('black') : setBackgroundColor('white'))}
         >
           <CardListSelector />
@@ -47,9 +50,16 @@ const cards = [
   { _id: 'abc131', description: 'Public Schools' },
 ]
 
+var selectedCards = []
+var setSelectedCards = val => (selectedCards = val)
+
 export const CardListNormal = Template.bind({})
-CardListNormal.args = { defaultValue: cards, selectedCards: [], maxSelected: 2 }
+CardListNormal.args = { initialState: { cards }, selectedCards, maxSelected: 2 }
 
 export const CardList1Selected = Template.bind({})
 
-CardList1Selected.args = { defaultValue: cards, selectedCards: [cards[1]], maxSelected: 2 }
+CardList1Selected.args = {
+  initialState: { cards },
+  selectedCards: [cards[1]],
+  maxSelected: 2,
+}
