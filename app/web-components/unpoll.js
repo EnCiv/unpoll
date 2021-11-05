@@ -6,9 +6,9 @@ import StartPage from '../components/start-page'
 import Ask from '../components/ask'
 import CardListGrouper from '../components/card-list-grouper'
 import CardListSelector from '../components/card-list-selector'
-import CardStore from '../components/card-store'
 import IotaDb from '../components/iota-db'
 import IotaDbFilter from '../components/iota-db-filter'
+import IotaDbInput from '../components/iota-db-input'
 
 const storybookPadding = '0px' // it padds the iframe with 1rem all around
 
@@ -76,11 +76,13 @@ export default function Unpoll(props) {
                     textSize="small"
                   />
                   <ComponentListSlider NavBar={NavBar}>
-                    <Ask
-                      majorLine="What topics would you like to ask the candidates"
-                      minorLine="What questions do you have regarding the topics"
-                      asks={asks}
-                    />
+                    <IotaDbInput>
+                      <Ask
+                        majorLine="What topics would you like to ask the candidates"
+                        minorLine="What questions do you have regarding the topics"
+                        asks={asks}
+                      />
+                    </IotaDbInput>
                     <CardListGrouper store={'topicStore'} />
                     <CardListSelector
                       store={'topicStore'}
@@ -129,9 +131,15 @@ const Panel = props => (
 
 var selectedCards = []
 
-var asks = [
-  { topic1: '', question1: '' },
-  { topic2: '', question2: '' },
+const asks = [
+  [
+    { name: 'Topic 1', defaultValue: '', maxLength: 50 },
+    { name: 'Question 1', defaultValue: '', maxLength: 280 },
+  ],
+  [
+    { name: 'Topic 2', defaultValue: '', maxLength: 50 },
+    { name: 'Question 2', defaultValue: '', maxLength: 280 },
+  ],
 ]
 
 const useStyles = createUseStyles({

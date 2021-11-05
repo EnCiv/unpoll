@@ -64,6 +64,7 @@
     "classnames": "^2.2.6",
     "compression-webpack-plugin": "^7.1.2",
     "isomorphic-mongo-objectid": "^1.0.9",
+    "lodash": "^4.17.21",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-flip-move": "^3.0.4",

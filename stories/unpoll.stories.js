@@ -27,6 +27,7 @@ const storybookPadding = '2rem' // it padds the iframe with 1rem all around
 
 const Template = args => {
   const [backgroundColor, setBackgroundColor] = useState('white')
+  const [selectedCards, setSelectedCards] = useState(args.selectedCards || [])
   return (
     <div
       style={{
@@ -46,7 +47,12 @@ const Template = args => {
           minHeight: `calc(100vh - ${storybookPadding})`,
         }}
       >
-        <Unpoll {...args} onDone={val => (val ? setBackgroundColor('black') : setBackgroundColor('white'))} />
+        <Unpoll
+          {...args}
+          selectedCards={selectedCards}
+          setSelectedCards={setSelectedCards}
+          onDone={val => (val ? setBackgroundColor('black') : setBackgroundColor('white'))}
+        />
       </div>
     </div>
   )
@@ -62,7 +68,6 @@ const Panel = props => (
   </div>
 )
 
-var selectedCards = []
 const cards = [
   { _id: 'abc123', description: 'Healthcare' },
   { _id: 'abc124', description: 'Social Justice' },
@@ -75,9 +80,15 @@ const cards = [
   { _id: 'abc131', description: 'Public Schools' },
 ]
 
-var asks = [
-  { topic1: '', question1: '' },
-  { topic2: '', question2: '' },
+const asks = [
+  [
+    { name: 'Topic 1', defaultValue: '', maxLength: 50 },
+    { name: 'Question 1', defaultValue: '', maxLength: 280 },
+  ],
+  [
+    { name: 'Topic 2', defaultValue: '', maxLength: 50 },
+    { name: 'Question 2', defaultValue: '', maxLength: 280 },
+  ],
 ]
 
 const list = [
@@ -99,16 +110,7 @@ const list = [
     asks={asks}
   />,
   <CardListGrouper />,
-  <CardListSelector selectedCards={selectedCards} maxSelected={2} />,
-
-  /*
-        <CardStoreListGrouper />
-    <CardStore >
-        <ComponentListSlider NavBar={NavBar} children={[
-            <CardListGrouper />,
-            <CardListSelector selectedCards={selectedCards} />
-        ]} />
-    </CardStore>,*/
+  <CardListSelector maxSelected={2} />,
 ]
 
 const subList = [
@@ -118,7 +120,7 @@ const subList = [
     asks={asks}
   />,
   <CardListGrouper />,
-  <CardListSelector selectedCards={selectedCards} maxSelected={2} />,
+  <CardListSelector maxSelected={2} />,
 ]
 
 function CardStoreListGrouper(props) {
@@ -130,10 +132,10 @@ function CardStoreListGrouper(props) {
 }
 const shortList = [<CardStoreListGrouper />]
 export const NoNavBar = Template.bind({})
-NoNavBar.args = { children: list, defaultValue: cards }
+NoNavBar.args = { children: list, initialState: { cards, iteration: 0 } }
 
 export const WithNavBar = Template.bind({})
-WithNavBar.args = { NavBar: NavBar, children: list, defaultValue: cards }
+WithNavBar.args = { NavBar: NavBar, children: list, initialState: { cards, iteration: 0 } }
 
 const list2 = [
   <StartPage
@@ -154,4 +156,4 @@ const list2 = [
 ]
 
 export const Nested = Template.bind({})
-Nested.args = { NavBar: undefined, children: list2, defaultValue: cards }
+Nested.args = { NavBar: undefined, children: list2, initialState: { cards, iteration: 0 } }
