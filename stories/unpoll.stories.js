@@ -8,6 +8,7 @@ import { Ask } from '../app/components/ask'
 import CardListGrouper from '../app/components/card-list-grouper'
 import CardListSelector from '../app/components/card-list-selector'
 import CardStore from '../app/components/card-store'
+import UserLogin from '../app/components/user-login'
 
 function Unpoll(props) {
   return (
@@ -104,6 +105,7 @@ const list = [
     buttonName="CONTINUE"
     textSize="small"
   />,
+  <UserLogin />,
   <Ask
     majorLine="What topics would you like to ask the candidates"
     minorLine="What questions do you have regarding the topics"

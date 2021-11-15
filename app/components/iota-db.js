@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect, useLayoutEffect, useMemo, useReducer } from 'react'
+import useSideEffects from '../lib/use-side-effects'
 
 // the first instance gets the data from the server
 // all instances will update once the data has been received
@@ -15,15 +16,10 @@ import React, { useRef, useState, useEffect, useLayoutEffect, useMemo, useReduce
 </IotaDb>
 */
 export function IotaDb(props) {
-  const { user, unmobQuestionId } = props // separate because these props should be in otherProps to pass to children
+  const { user } = props // separate because these props should be in otherProps to pass to children
   const { children, query, ...otherProps } = props
-  const [state, dispatch] = useReducer((state, action) => ({ iteration: state.iteration + 1 }), { iteration: 0 }) // action doesn't matter - always increment iteration
   if (!user) return <div style={{ color: 'white', width: '100%', textAlign: 'center' }}>User Login Required</div>
-  if (typeof socket === 'undefined') {
-    if (!IotaDb.subscribers) IotaDb.subscribers = []
-    if (!IotaDb.data) IotaDb.data = []
-    return children // probably running on storybook or the server
-  }
+  const [state, dispatch] = useReducer((state, action) => ({ iteration: state.iteration + 1 }), { iteration: 0 }) // action doesn't matter - always increment iteration
   useEffect(() => {
     return () => {
       console.info('unmounting IotaDb')
@@ -31,12 +27,23 @@ export function IotaDb(props) {
         console.error('but there are subscribers left', IotaDb.subscribers.length)
     }
   }, [])
+  const sideEffects = useSideEffects()
+
+  if (typeof socket === 'undefined') {
+    if (!IotaDb.subscribers) IotaDb.subscribers = []
+    if (!IotaDb.data) IotaDb.data = []
+    return children // probably running on storybook or the server
+  }
   if (!IotaDb.data && !IotaDb.subscribers) {
     // the first one through
     IotaDb.subscribers = [] // the first instance won't rerender unless we put dispatch here
     socket.emit(...query, results => {
       IotaDb.data = results
-      for (const subscriber of IotaDb.subscribers) subscriber()
+      sideEffects.push(() => {
+        // subscrbers will get updated after rerender below
+        for (const subscriber of IotaDb.subscribers) subscriber()
+      })
+      dispatch() // will case a rerender and children will get cloned and rendered
     })
   } else if (!IotaDb.data) {
     // no data yet, but request has been made
@@ -46,10 +53,12 @@ export function IotaDb(props) {
   } // else we have been here before
   if (!IotaDb.data) return <div style={{ color: 'white', width: '100%', textAlign: 'center' }}>Waiting for Iotas</div>
   else
-    return React.cloneElement(React.Children.only(children), {
-      ...otherProps,
-      iotaDb: { data: IotaDb.data, iteration: state.iteration },
-    })
+    return children
+      ? React.cloneElement(React.Children.only(children), {
+          ...otherProps,
+          iotaDb: { data: IotaDb.data, iteration: state.iteration },
+        })
+      : null
 }
 
 export default IotaDb
