@@ -80,6 +80,9 @@ export function useLogin(props) {
             password += String.fromCharCode(65 + Math.floor(Math.random() * 26)) // any character between A and Z
           }
 
+          if (!password || password.length < 8) loggger.error('skip password generation error', password)
+          if (userInfo.password) logger.error('skip - userInfo was', userInfo)
+
           superagent
             .post('/tempid')
             .send({ ...userInfo, email, password }) // don't want children to see password -
