@@ -80,8 +80,10 @@ export function useLogin(props) {
             password += String.fromCharCode(65 + Math.floor(Math.random() * 26)) // any character between A and Z
           }
 
+          // had problem on safari and samsung browsers where password was empty -
+          // added these checks but the problem went away - leaving the check in case it happens again
           if (!password || password.length < 8) loggger.error('skip password generation error', password)
-          if (userInfo.password) logger.error('skip - userInfo was', userInfo)
+          if (userInfo.password) logger.error('skip - userInfo.password was set')
 
           superagent
             .post('/tempid')
