@@ -2,7 +2,7 @@
 
 // https://github.com/EnCiv/unpoll/issues/25
 
-import React, { useState, useEffect, useLayoutEffect, useMemo, useReducer, useRef } from 'react'
+import React, { useState, useEffect, useLayoutEffect, useMemo, useReducer, useRef, useCallback } from 'react'
 import { createUseStyles } from 'react-jss'
 import cx from 'classnames'
 import shallowEqual from 'shallowequal'
@@ -20,14 +20,31 @@ export const ComponentListSlider = props => {
   const [navBarRect, setNavBarRect] = useState({ height: 0, width: 0, bottom: 0 })
   const [outerRect, setOuterRect] = useState({ height: 0, width: 0 })
   const [transitions, setTransitions] = useState(false)
+  const [_this] = useState({ timeout: 0, otherProps }) // _this object will exist through life of component so there is no setter it's like 'this'
 
   // resizeHandler needs to access outerRef and setOuterRec but never change so that the event can be removed
-  const [resizeHandler] = useState(() => () => {
+  // FTI resizeHandler gets called on initial render
+  const resizeHandler = useCallback(() => {
     if (outerRef.current) {
       let rect = outerRef.current.getBoundingClientRect()
-      if (rect.height && rect.width) setOuterRect(rect)
+      if (rect.height && rect.width) {
+        // there is an issue on smartphones when rotating from landscape to portrait where the screen ends up shows a split between two components
+        // to work around this we are turning of transitions and then turning them back on after the viewport size stableizes
+        if (_this.timeout) clearTimeout(_this.timeout)
+        else setTransitions(false) // careful - the value of transitions will never be changed inside this memorized callback
+        _this.timeout = setTimeout(() => {
+          if (outerRef.current) {
+            // just to make sure
+            let rect = outerRef.current.getBoundingClientRect()
+            if (rect.height && rect.width) setOuterRect(rect)
+          }
+          setTransitions(true)
+          _this.timeout = 0
+        }, 100)
+        setOuterRect(rect)
+      }
     }
-  })
+  }, [])
 
   // if window resizes we need to recalculate or so the boxes are same size as new viewport
   useEffect(() => {
@@ -36,10 +53,9 @@ export const ComponentListSlider = props => {
   }, [])
 
   // if the other props have changed, we need to rerender the children
-  // latest.otherProps is only changed if it's shallow - different
-  // latest is written directcly because we don't want to cause another rerender - we just want to save the value for next time
-  const [latest, neverSetLatest] = useState({ otherProps })
-  if (!shallowEqual(latest.otherProps, otherProps)) latest.otherProps = otherProps
+  // _this.otherProps is only changed if it's shallow - different
+  // _this is written directcly because we don't want to cause another rerender - we just want to save the value for next time
+  if (!shallowEqual(_this.otherProps, otherProps)) _this.otherProps = otherProps
 
   // has to be useLaoutEffect not useEffect or transitions will get enabled before the first render of the children and it will be blurry
   if (typeof window !== 'undefined')
@@ -81,7 +97,7 @@ export const ComponentListSlider = props => {
           onDone: val => val && dispatch({ type: 'increment' }),
         })
       ),
-    [children, latest.otherProps]
+    [children, _this.otherProps]
   )
   // don't enable transitions until after the children have been rendered or the initial render will be blurry
   // the delayedSideEffect is necessary to delay the transitions until after the initial render
