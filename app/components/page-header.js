@@ -17,6 +17,7 @@ export function PageHeader(props) {
 
 const useStyles = createUseStyles({
     PageHeader: {
+        marginBottom: "3rem",
         '& h1': {
             /* Bold 35 */
             position: 'static',
