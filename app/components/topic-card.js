@@ -16,7 +16,7 @@ export const TopicCard = React.forwardRef((props, ref) => {
   const classes = useStyles(props)
   return (
     <div
-      active={shape !== 'minimized' ? "true" : "false"}
+      active={shape !== 'minimized' ? 'true' : 'false'}
       className={cx(className, classes.topic, shape)}
       style={style}
       {...otherProps}
@@ -24,7 +24,13 @@ export const TopicCard = React.forwardRef((props, ref) => {
       key={topicObj._id}
     >
       {topicObj.description || '    '}
-      {onToggleSelect && <div className={classes.clickable} onClick={() => onToggleSelect(topicObj._id)} key={'clickable' + topicObj._id} />}
+      {onToggleSelect && (
+        <div
+          className={classes.clickable}
+          onClick={() => onToggleSelect(topicObj._id)}
+          key={'clickable' + topicObj._id}
+        />
+      )}
     </div>
   )
 })
@@ -42,8 +48,7 @@ const useStyles = createUseStyles({
     fontStyle: 'normal',
     fontWeight: 500,
     padding: '2rem',
-    '&.minimized': {
-    },
+    '&.minimized': {},
     '&.lead': {
       backgroundColor: 'orange',
     },
@@ -56,12 +61,12 @@ const useStyles = createUseStyles({
     pointerEvents: 'auto',
     position: 'absolute',
     height: '100%',
-    width: '15%',
+    width: '100%',
     top: 0,
     left: 0,
     '&:hover': {
-      cursor: 'pointer'
-    }
+      cursor: 'pointer',
+    },
   },
 })
 
