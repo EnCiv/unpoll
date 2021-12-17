@@ -8,7 +8,7 @@ import cx from 'classnames'
 import CardStack from './card-stack'
 import TopicCard from './topic-card'
 import ActionCard from './action-card'
-import useMethods from '../lib/use-methods'
+import useMethods from 'use-methods'
 import PageHeader from './page-header'
 import TopicHeader from './topic-header'
 

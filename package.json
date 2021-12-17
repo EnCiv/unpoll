@@ -1,7 +1,7 @@
 {
-  "name": "civil-server-template",
-  "version": "0.0.0",
-  "description": "A template to clone, to quicly get started with civil-server",
+  "name": "unpoll",
+  "version": "0.0.1",
+  "description": "How thousands of people work together to figure out a few questions to ask the candidates, democratically and productively",
   "main": "index.js",
   "scripts": {
     "dev": "echo \"these delays need to be kept up to date\" && concurrently -k \"npm run hot-transpile\" \"sleep 20 && npm run hot-server\" \"sleep 15 && npm run hot-client\"",
@@ -19,7 +19,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/EnCiv/civil-server-template.git"
+    "url": "git+https://github.com/EnCiv/unpoll.git"
   },
   "keywords": [
     "node",
@@ -35,9 +35,9 @@
   "author": "David Fridley",
   "license": "SEE LICENSE IN license.txt",
   "bugs": {
-    "url": "https://github.com/EnCiv/civil-server-template/issues"
+    "url": "https://github.com/EnCiv/unpoll/issues"
   },
-  "homepage": "https://github.com/EnCiv/civil-server-template#readme",
+  "homepage": "https://github.com/EnCiv/unpoll#readme",
   "devDependencies": {
     "@babel/cli": "^7.12.10",
     "@svgr/cli": "^5.5.0",
@@ -76,6 +76,7 @@
     "react-textarea-autosize": "^8.3.3",
     "shallowequal": "^1.1.0",
     "superagent": "^6.1.0",
+    "use-methods": "github:EnCiv/use-methods",
     "webpack": "^4.46.0",
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.2"

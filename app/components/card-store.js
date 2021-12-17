@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect, useLayoutEffect, useMemo, useReducer } from 'react'
 
-import useMethods from '../lib/use-methods'
+import useMethods from 'use-methods'
 
 /**
  methodState: {
