@@ -82,7 +82,7 @@
     "use-methods": "github:EnCiv/use-methods"
   },
   "engines": {
-    "node": ">=16.x.x",
+    "node": ">=16.x.x <17",
     "npm": ">=8.x.x"
   }
 }
