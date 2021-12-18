@@ -354,8 +354,9 @@ export function CardStack(props) {
         >
           <div className={classes.controlsItem} />
           <div className={classes.controlsItem} />
-          <div className={cx(classes.controlsItem, classes.pointerEvents)}>
+          <div className={cx(classes.controlsItem)}>
             <SvgCaretDown
+              className={classes.pointerEvents}
               style={{
                 transition: '0.5s linear all',
                 transform:

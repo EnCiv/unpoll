@@ -119,7 +119,7 @@ const useStyles = createUseStyles({
   clickable: {
     position: 'absolute',
     height: '6rem',
-    width: '6rem',
+    width: '100%',
     top: 0,
     left: 0,
     '&:hover': {
