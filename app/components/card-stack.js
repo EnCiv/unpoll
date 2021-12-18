@@ -4,7 +4,7 @@
 
 import React, { useState, useLayoutEffect, useMemo, useEffect, useReducer } from 'react'
 import ReactDom from 'react-dom'
-import useMethods from '../lib/use-methods'
+import useMethods from 'use-methods'
 import { createUseStyles } from 'react-jss'
 import cx from 'classnames'
 import SvgTrashCan from '../svgr/trash-can'
