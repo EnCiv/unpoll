@@ -1,6 +1,6 @@
 // https://github.com/EnCiv/unpoll/issues/25
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import ComponentListSlider from '../app/components/component-list-slider'
 import NavBar from '../app/components/nav-bar'
 import StartPage from '../app/components/start-page'
@@ -27,6 +27,7 @@ export default {
 const storybookPadding = '2rem' // it padds the iframe with 1rem all around
 
 const Template = args => {
+  // stubbing for sockets for useAuth are in .storybook/preview.js
   const [backgroundColor, setBackgroundColor] = useState('white')
   const [selectedCards, setSelectedCards] = useState(args.selectedCards || [])
   return (
@@ -92,6 +93,12 @@ const asks = [
   ],
 ]
 
+// after the user logs in, call OnDone to go to the next page in the story
+function OnDoneOnLoggedIn(props) {
+  useEffect(() => props.onDone && props.onDone(true), []) // if user is or does log in - call onDone
+  return <div>logged in</div>
+}
+
 const list = [
   <StartPage
     subject="Hello!"
@@ -105,7 +112,9 @@ const list = [
     buttonName="CONTINUE"
     textSize="small"
   />,
-  <UserLogin />,
+  <UserLogin>
+    <OnDoneOnLoggedIn />
+  </UserLogin>,
   <Ask
     majorLine="What topics would you like to ask the candidates"
     minorLine="What questions do you have regarding the topics"
@@ -125,14 +134,6 @@ const subList = [
   <CardListSelector maxSelected={2} />,
 ]
 
-function CardStoreListGrouper(props) {
-  return (
-    <CardStore {...props}>
-      <CardListGrouper />
-    </CardStore>
-  )
-}
-const shortList = [<CardStoreListGrouper />]
 export const NoNavBar = Template.bind({})
 NoNavBar.args = { children: list, initialState: { cards, iteration: 0 } }
 
