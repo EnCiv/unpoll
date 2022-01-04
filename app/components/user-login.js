@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect, useLayoutEffect, useMemo, useReducer } from 'react'
 import { createUseStyles } from 'react-jss'
-import { useLogin } from './login-store'
+import { useAuth } from 'civil-client'
 import cx from 'classnames'
 import InputElement from './input-element'
 import CheckButton from './check-button'
@@ -10,21 +10,22 @@ export function UserLogin(props) {
   const { userInfo = {} } = props // these props should be passed to children in otherProps
   const classes = useStyles()
   function onChange(userInfo) {
-    console.info({ ...userInfo, ...props.userInfo })
+    setAuthUserInfo(userInfo)
   }
-  const [state, methods] = useLogin({ ...props, onChange })
+  const [state, methods] = useAuth(onChange, userInfo)
 
   const [sideEffects] = useState([])
   useEffect(() => {
     while (sideEffects.length) sideEffects.shift()()
   })
-  const [authenticated, setAuthenticated] = useState(!!props.user)
-  if (authenticated && props.user)
-    // if calling skip- have to wait for authentication and the user info to be refreshed
-    return React.Children.map(children, child =>
-      React.cloneElement(child, {
-        ...otherProps,
-      })
+  const [authUserInfo, setAuthUserInfo] = useState(!!props.user) // undefined or null if user not logged in
+  if (authUserInfo && props.user)
+    return (
+      React.Children.map(children, child =>
+        React.cloneElement(child, {
+          ...otherProps,
+        })
+      ) || null
     )
   else
     return (
@@ -50,14 +51,7 @@ export function UserLogin(props) {
               className={classes.agreeLine}
               onDone={(done, value) => {
                 done && methods.onChangeAgree(value)
-                done &&
-                  value &&
-                  !state.errpr &&
-                  sideEffects.push(() =>
-                    methods.skip(results => {
-                      setAuthenticated(true)
-                    })
-                  )
+                done && value && !state.error && sideEffects.push(() => methods.skip())
               }}
             />
           </span>
