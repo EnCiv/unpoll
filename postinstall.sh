@@ -22,6 +22,9 @@ cp node_modules/civil-server/node_modules/socket.io-stream/socket.io-stream.js .
 mkdir -p ./assets/images
 cp -r node_modules/civil-server/assets/images ./assets/images
 
+mkdir -p ./assets/css
+cp ./node_modules/react-perfect-scrollbar/dist/css/styles.css assets/css/react-perfect-scrollbar.css
+
 echo '***'
 echo Svgr
 echo '***'

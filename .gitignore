@@ -69,6 +69,7 @@ dist/
 assets/webpack/
 ## ignore js files created by other node_modules to be loaded by the browser
 assets/js/
+assets/css/
 
 # database backups and such don't go to repo
 backups/
