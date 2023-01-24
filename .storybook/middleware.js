@@ -1,6 +1,3 @@
-// Storybook is run on an express server, and this middleware fill lets routes be added
-// To test the AuthForm component we need to handle the post request and give a response
-
-const expressMiddleWare = require('civil-client/.storybook/middleware')
-
-module.exports = expressMiddleWare
+const clientMiddleware=require("civil-client/.storybook/middleware")
+module.exports=clientMiddleware
+//middleware is a function - not an object. If you want to make changes you will have replace this

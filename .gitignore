@@ -69,7 +69,6 @@ dist/
 assets/webpack/
 ## ignore js files created by other node_modules to be loaded by the browser
 assets/js/
-assets/css/
 
 # database backups and such don't go to repo
 backups/
@@ -77,6 +76,7 @@ backups/
 #private stuff 
 _netrc
 .vscode/launch.*
+.idea
 yarn.lock
 
 # svgr files are generated from assets/svg using svgr
@@ -86,9 +86,15 @@ app/svgr
 cypress/videos
 cypress/screenshots
 
-#web-components index is auto generated
+#this index is auto generated
 app/web-components/index.js
 app/data-components/index.js
 
-#less history
+#this is used by Jest-mongodb for testing only -
+globalConfig.json
+
+#less history frequently genereated by the bash shell
 .lesshst
+
+# auto copied
+assets/css/react-perfect-scrollbar.css

@@ -9,13 +9,20 @@
     "hot-server": "nodemon --inspect dist/start.js",
     "hot-transpile": "babel --watch app --ignore **/__tests__ --out-dir dist --source-maps",
     "packbuild": "webpack --config webpack-prod.config.js",
-    "prepare": "bash postinstall.sh",
+    "prepare": "bash build.sh",
     "start": "node --max_old_space_size=460 dist/start.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "transpile": "babel app --ignore **/__tests__ --out-dir dist --source-maps",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
-    "svgr": "svgr --icon --filename-case kebab assets/svg --out-dir app/svgr && rm app/svgr/index.js"
+    "svgr": "svgr --icon --filename-case kebab assets/svg --out-dir app/svgr && rm app/svgr/index.js",
+    "test:coverage": "npm test -- --coverage",
+    "test:watch": "npm test -- --watch",
+    "cypress": "cypress open",
+    "cypress:headless": "cypress run --headless --browser chrome",
+    "mongo:delete-user": "bash -c 'mongo --eval \"db.users.remove({email: \\\"$0\\\"})\"'",
+    "hot-server-no-inspect": "nodemon dist/start.js",
+    "dev-no-inspect": "echo \"these delays need to be kept up to date\" && concurrently -k \"npm run hot-transpile\" \"sleep 20 && npm run hot-server-no-inspect\" \"sleep 15 && npm run hot-client\""
   },
   "repository": {
     "type": "git",
@@ -63,11 +70,16 @@
     "nodemon": "^2.0.15",
     "webpack": "^5.65.0",
     "webpack-cli": "^4.9.1",
-    "webpack-dev-server": "^4.6.0"
+    "webpack-dev-server": "^4.6.0",
+    "enzyme": "^3.11.0",
+    "enzyme-adapter-react-16": "^1.15.6",
+    "husky": "^4.3.8",
+    "jest": "^27.4.5",
+    "jest-enzyme": "^7.1.2",
+    "prettier": "^2.5.1",
+    "pretty-quick": "^3.1.2"
   },
   "dependencies": {
-    "civil-client": "github:EnCiv/civil-client",
-    "civil-server": "github:EnCiv/civil-server",
     "classnames": "^2.3.1",
     "isemail": "^3.2.0",
     "isomorphic-mongo-objectid": "^1.0.9",
@@ -84,7 +96,24 @@
     "use-methods": "github:EnCiv/use-methods"
   },
   "engines": {
-    "node": ">=16.x.x <17",
-    "npm": ">=8.x.x"
+    "node": "16.16.0"
+  },
+  "optionalDependencies": {
+    "@shelf/jest-mongodb": "^2.2.0",
+    "concurrently": "^6.4.0",
+    "cypress": "^9.1.1",
+    "enzyme": "^3.11.0",
+    "enzyme-adapter-react-16": "^1.15.6",
+    "husky": "^4.3.8",
+    "jest": "^27.4.4",
+    "jest-enzyme": "^7.1.2",
+    "nodemon": "^2.0.15",
+    "prettier": "^2.5.1",
+    "pretty-quick": "^3.1.2",
+    "webpack-dev-server": "^4.6.0"
+  },
+  "peerDependencies": {
+    "civil-client": "github:EnCiv/civil-client",
+    "civil-server": "github:EnCiv/civil-server"
   }
 }
