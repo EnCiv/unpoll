@@ -2,7 +2,7 @@
 
 This is how 1000's of voters work together to democratically determine the best 4 (or so) questions to ask the candidates of an [undebate](github.com/EnCiv/undebate). It's also a great way for constituents to figure out the top 4 (or so) priorities for the representatives to address. Read more at [Crowdsourcing Candidate Questions](https://www.linkedin.com/pulse/crowdsourcing-candidate-questions-david-fridley)
 
-If you would like to contribute to this project, join the [#undebate](https://www.hackforla.org/projects/undebate) project at hackforla.org
+If you are interested in contributing to this project, join [Open San Diego](https://opensandiego.org) and look for the EnCiv project.
 
 **Copyright 2021 EnCiv, Inc.** This work is licensed under the terms described in [LICENSE.txt](https://github.com/EnCiv/undebate/blob/master/LICENSE.txt) which is an MIT license with a Public Good License Condition
 
