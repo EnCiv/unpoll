@@ -27,9 +27,8 @@ Choose "Git Bash"
 Then open a git-bash shell - on VSC use Control-\`
 
 ```
-    mkdir my-app
-    git clone https://github.com/EnCiv/unmob
-    cd unmob
+    git clone https://github.com/EnCiv/unpoll
+    cd unpoll
     npm install
 ```
 
