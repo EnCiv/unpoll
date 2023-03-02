@@ -98,3 +98,6 @@ globalConfig.json
 
 # auto copied
 assets/css/react-perfect-scrollbar.css
+
+# tmp directory is used by dbup/down for mongo
+tmp/
