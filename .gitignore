@@ -92,3 +92,6 @@ app/data-components/index.js
 
 #less history
 .lesshst
+
+#csv
+.csv
