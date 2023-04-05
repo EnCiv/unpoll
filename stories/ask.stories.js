@@ -49,3 +49,10 @@ Normal.args = {
   minorLine: 'What questions do you have regarding the topics',
   asks,
 }
+
+export const Simplified = Template.bind({})
+Simplified.args = {
+  majorLine: "What questions do you want to ask the Presidential Candidates?",
+  minorLine: "Please think of 2",
+  asks: [[{ name: 'Questions 1', defaultValue: '', maxLength: 280 }], [{ name: 'Question 2', defaultValue: '', maxLength: 280 }]]
+}
