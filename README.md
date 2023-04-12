@@ -2,6 +2,10 @@
 
 This is how 1000's of voters work together to democratically determine the best 4 (or so) questions to ask the candidates of an [undebate](github.com/EnCiv/undebate). It's also a great way for constituents to figure out the top 4 (or so) priorities for the representatives to address. Read more at [Crowdsourcing Candidate Questions](https://www.linkedin.com/pulse/crowdsourcing-candidate-questions-david-fridley)
 
+Here is the current working demo version:
+[<img width="749" alt="image" src="https://user-images.githubusercontent.com/3317487/231337547-3feeaf98-c606-40c1-86ea-065add3f7908.png">](https://unmob.herokuapp.com/unpoll)
+
+
 If you are interested in contributing to this project, join [Open San Diego](https://opensandiego.org) and look for the EnCiv project.
 
 **Copyright 2021 EnCiv, Inc.** This work is licensed under the terms described in [LICENSE.txt](https://github.com/EnCiv/undebate/blob/master/LICENSE.txt) which is an MIT license with a Public Good License Condition
@@ -31,6 +35,12 @@ Then open a git-bash shell - on VSC use Control-\`
     cd unpoll
     npm install
 ```
+### Storybook
+After you have gotten this far, you should be able to run Storybook and see all the components:
+```
+npm run storybook
+```
+<img width="1920" alt="image" src="https://user-images.githubusercontent.com/3317487/231336940-2228b0a4-07c5-48cd-acf1-cf9304c89130.png">
 
 ### MongoDB
 
@@ -56,6 +66,8 @@ npm run dev
 You will now be able to go to http://localhost:3012
 
 ### Run it in the cloud on heroku
+
+Heroku now charges a fee, and it's not necessary to use it for development. Almost everything can be done and tested on the dev server, if not in storybook. But here's how to do heroku:
 
 This assumes you have already created your heroku account at heroku.com and that you have installed the heroku command line interface (CLI) from https://devcenter.heroku.com/articles/heroku-cli
 
