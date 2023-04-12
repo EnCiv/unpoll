@@ -63,7 +63,7 @@ source .bashrc
 npm run dev
 ```
 
-You will now be able to go to http://localhost:3012
+You will now be able to go to http://localhost:3011
 
 ### Run it in the cloud on heroku
 
