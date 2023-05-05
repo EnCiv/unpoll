@@ -168,7 +168,9 @@ var calculatePairAgreement = function (pair, groups) {
         // console.log('\nThis group:');
         // console.log(group);
         let foundA = false;
+        let locA = -1;
         let foundB = false;
+        let locB = -1;
         for (let j = 0; j < group.length; j++) {
             const statements = Array.from(group[j]);
             // console.log('\nThis statement:');
@@ -176,17 +178,20 @@ var calculatePairAgreement = function (pair, groups) {
             for (let k = 0; k < statements.length; k++) {
                 if (statements[k]._id == pair[0]) {
                     foundA = true;
+                    locA = j;
                 }
                 if (statements[k]._id == pair[1]) {
                     foundB = true;
+                    locB = j;
                 }
             }
         }
         if (foundA && foundB) {
-            agreeCount++;
-        }
-        if (foundA || foundB) {
-            totalCount++;
+            if (locA == locB) {
+                agreeCount++;
+            } else {
+                totalCount++;
+            }
         }
     }
     // console.log('\nThis pair:');
@@ -198,7 +203,8 @@ var calculatePairAgreement = function (pair, groups) {
     // console.log('\nagree rate:');
     var res = agreeCount / totalCount;
     // console.log(res);
-    return totalCount > 0 && agreeCount / totalCount > 0.1;
+
+    return totalCount > 0 && agreeCount / totalCount > 0.5;
 }
 
 var calculateGroupings = function (statements, groups) {
