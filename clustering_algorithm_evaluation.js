@@ -22,25 +22,35 @@ groups = generate.generate_groups(TOTALUSERS, USERSTATEMENTS, OTHERSTATEMENTS, T
 // console.log('\nGroups:');
 // console.log(groups);
 
+var groupings = [];
+
+// get the agree groups results here
+groupings = generate.calculateGroupings(statements, groups);
+
+console.log('\nGroupRes:');
+console.log(groupings);
+
+
 // PART 2: clustering algroithm
 
-// Type1: DBSCAN
-var clustering = require('./clustering')
-var EPSILON = 1; // the maximum distance between two points to be considered as part of the same cluster
-var MINPTS = 5;  // the minimum number of points required to form a cluster
-var dbscanRes = [];
-var opticsRes = [];
-var hierarchicalRes = [];
+// // Type1: DBSCAN
+// var clustering = require('./clustering')
+// var EPSILON = 1; // the maximum distance between two points to be considered as part of the same cluster
+// var MINPTS = 5;  // the minimum number of points required to form a cluster
+// var dbscanRes = [];
+// var opticsRes = [];
 
-dbscanRes = clustering.dbscan_res(statements, EPSILON, MINPTS);
-opticsRes = clustering.optics_res(statements, EPSILON, MINPTS);
-// hierarchicalRes = clustering.hierarchical_res(statements);
+// var hierarchicalRes = [];
 
-console.log('dbscanRes:\n');
-console.log(dbscanRes);
+// // dbscanRes = clustering.dbscan_res(statements, EPSILON, MINPTS);
+// // opticsRes = clustering.optics_res(statements, EPSILON, MINPTS);
+// hierarchicalRes = clustering.hierarchical_res(groups);
 
-console.log('opticsRes:\n');
-console.log(opticsRes);
+// // console.log('dbscanRes:\n');
+// // console.log(dbscanRes);
+
+// // console.log('opticsRes:\n');
+// // console.log(opticsRes);
 
 // console.log('hierarchicalRes:\n');
 // console.log(hierarchicalRes);

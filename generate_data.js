@@ -30,6 +30,7 @@ var generate_statements = function (total_users, user_statements, number_boundar
     return statements;
 }
 
+
 var generate_groups = function (total_users, user_statements, other_statements, type1, type2) {
     const diff1Groupings = Math.floor(total_users * type1 / 100);
     const diff2Groupings = Math.floor(total_users * (type1 + type2) / 100);
@@ -138,13 +139,102 @@ var generate_groups = function (total_users, user_statements, other_statements, 
             groupings: groupings,
             allStatements: allStatements,
         });
-
     }
 
+    return groups;
+
 }
+
+// Define a function to generate pairs of statement IDs
+var generatePairs = function (statements) {
+    const pairs = [];
+    for (let i = 0; i < statements.length; i++) {
+        for (let j = i + 1; j < statements.length; j++) {
+            pairs.push([statements[i]._id, statements[j]._id]);
+        }
+    }
+
+    // console.log('\npairs:');
+    // console.log(pairs);
+
+    return pairs;
+}
+
+var calculatePairAgreement = function (pair, groups) {
+    let agreeCount = 0;
+    let totalCount = 0;
+    for (let i = 0; i < groups.length; i++) {
+        const group = groups[i].groupings;
+        // console.log('\nThis group:');
+        // console.log(group);
+        let foundA = false;
+        let foundB = false;
+        for (let j = 0; j < group.length; j++) {
+            const statements = Array.from(group[j]);
+            // console.log('\nThis statement:');
+            // console.log(statements);
+            for (let k = 0; k < statements.length; k++) {
+                if (statements[k]._id == pair[0]) {
+                    foundA = true;
+                }
+                if (statements[k]._id == pair[1]) {
+                    foundB = true;
+                }
+            }
+        }
+        if (foundA && foundB) {
+            agreeCount++;
+        }
+        if (foundA || foundB) {
+            totalCount++;
+        }
+    }
+    // console.log('\nThis pair:');
+    // console.log(pair);
+    // console.log('\nThis agreeCount:');
+    // console.log(agreeCount);
+    // console.log('\nThis totalCount:');
+    // console.log(totalCount);
+    // console.log('\nagree rate:');
+    var res = agreeCount / totalCount;
+    // console.log(res);
+    return totalCount > 0 && agreeCount / totalCount > 0.1;
+}
+
+var calculateGroupings = function (statements, groups) {
+    const pairs = generatePairs(statements);
+    const groupedPairs = new Set();
+    for (let i = 0; i < pairs.length; i++) {
+        const pair = pairs[i].sort();
+        if (!groupedPairs.has(pair)) {
+            if (calculatePairAgreement(pair, groups)) {
+                groupedPairs.add(pair);
+            }
+        }
+    }
+    const groupings = [];
+    for (const pair of groupedPairs) {
+        let foundGroup = false;
+        for (let i = 0; i < groupings.length; i++) {
+            const group = groupings[i];
+            if (group.includes(pair[0]) || group.includes(pair[1])) {
+                group.push(pair[0], pair[1]);
+                foundGroup = true;
+                break;
+            }
+        }
+        if (!foundGroup) {
+            groupings.push([pair[0], pair[1]]);
+        }
+    }
+    return groupings;
+}
+
 
 module.exports = {
     generate_users,
     generate_statements,
-    generate_groups
+    generate_groups,
+    generatePairs,
+    calculateGroupings,
 }
